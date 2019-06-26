@@ -17,23 +17,6 @@ class ParchKey {
         this.id = id;
     }
 
-    //-- Accessors and Mutators --\\
-    get name() {
-        return this.name;
-    }
-
-    set name(value) {
-        this.name = value;
-    }
-
-    get id() {
-        return this.id;
-    }
-
-    set id(value) {
-        this.id = value;
-    }
-
     //-- Validation --\\
     validate() {
         // We want to treat this like an abstract function.
