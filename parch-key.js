@@ -31,6 +31,7 @@ class ParchKey {
             console.log('ParchKey: Field "id" cannot be empty.');
             return false;
         }
+        return true;
     }
 }
 
