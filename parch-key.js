@@ -18,9 +18,19 @@ class ParchKey {
     }
 
     //-- Validation --\\
+    /**
+     * Validate the name and id fields. Does not validate uniqueness.
+     * @returns {boolean} false if either name or id are empty, true otherwise.
+     */
     validate() {
-        // We want to treat this like an abstract function.
-        throw new Error('Validate function has not been implemented.');
+        if (this.name === '') {
+            console.log('ParchKey: Field "name" cannot be empty.');
+            return false;
+        }
+        if (this.id === '') {
+            console.log('ParchKey: Field "id" cannot be empty.');
+            return false;
+        }
     }
 }
 
