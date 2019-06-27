@@ -16,7 +16,16 @@ class Port {
      * component.
      * @type {Coord}
      */
-    pos;
+    pos = new Coord();
+
+    /**
+     * Initialize all values to default.
+     *
+     * @class
+     *
+     * @since 1.0.0
+     */
+    constructor() {}
 
     /**
      * @class
@@ -44,6 +53,16 @@ class Port {
      * @see Coord.validate
      */
     validate() {
+        let p = new Port();
+
+        if (this.label === p.label) {
+            console.log('Port: Field "label is set to the default value');
+            return false;
+        }
+        if (this.layer === p.layer) {
+            console.log('Port: Field "layer" is set to the default value');
+            return false;
+        }
         if (this.label === '') {
             console.log('Port: Field "label" cannot be empty.');
             return false;
@@ -53,7 +72,7 @@ class Port {
             return false;
         }
         if (!this.pos.validate()) {
-            console.log("Port: Coord pos cannot have negative values.");
+            console.log('Port: Coord is invalid.');
             return false;
         }
 
