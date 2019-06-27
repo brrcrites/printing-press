@@ -1,6 +1,16 @@
 
 class ParchKey {
+    /**
+     * The name of the top level key object.
+     *
+     * @type {string}
+     */
     name = 'unassigned';
+    /**
+     * The id of the top level key object.
+     *
+     * @type {string}
+     */
     id = 'unassigned';
 
     /**

@@ -1,7 +1,21 @@
 
 class Port {
+    /**
+     * The label of the Port.
+     *
+     * @type {string}
+     */
     label = 'unassigned';
+    /**
+     * The layer the Port is on.
+     * @type {string}
+     */
     layer = 'unassigned';
+    /**
+     * The position of the port relative to the top left corner of the
+     * component.
+     * @type {Coord}
+     */
     pos;
 
     /**
@@ -10,7 +24,7 @@ class Port {
      * @since 1.0.0
      *
      * @param {string}  label   The Port's label.
-     * @param {string}  layer   A string representation of which layer the Port is on.
+     * @param {string}  layer   The layer the Port is on.
      * @param {Coord}   pos     The position of the port relative to the top
      *                          left corner of the component.
      */

@@ -5,7 +5,17 @@
  * and can be used for distance, position, etc.
  */
 class Coord {
+    /**
+     * The x value.
+     *
+     * @type {number}
+     */
     x = -1;
+    /**
+     * The y value.
+     *
+     * @type {number}
+     */
     y = -1;
 
     /**
