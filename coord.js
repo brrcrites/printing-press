@@ -1,8 +1,10 @@
 /**
- * A class meant to condense and ease the parsing of x, y pairs.
+ * A class that represents a position.
  *
- * There is no specific meaning attached to x and y. I.e. they have no units,
- * and can be used for distance, position, etc.
+ * The position should be a positive value and will always be relative to the
+ * top left corner of the component.
+ *
+ * @since 1.0.0
  */
 class Coord {
     /**
@@ -27,7 +29,7 @@ class Coord {
      * @param {int} y   A value greater than 0.
      */
     constructor(x, y) {
-        this.setXY(x, y);
+        this.setLocation(x, y);
     }
 
     /**
@@ -38,7 +40,7 @@ class Coord {
      * @param {int} x   A value greater than 0.
      * @param {int} y   A value greater than 0.
      */
-    setXY(x, y) {
+    setLocation(x, y) {
         this.x = x;
         this.y = y;
     }
