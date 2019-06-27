@@ -2,6 +2,10 @@ const ParchKey = require('./parch-key.js');
 
 class Layer extends ParchKey {
 
+    /**
+     * @param name A string representation of the layer name
+     * @param id A string representation of the layer id
+     */
     constructor(name, id) {
         super(name, id);
     }
