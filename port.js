@@ -5,9 +5,14 @@ class Port {
     pos;
 
     /**
-     * @param label A string representation of the Port's label.
-     * @param layer A string representation of which layer the Port is on.
-     * @param pos A Coord representing the position of the port relative to the top left corner of the component.
+     * @class
+     *
+     * @since 1.0.0
+     *
+     * @param {string}  label   The Port's label.
+     * @param {string}  layer   A string representation of which layer the Port is on.
+     * @param {Coord}   pos     The position of the port relative to the top
+     *                          left corner of the component.
      */
     constructor(label, layer, pos) {
         this.label = label;
@@ -16,7 +21,13 @@ class Port {
     }
 
     /**
-     * Validate the port values. Label and layer cannot be empty. See Coord's requirements in coord.js.
+     * Validate the port values.
+     *
+     * Label and layer cannot be empty. Calls pos.validate.
+     *
+     * @since 1.0.0
+     *
+     * @see Coord.validate
      */
     validate() {
         if (this.label === '') {
