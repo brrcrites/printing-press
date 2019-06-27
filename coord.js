@@ -37,8 +37,8 @@ class Coord {
      *
      * @since 1.0.0
      *
-     * @param {int} x   A value greater than 0.
-     * @param {int} y   A value greater than 0.
+     * @param {number} x   A value greater than 0.
+     * @param {number} y   A value greater than 0.
      */
     constructor(x, y) {
         this.setLocation(x, y);
@@ -49,8 +49,8 @@ class Coord {
      *
      * @since 1.0.0
      *
-     * @param {int} x   A value greater than 0.
-     * @param {int} y   A value greater than 0.
+     * @param {number} x   A value greater than 0.
+     * @param {number} y   A value greater than 0.
      */
     setLocation(x, y) {
         this.x = x;
