@@ -21,6 +21,9 @@ class ParchKey {
      * @param {string}  name    The name of the top level key object.
      * @param {string}  id      The id of the top level key object.
      */
+    name = 'unassigned';
+    id = 'unassigned';
+
     constructor(name, id) {
         // This class is abstract so make sure we cannot instantiate it
         if (this.constructor === ParchKey) {
