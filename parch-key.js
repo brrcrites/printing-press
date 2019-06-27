@@ -4,8 +4,12 @@ class ParchKey {
     id = 'unassigned';
 
     /**
-     * @param name A string representation of the name of the top level key object.
-     * @param id A string representation of the id of the top level key object.
+     * @class
+     *
+     * @since 1.0.0
+     *
+     * @param {string}  name    The name of the top level key object.
+     * @param {string}  id      The id of the top level key object.
      */
     constructor(name, id) {
         // This class is abstract so make sure we cannot instantiate it
@@ -21,9 +25,13 @@ class ParchKey {
         this.id = id;
     }
 
-    //-- Validation --\\
     /**
-     * Validate the name and id fields. Does not validate uniqueness.
+     * Validate the name and id fields.
+     *
+     * Does not validate uniqueness.
+     *
+     * @since 1.0.0
+     *
      * @returns {boolean} false if either name or id are empty, true otherwise.
      */
     validate() {
