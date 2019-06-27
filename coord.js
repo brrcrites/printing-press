@@ -7,6 +7,7 @@
  * @since 1.0.0
  */
 class Coord {
+
     /**
      * The x value.
      *
@@ -19,6 +20,17 @@ class Coord {
      * @type {number}
      */
     y = -1;
+
+    /**
+     * Initialize x and y to their default of -1.
+     *
+     * @class
+     *
+     * @since 1.0.0
+     */
+    constructor() {
+        this.setLocation(-1, -1);
+    }
 
     /**
      * @class
@@ -55,12 +67,25 @@ class Coord {
      * @returns {boolean} true if x and y are positive, false otherwise.
      */
     validate() {
+        // Differentiate between an invalid value and the default value
+        let c = new Coord();
+        if (this.y === c.y) {
+            console.log('Coord: Field "x" is set to the default value.');
+            return false;
+        }
+        if (this.x === c.x) {
+            console.log('Coord: Field "y" is set to the default value.');
+            return false;
+        }
         if (this.x < 0) {
+            console.log('Coord: Field "x" cannot be negative.');
             return false;
         }
         if (this.y < 0) {
+            console.log('Coord: Field "y" cannot be negative.');
             return false;
         }
+
 
         return true;
     }
