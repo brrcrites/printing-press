@@ -27,10 +27,6 @@ class ParchKey {
             throw new TypeError('Abstract class "ParchKey" cannot be instantiated directly.');
         }
 
-        // Make sure the validate function has been defined in subclasses
-        if (undefined === this.validate) {
-            throw new TypeError('Extending class must implement the "validate" function.');
-        }
         this.name = name;
         this.id = id;
     }
