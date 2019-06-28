@@ -15,7 +15,7 @@ test('modify port', () => {
 
     port.label = 'new-label';
     port.layer = 'new-layer';
-    port.pos.setXY(10, 15);
+    port.pos.setLocation(10, 15);
 
     expect(port.label).toBe('new-label');
     expect(port.layer).toBe('new-layer');

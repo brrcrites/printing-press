@@ -17,7 +17,7 @@ test('modify Coord', () => {
     expect(coord.x).toBe(10);
     expect(coord.y).toBe(15);
 
-    coord.setXY(20, 25);
+    coord.setLocation(20, 25);
 
     expect(coord.x).toBe(20);
     expect(coord.y).toBe(25);
