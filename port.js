@@ -1,33 +1,41 @@
+const Coord = require('./coord.js');
 
 class Port {
+
     /**
      * The label of the Port.
      *
-     * @type {string}
+     * @since   1.0.0
+     * @access  public
+     *
+     * @type    {string}
      */
-    label = 'unassigned';
+    label;
     /**
      * The layer the Port is on.
-     * @type {string}
+     *
+     * @since   1.0.0
+     * @access  public
+     *
+     * @type    {string}
      */
-    layer = 'unassigned';
+    layer;
     /**
      * The position of the port relative to the top left corner of the
      * component.
-     * @type {Coord}
+     *
+     * @since   1.0.0
+     * @access  public
+     *
+     * @type    {Coord}
      */
-    pos = new Coord();
+    pos;
+
 
     /**
-     * Initialize all values to default.
+     * Constructs the Port object.
      *
-     * @class
-     *
-     * @since 1.0.0
-     */
-    constructor() {}
-
-    /**
+     * All parameters are optional and will default to their respective values.
      * @class
      *
      * @since 1.0.0
@@ -37,7 +45,7 @@ class Port {
      * @param {Coord}   pos     The position of the port relative to the top
      *                          left corner of the component.
      */
-    constructor(label, layer, pos) {
+    constructor(label = Port.DEFAULT_STR_VALUE, layer = Port.DEFAULT_STR_VALUE, pos = new Coord()) {
         this.label = label;
         this.layer = layer;
         this.pos = pos;
@@ -53,13 +61,11 @@ class Port {
      * @see Coord.validate
      */
     validate() {
-        let p = new Port();
-
-        if (this.label === p.label) {
+        if (this.label == Port.DEFAULT_STR_VALUE) {
             console.log('Port: Field "label is set to the default value');
             return false;
         }
-        if (this.layer === p.layer) {
+        if (this.layer == Port.DEFAULT_STR_VALUE) {
             console.log('Port: Field "layer" is set to the default value');
             return false;
         }
@@ -77,6 +83,15 @@ class Port {
         }
 
         return true;
+    }
+
+    /**
+     * The default value for label and layer.
+     *
+     * @returns {string}
+     */
+    static get DEFAULT_STR_VALUE() {
+        return 'unassigned';
     }
 }
 

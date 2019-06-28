@@ -15,7 +15,7 @@ test('modify port', () => {
 
     port.label = 'new-label';
     port.layer = 'new-layer';
-    port.pos.setXY(10, 15);
+    port.pos.setLocation(10, 15);
 
     expect(port.label).toBe('new-label');
     expect(port.layer).toBe('new-layer');
@@ -24,15 +24,28 @@ test('modify port', () => {
 });
 
 test('validate port', () => {
+    // Invalid
     let goodPort = new Port('label', 'layer', new Coord(0, 0));
-    let badPort = new Port('', '', new Coord(-1, -1));
+    let badPort = new Port('', '', new Coord(-100, -100));
     let badLabelPort = new Port('', 'layer', new Coord(1, 1));
     let badLayerPort = new Port('label', '', new Coord(1, 1));
-    let badCoordPort = new Port('label', 'layer', new Coord(-1, -1));
+    let badCoordPort = new Port('label', 'layer', new Coord(-100, -100));
 
     expect(goodPort.validate()).toBe(true);
     expect(badPort.validate()).toBe(false);
     expect(badLabelPort.validate()).toBe(false);
     expect(badLayerPort.validate()).toBe(false);
     expect(badCoordPort.validate()).toBe(false);
+
+    // Defaults
+    let defPort = new Port();
+    let defLabelPort = new Port(Port.DEFAULT_STR_VALUE, 'layer', new Coord(0, 0));
+    let defLayerPort = new Port('label', Port.DEFAULT_STR_VALUE, new Coord(0, 0));
+    let defCoordPort = new Port('label', 'layer');
+
+    expect(defPort.validate()).toBe(false);
+    expect(defLabelPort.validate()).toBe(false);
+    expect(defLayerPort.validate()).toBe(false);
+    expect(defCoordPort.validate()).toBe(false);
+
 });
