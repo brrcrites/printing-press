@@ -1,29 +1,46 @@
 
 class ParchKey {
+    /**
+     * The name of the top level key object.
+     *
+     * @type {string}
+     */
     name = 'unassigned';
+    /**
+     * The id of the top level key object.
+     *
+     * @type {string}
+     */
     id = 'unassigned';
 
     /**
-     * @param name A string representation of the name of the top level key object.
-     * @param id A string representation of the id of the top level key object.
+     * @class
+     *
+     * @since 1.0.0
+     *
+     * @param {string}  name    The name of the top level key object.
+     * @param {string}  id      The id of the top level key object.
      */
+    name = 'unassigned';
+    id = 'unassigned';
+
     constructor(name, id) {
         // This class is abstract so make sure we cannot instantiate it
         if (this.constructor === ParchKey) {
             throw new TypeError('Abstract class "ParchKey" cannot be instantiated directly.');
         }
 
-        // Make sure the validate function has been defined in subclasses
-        if (undefined === this.validate) {
-            throw new TypeError('Extending class must implement the "validate" function.');
-        }
         this.name = name;
         this.id = id;
     }
 
-    //-- Validation --\\
     /**
-     * Validate the name and id fields. Does not validate uniqueness.
+     * Validate the name and id fields.
+     *
+     * Does not validate uniqueness.
+     *
+     * @since 1.0.0
+     *
      * @returns {boolean} false if either name or id are empty, true otherwise.
      */
     validate() {

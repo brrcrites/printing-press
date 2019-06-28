@@ -3,17 +3,29 @@ const ParchKey = require('./parch-key.js');
 class Layer extends ParchKey {
 
     /**
-     * @param name A string representation of the layer name
-     * @param id A string representation of the layer id
+     * @class
+     *
+     * @since 1.0.0
+     * @augments ParchKey
+     *
+     * @param {string}  name    The layer name.
+     * @param {string}  id      The layer id.
      */
     constructor(name, id) {
         super(name, id);
     }
 
     /**
-     * Validate the name and id of the layer. These values can be any string as long as it is not empty.  Layer id
+     * Validate the name and id of the layer.
+     *
+     * These values can be any string as long as it is not empty.  Layer id
      * uniqueness is validated in the Architecture class.
-     * @returns {boolean} true.
+     *
+     * @since 1.0.0
+     *
+     * @see ParchKey.validate
+     *
+     * @returns {boolean} true if both name and id are valid, false otherwise.
      */
     validate() {
         return super.validate();
