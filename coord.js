@@ -9,18 +9,6 @@
 class Coord {
 
     /**
-     * The default x and y value.
-     *
-     * This field is to be treated as a constant and remain unchanged.
-     *
-     * @since   1.0.0
-     * @access  private
-     *
-     * @type    {number}
-     */
-    DEFAULT_VALUE = -1;
-
-    /**
      * The x value.
      *
      * @since   1.0.0
@@ -47,7 +35,7 @@ class Coord {
      * @param {number} x   A value greater than 0.
      * @param {number} y   A value greater than 0.
      */
-    constructor(x = this.DEFAULT_VALUE, y = this.DEFAULT_VALUE) {
+    constructor(x = Coord.DEFAULT_VALUE, y = Coord.DEFAULT_VALUE) {
         this.setLocation(x, y);
     }
 
@@ -75,12 +63,11 @@ class Coord {
      */
     validate() {
         // Differentiate between an invalid value and the default value
-        let c = new Coord();
-        if (this.y === c.y) {
+        if (this.y === Coord.DEFAULT_VALUE) {
             console.log('Coord: Field "x" is set to the default value.');
             return false;
         }
-        if (this.x === c.x) {
+        if (this.x === Coord.DEFAULT_VALUE) {
             console.log('Coord: Field "y" is set to the default value.');
             return false;
         }
@@ -93,8 +80,16 @@ class Coord {
             return false;
         }
 
-
         return true;
+    }
+
+    /**
+     * The default value of x and y.
+     *
+     * @returns {number}
+     */
+    static get DEFAULT_VALUE() {
+        return -1;
     }
 }
 

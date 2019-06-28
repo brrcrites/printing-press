@@ -24,6 +24,7 @@ test('modify Coord', () => {
 });
 
 test('validate Coord', () => {
+    // Invalid
     let goodCoord = new Coord(120321, 2315432);
     let badXCoord = new Coord(-123, 456);
     let badYCoord = new Coord(123, -456);
@@ -33,4 +34,13 @@ test('validate Coord', () => {
     expect(badXCoord.validate()).toBe(false);
     expect(badYCoord.validate()).toBe(false);
     expect(badXYCoord.validate()).toBe(false);
+
+    // Defaults
+    let defCoord = new Coord();
+    let defXCoord = new Coord(Coord.DEFAULT_VALUE, 10);
+    let defYCoord = new Coord(10);
+
+    expect(defCoord.validate()).toBe(false);
+    expect(defXCoord.validate()).toBe(false);
+    expect(defYCoord.validate()).toBe(false);
 });
