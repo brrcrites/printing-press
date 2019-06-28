@@ -9,28 +9,35 @@
 class Coord {
 
     /**
+     * The default x and y value.
+     *
+     * This field is to be treated as a constant and remain unchanged.
+     *
+     * @since   1.0.0
+     * @access  private
+     *
+     * @type    {number}
+     */
+    DEFAULT_VALUE = -1;
+
+    /**
      * The x value.
      *
-     * @type {number}
+     * @since   1.0.0
+     * @access  private
+     *
+     * @type    {number}
      */
-    x = -1;
+    x;
     /**
      * The y value.
      *
-     * @type {number}
-     */
-    y = -1;
-
-    /**
-     * Initialize x and y to their default of -1.
+     * @since   1.0.0
+     * @access  private
      *
-     * @class
-     *
-     * @since 1.0.0
+     * @type    {number}
      */
-    constructor() {
-        this.setLocation(-1, -1);
-    }
+    y;
 
     /**
      * @class
@@ -40,7 +47,7 @@ class Coord {
      * @param {number} x   A value greater than 0.
      * @param {number} y   A value greater than 0.
      */
-    constructor(x, y) {
+    constructor(x = this.DEFAULT_VALUE, y = this.DEFAULT_VALUE) {
         this.setLocation(x, y);
     }
 
