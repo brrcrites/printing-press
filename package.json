@@ -1,0 +1,27 @@
+{
+  "name": "printing-press",
+  "version": "1.0.0",
+  "description": "A web based tool to create Architecture SVGs from the [ParchMint](https://github.com/CIDARLAB/Parchmint) standard.",
+  "main": "load.js",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.4.4",
+    "jest": "^24.8.0"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brrcrites/printing-press.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/brrcrites/printing-press/issues"
+  },
+  "homepage": "https://github.com/brrcrites/printing-press#readme"
+}
