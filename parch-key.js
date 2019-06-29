@@ -1,17 +1,18 @@
 
 class ParchKey {
+
     /**
      * The name of the top level key object.
      *
      * @type {string}
      */
-    name = 'unassigned';
+    name;
     /**
      * The id of the top level key object.
      *
      * @type {string}
      */
-    id = 'unassigned';
+    id;
 
     /**
      * @class
@@ -21,9 +22,6 @@ class ParchKey {
      * @param {string}  name    The name of the top level key object.
      * @param {string}  id      The id of the top level key object.
      */
-    name = 'unassigned';
-    id = 'unassigned';
-
     constructor(name, id) {
         // This class is abstract so make sure we cannot instantiate it
         if (this.constructor === ParchKey) {
@@ -52,7 +50,24 @@ class ParchKey {
             console.log('ParchKey: Field "id" cannot be empty.');
             return false;
         }
+        if (this.name === ParchKey.DEFAULT_STR_VALUE) {
+            console.log('ParchKey: Field "name" is set to the default value.');
+            return false;
+        }
+        if (this.id === ParchKey.DEFAULT_STR_VALUE) {
+            console.log('ParchKey: Field "id" is set to the default value.');
+            return false;
+        }
         return true;
+    }
+
+    /**
+     * The default value of name and id.
+     *
+     * @returns {string}
+     */
+    static get DEFAULT_STR_VALUE() {
+        return 'unassigned';
     }
 }
 

@@ -11,7 +11,7 @@ class Layer extends ParchKey {
      * @param {string}  name    The layer name.
      * @param {string}  id      The layer id.
      */
-    constructor(name, id) {
+    constructor(name = ParchKey.DEFAULT_STR_VALUE, id = ParchKey.DEFAULT_STR_VALUE) {
         super(name, id);
     }
 
