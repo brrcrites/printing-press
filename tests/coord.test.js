@@ -8,7 +8,7 @@ test('initialize Coord', () => {
     expect(coord.y).toBe(0);
 });
 
-test('modify Coord', () => {
+test('modify Coord using fields', () => {
     let coord = new Coord(0, 0);
 
     coord.x = 10;
@@ -16,6 +16,10 @@ test('modify Coord', () => {
 
     expect(coord.x).toBe(10);
     expect(coord.y).toBe(15);
+});
+
+test('modify Coord using setLocation', () => {
+    let coord = new Coord(0, 0);
 
     coord.setLocation(20, 25);
 
@@ -23,8 +27,7 @@ test('modify Coord', () => {
     expect(coord.y).toBe(25);
 });
 
-test('validate Coord', () => {
-    // Invalid
+test('validate Coord: invalid values', () => {
     let goodCoord = new Coord(120321, 2315432);
     let badXCoord = new Coord(-123, 456);
     let badYCoord = new Coord(123, -456);
@@ -34,8 +37,9 @@ test('validate Coord', () => {
     expect(badXCoord.validate()).toBe(false);
     expect(badYCoord.validate()).toBe(false);
     expect(badXYCoord.validate()).toBe(false);
+});
 
-    // Defaults
+test('validate Coord: default values', () => {
     let defCoord = new Coord();
     let defXCoord = new Coord(Coord.DEFAULT_VALUE, 10);
     let defYCoord = new Coord(10);
@@ -43,4 +47,4 @@ test('validate Coord', () => {
     expect(defCoord.validate()).toBe(false);
     expect(defXCoord.validate()).toBe(false);
     expect(defYCoord.validate()).toBe(false);
-});
+})
