@@ -1,6 +1,10 @@
 const Layer = require('../layer.js');
 const ParchKey = require('../parch-key.js');
 
+// Suppress console logs
+console.log = jest.fn();
+
+
 test('instantiate Layer', () => {
     let layer = new Layer('layer-name', 'layer-id');
 

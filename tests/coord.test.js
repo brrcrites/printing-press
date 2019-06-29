@@ -1,5 +1,9 @@
 const Coord = require('../coord.js');
 
+// Suppress console logs
+console.log = jest.fn();
+
+
 test('initialize Coord', () => {
     // x and y init to negative values, so 0 is different enough
     let coord = new Coord(0, 0);

@@ -1,6 +1,10 @@
 const Port = require('../port.js');
 const Coord = require('../coord.js');
 
+//Suppress console logs
+console.log = jest.fn();
+
+
 test('initialize port', () => {
     let port = new Port('label', 'layer', new Coord(0, 0));
 
