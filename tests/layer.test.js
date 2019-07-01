@@ -1,6 +1,10 @@
 const Layer = require('../layer.js');
 const ParchKey = require('../parch-key.js');
 
+// Suppress console logs
+console.log = jest.fn();
+
+
 test('instantiate Layer', () => {
     let layer = new Layer('layer-name', 'layer-id');
 
@@ -18,8 +22,7 @@ test('modify Layer fields', () => {
     expect(layer.id).toBe('new-layer-id');
 });
 
-test('validate Layer fields', () => {
-    // Invalid
+test('validate Layer: invalid values', () => {
     let badNameLayer = new Layer('', 'id');
     let badIDLayer = new Layer('name', '');
     let badBothLayer = new Layer('', '');
@@ -29,8 +32,9 @@ test('validate Layer fields', () => {
     expect(badIDLayer.validate()).toBe(false);
     expect(badBothLayer.validate()).toBe(false);
     expect(goodLayer.validate()).toBe(true);
+});
 
-    //Defaults
+test('validate Layer: default values', () => {
     let defLayer = new Layer();
     let defNameLayer = new Layer(ParchKey.DEFAULT_STR_VALUE, 'layer-id');
     let defIDLayer = new Layer('layer-name');

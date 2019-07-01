@@ -1,6 +1,10 @@
 const Port = require('../port.js');
 const Coord = require('../coord.js');
 
+//Suppress console logs
+console.log = jest.fn();
+
+
 test('initialize port', () => {
     let port = new Port('label', 'layer', new Coord(0, 0));
 
@@ -23,8 +27,7 @@ test('modify port', () => {
     expect(port.pos.y).toBe(15);
 });
 
-test('validate port', () => {
-    // Invalid
+test('validate port: invalid values', () => {
     let goodPort = new Port('label', 'layer', new Coord(0, 0));
     let badPort = new Port('', '', new Coord(-100, -100));
     let badLabelPort = new Port('', 'layer', new Coord(1, 1));
@@ -36,8 +39,9 @@ test('validate port', () => {
     expect(badLabelPort.validate()).toBe(false);
     expect(badLayerPort.validate()).toBe(false);
     expect(badCoordPort.validate()).toBe(false);
+});
 
-    // Defaults
+test('validate port: default values', () => {
     let defPort = new Port();
     let defLabelPort = new Port(Port.DEFAULT_STR_VALUE, 'layer', new Coord(0, 0));
     let defLayerPort = new Port('label', Port.DEFAULT_STR_VALUE, new Coord(0, 0));
@@ -47,5 +51,4 @@ test('validate port', () => {
     expect(defLabelPort.validate()).toBe(false);
     expect(defLayerPort.validate()).toBe(false);
     expect(defCoordPort.validate()).toBe(false);
-
 });
