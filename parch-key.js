@@ -1,3 +1,4 @@
+const TestResult = require('./test-result.js');
 
 class ParchKey {
 
@@ -42,23 +43,45 @@ class ParchKey {
      * @returns {boolean} false if either name or id are empty, true otherwise.
      */
     validate() {
-        if (this.name === '') {
-            console.log('ParchKey: Field "name" cannot be empty.');
-            return false;
+        let valid = true;
+
+        if (ParchKey.testStringValue(this.name, 'name', 'ParchKey') !== TestResult.VALID) {
+            valid = false;
         }
-        if (this.id === '') {
-            console.log('ParchKey: Field "id" cannot be empty.');
-            return false;
+        if (ParchKey.testStringValue(this.id, 'id', 'ParchKey') !== TestResult.VALID) {
+            valid = false;
         }
-        if (this.name === ParchKey.DEFAULT_STR_VALUE) {
-            console.log('ParchKey: Field "name" is set to the default value.');
-            return false;
+
+        return valid;
+    }
+
+    /**
+     * Test a string value against the ParchKey name/id rules.
+     *
+     * Strings cannot be null. Strings cannot equal the default value.
+     *
+     * @since 1.0.0
+     *
+     * @see ParchKey.DEFAULT_STR_VALUE
+     *
+     * @param {string}  value   The value to be tested.
+     * @param {string}  field   A string representation of the field name for the error message.
+     * @param {string}  caller  A string representation of the caller's class for the error message.
+     *
+     * @returns {string} A TestResulf
+     */
+    static testStringValue(value, field, caller) {
+        if(value === '') {
+            console.log(caller + ': Field "' + field + '" cannot be empty.');
+            return TestResult.INVALID;
         }
-        if (this.id === ParchKey.DEFAULT_STR_VALUE) {
-            console.log('ParchKey: Field "id" is set to the default value.');
-            return false;
+
+        if (value === ParchKey.DEFAULT_STR_VALUE) {
+            console.log(caller + ': Field "' + field + '" is set to the default value.');
+            return TestResult.DEFAULT;
         }
-        return true;
+
+        return TestResult.VALID;
     }
 
     /**
@@ -70,5 +93,6 @@ class ParchKey {
         return 'unassigned';
     }
 }
+
 
 module.exports = ParchKey;
