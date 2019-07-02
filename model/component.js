@@ -1,5 +1,5 @@
 const ParchKey = require('./parch-key.js');
-const TestResult = require('./test-result.js');
+const TestResult = require('../utils/test-result.js');
 
 class Component extends ParchKey {
 

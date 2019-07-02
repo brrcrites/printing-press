@@ -1,5 +1,5 @@
-const Coord = require('../coord.js');
-const Port = require('../port.js');
+const Coord = require('../model/coord.js');
+const Port = require('../model/port.js');
 
 // Suppress console logs
 console.log = jest.fn();

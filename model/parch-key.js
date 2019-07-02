@@ -1,4 +1,4 @@
-const TestResult = require('./test-result.js');
+const TestResult = require('../utils/test-result.js');
 
 class ParchKey {
 

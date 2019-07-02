@@ -1,7 +1,7 @@
-const ParchKey = require('../parch-key.js');
-const Component = require('../component.js');
-const Port = require('../port.js');
-const Coord = require('../coord.js');
+const ParchKey = require('../model/parch-key.js');
+const Component = require('../model/component.js');
+const Port = require('../model/port.js');
+const Coord = require('../model/coord.js');
 
 //Suppress console logs
 console.log = jest.fn();
