@@ -43,16 +43,12 @@ class ParchKey {
      * @returns {boolean} false if either name or id are empty, true otherwise.
      */
     validate() {
-        let valid = true;
-
-        if (ParchKey.testStringValue(this.name, 'name', 'ParchKey') !== TestResult.VALID) {
-            valid = false;
-        }
-        if (ParchKey.testStringValue(this.id, 'id', 'ParchKey') !== TestResult.VALID) {
-            valid = false;
+        if (ParchKey.testStringValue(this.name, 'name', 'ParchKey') !== TestResult.VALID ||
+                ParchKey.testStringValue(this.id, 'id', 'ParchKey') !== TestResult.VALID) {
+            return false;
         }
 
-        return valid;
+        return true;
     }
 
     /**
