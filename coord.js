@@ -84,12 +84,23 @@ class Coord {
     }
 
     /**
+     * @since 1.0.0
+     *
      * @returns {string} A string representing the Coord in an ordered pair form (x, y).
      */
     toString() {
         return '(' + this.x + ', ' + this.y + ')';
     }
 
+    /**
+     * Compare values to another Coord object.
+     *
+     * @since 1.0.0
+     *
+     * @param {object}  coord   The object to be compared.
+     * @returns {boolean} true iff coord is an instance of Coord, the x values of both are equal, and the y values of
+     * both are equal, false otherwise.
+     */
     is(coord) {
         if (!(coord instanceof Coord)) {
             return false;
