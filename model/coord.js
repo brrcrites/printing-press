@@ -106,11 +106,7 @@ class Coord {
             return false;
         }
 
-        if (coord.x !== this.x) {
-            return false;
-        }
-
-        if (coord.y !== this.y) {
+        if (coord.x !== this.x || coord.y !== this.y) {
             return false;
         }
 
