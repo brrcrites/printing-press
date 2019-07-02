@@ -12,7 +12,7 @@ class Coord {
      * The x value.
      *
      * @since   1.0.0
-     * @access  private
+     * @access  public
      *
      * @type    {number}
      */
@@ -21,7 +21,7 @@ class Coord {
      * The y value.
      *
      * @since   1.0.0
-     * @access  private
+     * @access  public
      *
      * @type    {number}
      */

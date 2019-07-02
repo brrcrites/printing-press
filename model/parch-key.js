@@ -5,11 +5,17 @@ class ParchKey {
     /**
      * The name of the top level key object.
      *
+     * @since 1.0.0
+     * @access public
+     *
      * @type {string}
      */
     name;
     /**
      * The id of the top level key object.
+     *
+     * @since 1.0.0
+     * @access public
      *
      * @type {string}
      */
