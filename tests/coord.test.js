@@ -1,4 +1,5 @@
 const Coord = require('../coord.js');
+const Port = require('../port.js');
 
 // Suppress console logs
 console.log = jest.fn();
@@ -51,4 +52,29 @@ test('validate Coord: default values', () => {
     expect(defCoord.validate()).toBe(false);
     expect(defXCoord.validate()).toBe(false);
     expect(defYCoord.validate()).toBe(false);
+});
+
+test('verify toString output', () => {
+    let c = new Coord();
+
+    for (let i = 0; i < 100; i++) {
+        c.setLocation(i, i);
+        expect(c.toString()).toBe('(' + i + ', ' + i + ')');
+    }
+});
+
+test('comparison of Coord objects', () => {
+    let c1 = new Coord(1, 1);
+    let c2 = new Coord(1, 1);
+    let c3 = new Coord(2, 2);
+
+    expect(c1.is(c2)).toBe(true);
+    expect(c1.is(c3)).toBe(false);
+});
+
+test('comparison of non-Coord objects', () => {
+    let c = new Coord(1, 1);
+    let p = new Port();
+
+    expect(c.is(p)).toBe(false);
 });

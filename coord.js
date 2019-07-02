@@ -84,6 +84,29 @@ class Coord {
     }
 
     /**
+     * @returns {string} A string representing the Coord in an ordered pair form (x, y).
+     */
+    toString() {
+        return '(' + this.x + ', ' + this.y + ')';
+    }
+
+    is(coord) {
+        if (!(coord instanceof Coord)) {
+            return false;
+        }
+
+        if (coord.x !== this.x) {
+            return false;
+        }
+
+        if (coord.y !== this.y) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * The default value of x and y.
      *
      * @returns {number}
