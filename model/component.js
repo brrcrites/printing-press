@@ -215,6 +215,7 @@ class Component extends ParchKey {
                 console.log('Component: Field "ports" contains a port that exists outside of the component at ' +
                         this.ports[i].pos + ' at index ' + i + '.');
 
+            // Make sure the port exists on an edge
             } else if (!((this.ports[i].pos.x === 0 || this.ports[i].pos.x === this.xSpan) ||
                     (this.ports[i].pos.y === 0 || this.ports[i].pos.y === this.ySpan))) {
 
@@ -227,6 +228,7 @@ class Component extends ParchKey {
         // Check invalid port layers
         for (let i = 0; i < this.ports.length; i++) {
             // Make sure we don't search layers if it still has the default value
+            // And make sure that the port's layer exists in the component's layer list
             if (this.layers && !this.layers.includes(this.ports[i].layer)) {
                 valid = false;
                 console.log('Component: Field "ports" contains a port with an invalid layer (' + this.ports[i].layer +
