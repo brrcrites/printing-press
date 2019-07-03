@@ -1,5 +1,6 @@
 const Port = require('../model/port.js');
 const Coord = require('../model/coord.js');
+const Validation = require('../utils/validation.js');
 
 //Suppress console logs
 console.log = jest.fn();
@@ -43,8 +44,8 @@ test('validate port: invalid values', () => {
 
 test('validate port: default values', () => {
     let defPort = new Port();
-    let defLabelPort = new Port(Port.DEFAULT_STR_VALUE, 'layer', new Coord(0, 0));
-    let defLayerPort = new Port('label', Port.DEFAULT_STR_VALUE, new Coord(0, 0));
+    let defLabelPort = new Port(Validation.DEFAULT_STR_VALUE, 'layer', new Coord(0, 0));
+    let defLayerPort = new Port('label', Validation.DEFAULT_STR_VALUE, new Coord(0, 0));
     let defCoordPort = new Port('label', 'layer');
 
     expect(defPort.validate()).toBe(false);

@@ -1,7 +1,7 @@
-const ParchKey = require('../model/parch-key.js');
 const Component = require('../model/component.js');
 const Port = require('../model/port.js');
 const Coord = require('../model/coord.js');
+const Validation = require('../utils/validation.js');
 
 //Suppress console logs
 console.log = jest.fn();
@@ -26,12 +26,12 @@ test('initialize Component: parameters', () => {
 test('initialize Component: default', () => {
     let cDef = new Component();
 
-    expect(cDef.name).toBe(ParchKey.DEFAULT_STR_VALUE);
-    expect(cDef.id).toBe(ParchKey.DEFAULT_STR_VALUE);
+    expect(cDef.name).toBe(Validation.DEFAULT_STR_VALUE);
+    expect(cDef.id).toBe(Validation.DEFAULT_STR_VALUE);
     expect(cDef.layers).toBe(null);
-    expect(cDef.xSpan).toBe(Component.DEFAULT_SPAN_VALUE);
-    expect(cDef.ySpan).toBe(Component.DEFAULT_SPAN_VALUE);
-    expect(cDef.entity).toBe(ParchKey.DEFAULT_STR_VALUE);
+    expect(cDef.xSpan).toBe(Validation.DEFAULT_SPAN_VALUE);
+    expect(cDef.ySpan).toBe(Validation.DEFAULT_SPAN_VALUE);
+    expect(cDef.entity).toBe(Validation.DEFAULT_STR_VALUE);
     expect(cDef.ports).toBe(null);
 });
 
@@ -138,17 +138,17 @@ test('validate Component: port locations', () => {
 
 test('validate Component: default values', () => {
     let def = new Component();
-    let defName = new Component(ParchKey.DEFAULT_STR_VALUE, 'comp-id', [l1, l2], 10, 10, 'comp-entity',
+    let defName = new Component(Validation.DEFAULT_STR_VALUE, 'comp-id', [l1, l2], 10, 10, 'comp-entity',
             [new Port('port-1', l1, new Coord(0, 0)), new Port('port-2', l1, new Coord(5, 0))]);
-    let defID = new Component('comp-name', ParchKey.DEFAULT_STR_VALUE, [l1, l2], 10, 10, 'comp-entity',
+    let defID = new Component('comp-name', Validation.DEFAULT_STR_VALUE, [l1, l2], 10, 10, 'comp-entity',
             [new Port('port-1', l1, new Coord(0, 0)), new Port('port-2', l1, new Coord(5, 0))]);
     let defLabel = new Component('comp-name', 'comp-id', null, 10, 10, 'comp-entity',
             [new Port('port-1', l1, new Coord(0, 0)), new Port('port-2', l1, new Coord(5, 0))]);
-    let defXSpan = new Component('comp-name', 'comp-id', [l1, l2], Component.DEFAULT_SPAN_VALUE, 10, 'comp-entity',
+    let defXSpan = new Component('comp-name', 'comp-id', [l1, l2], Validation.DEFAULT_SPAN_VALUE, 10, 'comp-entity',
             [new Port('port-1', l1, new Coord(0, 0)), new Port('port-2', l1, new Coord(5, 0))]);
-    let defYSpan = new Component('comp-name', 'comp-id', [l1, l2], 10, Component.DEFAULT_SPAN_VALUE, 'comp-entity',
+    let defYSpan = new Component('comp-name', 'comp-id', [l1, l2], 10, Validation.DEFAULT_SPAN_VALUE, 'comp-entity',
             [new Port('port-1', l1, new Coord(0, 0)), new Port('port-2', l1, new Coord(5, 0))]);
-    let defEntity = new Component('comp-name', 'comp-id', [l1, l2], 10, 10, ParchKey.DEFAULT_STR_VALUE,
+    let defEntity = new Component('comp-name', 'comp-id', [l1, l2], 10, 10, Validation.DEFAULT_STR_VALUE,
             [new Port('port-1', l1, new Coord(0, 0)), new Port('port-2', l1, new Coord(5, 0))]);
     let defPorts = new Component('comp-name', 'comp-id', [l1, l2], 10, 10, 'comp-entity', null);
 

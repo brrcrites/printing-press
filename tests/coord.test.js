@@ -1,5 +1,6 @@
 const Coord = require('../model/coord.js');
 const Port = require('../model/port.js');
+const Validation = require('../utils/validation.js');
 
 // Suppress console logs
 console.log = jest.fn();
@@ -46,7 +47,7 @@ test('validate Coord: invalid values', () => {
 
 test('validate Coord: default values', () => {
     let defCoord = new Coord();
-    let defXCoord = new Coord(Coord.DEFAULT_VALUE, 10);
+    let defXCoord = new Coord(Validation.DEFAULT_COORD_VALUE, 10);
     let defYCoord = new Coord(10);
 
     expect(defCoord.validate()).toBe(false);
