@@ -1,4 +1,6 @@
 const Coord = require('./coord.js');
+const TestResult = require('../utils/test-result.js');
+const Validation = require('../utils/validation.js');
 
 class Port {
 
@@ -45,7 +47,7 @@ class Port {
      * @param {Coord}   pos     The position of the port relative to the top
      *                          left corner of the component.
      */
-    constructor(label = Port.DEFAULT_STR_VALUE, layer = Port.DEFAULT_STR_VALUE, pos = new Coord()) {
+    constructor(label = Validation.DEFAULT_STR_VALUE, layer = Validation.DEFAULT_STR_VALUE, pos = new Coord()) {
         this.label = label;
         this.layer = layer;
         this.pos = pos;
@@ -61,37 +63,17 @@ class Port {
      * @see Coord.validate
      */
     validate() {
-        if (this.label == Port.DEFAULT_STR_VALUE) {
-            console.log('Port: Field "label is set to the default value');
+        if (Validation.testStringValue(this.label, 'label', 'Port') !== TestResult.VALID ||
+                Validation.testStringValue(this.layer, 'layer', 'Port') !== TestResult.VALID) {
             return false;
         }
-        if (this.layer == Port.DEFAULT_STR_VALUE) {
-            console.log('Port: Field "layer" is set to the default value');
-            return false;
-        }
-        if (this.label === '') {
-            console.log('Port: Field "label" cannot be empty.');
-            return false;
-        }
-        if (this.layer === '') {
-            console.log('Port: Field "layer" cannot be empty.');
-            return false;
-        }
+
         if (!this.pos.validate()) {
-            console.log('Port: Coord is invalid.');
+            console.log('Port: Field "pos" is invalid.');
             return false;
         }
 
         return true;
-    }
-
-    /**
-     * The default value for label and layer.
-     *
-     * @returns {string}
-     */
-    static get DEFAULT_STR_VALUE() {
-        return 'unassigned';
     }
 }
 
