@@ -7,7 +7,8 @@ console.log = jest.fn();
 
 
 test('initialize Coord', () => {
-    // x and y init to negative values, so 0 is different enough
+    // x and y init to negative values, so 0 is diffe:100
+    // rent enough
     let coord = new Coord(0, 0);
 
     expect(coord.x).toBe(0);
@@ -55,13 +56,22 @@ test('validate Coord: default values', () => {
     expect(defYCoord.validate()).toBe(false);
 });
 
-test('verify toString output', () => {
+test('verify toString output: valid coord', () => {
+    let c = new Coord(0, 0);
+
+    expect(c.toString()).toBe('(0, 0)');
+});
+
+test('verify toString output: invalid coord', () => {
+    let c = new Coord(-67, -23);
+
+    expect(c.toString()).toBe('(-67, -23)');
+});
+
+test('verify toString output: default coord', () => {
     let c = new Coord();
 
-    for (let i = 0; i < 100; i++) {
-        c.setLocation(i, i);
-        expect(c.toString()).toBe('(' + i + ', ' + i + ')');
-    }
+    expect(c.toString()).toBe('(' + Validation.DEFAULT_COORD_VALUE + ', ' + Validation.DEFAULT_COORD_VALUE + ')');
 });
 
 test('comparison of Coord objects', () => {
@@ -71,11 +81,14 @@ test('comparison of Coord objects', () => {
 
     expect(c1.is(c2)).toBe(true);
     expect(c1.is(c3)).toBe(false);
+    expect(c1.is(new Coord(1, 2))).toBe(false);
+    expect(c1.is(new Coord(2, 1))).toBe(false);
 });
 
 test('comparison of non-Coord objects', () => {
     let c = new Coord(1, 1);
     let p = new Port();
+    p.pos = new Coord(1, 1);
 
     expect(c.is(p)).toBe(false);
 });
