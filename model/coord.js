@@ -1,3 +1,6 @@
+const TestResult = require('../utils/test-result.js');
+const Validation = require('../utils/validation.js');
+
 /**
  * A class that represents a position.
  *
@@ -35,7 +38,7 @@ class Coord {
      * @param {number} x   A value greater than 0.
      * @param {number} y   A value greater than 0.
      */
-    constructor(x = Coord.DEFAULT_VALUE, y = Coord.DEFAULT_VALUE) {
+    constructor(x = Validation.DEFAULT_COORD_VALUE, y = Validation.DEFAULT_COORD_VALUE) {
         this.setLocation(x, y);
     }
 
@@ -62,21 +65,8 @@ class Coord {
      * @returns {boolean} true if x and y are positive, false otherwise.
      */
     validate() {
-        // Differentiate between an invalid value and the default value
-        if (this.y === Coord.DEFAULT_VALUE) {
-            console.log('Coord: Field "x" is set to the default value.');
-            return false;
-        }
-        if (this.x === Coord.DEFAULT_VALUE) {
-            console.log('Coord: Field "y" is set to the default value.');
-            return false;
-        }
-        if (this.x < 0) {
-            console.log('Coord: Field "x" cannot be negative.');
-            return false;
-        }
-        if (this.y < 0) {
-            console.log('Coord: Field "y" cannot be negative.');
+        if (Validation.testCoordValue(this.x, 'x', 'Coord') !== TestResult.VALID ||
+                Validation.testCoordValue(this.y, 'y', 'Coord') !== TestResult.VALID) {
             return false;
         }
 
@@ -106,24 +96,11 @@ class Coord {
             return false;
         }
 
-        if (coord.x !== this.x) {
-            return false;
-        }
-
-        if (coord.y !== this.y) {
+        if (coord.x !== this.x || coord.y !== this.y) {
             return false;
         }
 
         return true;
-    }
-
-    /**
-     * The default value of x and y.
-     *
-     * @returns {number}
-     */
-    static get DEFAULT_VALUE() {
-        return -1;
     }
 }
 

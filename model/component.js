@@ -1,5 +1,6 @@
 const ParchKey = require('./parch-key.js');
 const TestResult = require('../utils/test-result.js');
+const Validation = require('../utils/validation.js');
 
 class Component extends ParchKey {
 
@@ -65,7 +66,7 @@ class Component extends ParchKey {
      *
      * @since   1.0.0
      *
-     * @see ParchKey.DEFAULT_STR_VALUE
+     * @see Validation.DEFAULT_STR_VALUE
      *
      * @param {string}  name    The name of the component.
      * @param {string}  id      The unique id of the component.
@@ -75,9 +76,9 @@ class Component extends ParchKey {
      * @param {string}  entity  The type of component this component object represents.
      * @param {Port[]}  ports   The ports on this component.
      */
-    constructor(name = ParchKey.DEFAULT_STR_VALUE, id = ParchKey.DEFAULT_STR_VALUE, layers = null,
-                xSpan = Component.DEFAULT_SPAN_VALUE, ySpan = Component.DEFAULT_SPAN_VALUE,
-                entity = ParchKey.DEFAULT_STR_VALUE, ports = null) {
+    constructor(name = Validation.DEFAULT_STR_VALUE, id = Validation.DEFAULT_STR_VALUE, layers = null,
+                xSpan = Validation.DEFAULT_SPAN_VALUE, ySpan = Validation.DEFAULT_SPAN_VALUE,
+                entity = Validation.DEFAULT_STR_VALUE, ports = null) {
 
         super(name, id);
         this.layers = layers;
@@ -92,8 +93,10 @@ class Component extends ParchKey {
         let valid = super.validate();
 
         valid = this.validateLayers() ? valid : false;
-        valid = this.validateSpan(this.xSpan, 'x') ? valid : false;
-        valid = this.validateSpan(this.ySpan, 'y') ? valid : false;
+        if (Validation.testSpanValue(this.xSpan, 'x', 'Component') !== TestResult.VALID ||
+                Validation.testSpanValue(this.ySpan, 'y', 'Component') !== TestResult.VALID) {
+            valid = false;
+        }
         valid = this.validateEntity() ? valid : false;
         valid = this.validatePorts() ? valid : false;
 
@@ -127,32 +130,6 @@ class Component extends ParchKey {
         return valid;
     }
 
-
-    /**
-     * Validates the given span value.
-     *
-     * Spans must not equal the default value. Spans must not be less than 1.
-     *
-     * @since 1.0.0
-     *
-     * @param {number}  value   The span value to validate.
-     * @param {string}  axis    The axis on which this span lies.
-     * @returns {boolean}
-     */
-    validateSpan(value, axis) {
-        switch (Component.testSpan(value)) {
-            case TestResult.DEFAULT:
-                console.log('Component: Field "' + axis + 'Span" is set to the default value.');
-                return false;
-
-            case TestResult.INVALID:
-                console.log('Component: Field "' + axis + 'Span" cannot be less than 1.');
-                return false;
-        }
-
-        return true;
-    }
-
     /**
      * Validates the entity field.
      *
@@ -160,12 +137,12 @@ class Component extends ParchKey {
      *
      * @since 1.0.0
      *
-     * @see ParchKey.testStringValue
+     * @see Validation.testStringValue
      *
      * @returns {boolean}
      */
     validateEntity() {
-        return ParchKey.testStringValue(this.entity, 'entity', 'Component') === TestResult.VALID;
+        return Validation.testStringValue(this.entity, 'entity', 'Component') === TestResult.VALID;
     }
 
     /**
@@ -215,6 +192,7 @@ class Component extends ParchKey {
                 console.log('Component: Field "ports" contains a port that exists outside of the component at ' +
                         this.ports[i].pos + ' at index ' + i + '.');
 
+            // Make sure the port exists on an edge
             } else if (!((this.ports[i].pos.x === 0 || this.ports[i].pos.x === this.xSpan) ||
                     (this.ports[i].pos.y === 0 || this.ports[i].pos.y === this.ySpan))) {
 
@@ -227,6 +205,7 @@ class Component extends ParchKey {
         // Check invalid port layers
         for (let i = 0; i < this.ports.length; i++) {
             // Make sure we don't search layers if it still has the default value
+            // And make sure that the port's layer exists in the component's layer list
             if (this.layers && !this.layers.includes(this.ports[i].layer)) {
                 valid = false;
                 console.log('Component: Field "ports" contains a port with an invalid layer (' + this.ports[i].layer +
@@ -237,40 +216,6 @@ class Component extends ParchKey {
         return valid;
     }
 
-    /**
-     * Tests the given value against the rules of spans.
-     *
-     * Cannot be less than 1. Cannot equal the default span value.
-     *
-     * @since 1.0.0
-     *
-     * @param {number}  value A value to test against the span rules.
-     *
-     * @returns {string} A TestResult value depending on whether the the
-     *                   was default, invalid or valid.
-     */
-    static testSpan(value) {
-        if (value === Component.DEFAULT_SPAN_VALUE) {
-            return TestResult.DEFAULT;
-        }
-
-        if (value < 1) {
-            return TestResult.INVALID;
-        }
-
-        return TestResult.VALID;
-    }
-
-    /**
-     * The default x-/y-span values.
-     *
-     * @since 1.0.0
-     *
-     * @returns {number}
-     */
-    static get DEFAULT_SPAN_VALUE() {
-        return -1;
-    }
 }
 
 module.exports = Component;
