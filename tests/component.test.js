@@ -57,64 +57,76 @@ test('modify Component', () => {
 
 test('validate Component: valid values', () => {
     let goodComp = new Component('comp-name', 'comp-id', [layer1, layer2], 10, 10, 'comp-entity', [port00, port05]);
+
     expect(goodComp.validate()).toBe(true);
 });
 
 test('validate Component: invalid values', () => {
     let badComp = new Component('', '', [layer1, ''], -123, 0, '', [new Port(), new Port()]);
+
     expect(badComp.validate()).toBe(false);
 });
 
 test('validate Component: invalid name value', () => {
     let badNameComp = new Component('', 'comp-id', [layer1, layer2], 10, 10, 'comp-entity', [port00, port05]);
+
     expect(badNameComp.validate()).toBe(false);
 });
 
 test('validate Component: invalid ID value', () => {
     let badIDComp = new Component('comp-name', '', [layer1, layer2], 10, 10, 'comp-entity', [port00, port05]);
+
     expect(badIDComp.validate()).toBe(false);
 });
 
 test('validate Component: invalid layer value', () => {
     let badLayerComp = new Component('comp-name', 'comp-id', [layer1, ''], 10, 10, 'comp-entity', [port00, port05]);
+
     expect(badLayerComp.validate()).toBe(false);
 });
 
 test('validate Component: invalid x-span value', () => {
     let badXSpanComp = new Component('comp-name', 'comp-id', [layer1, layer2], -312423, 10, 'comp-entity', [port00, port05]);
+
     expect(badXSpanComp.validate()).toBe(false);
 });
 
 test('validate Component: invalid y-span value', () => {
     let badYSpanComp = new Component('comp-name', 'comp-id', [layer1, layer2], 10, 0, 'comp-entity', [port00, port05]);
+
     expect(badYSpanComp.validate()).toBe(false);
 });
 
 test('validate Component: invalid entity value', () => {
     let badEntityComp = new Component('comp-name', 'comp-id', [layer1, layer2], 10, 10, '', [port00, port05]);
+
     expect(badEntityComp.validate()).toBe(false);
 });
 
 test('validate Component: invalid port value', () => {
     let badPortComp = new Component('comp-name', 'comp-id', [layer1, layer2], 10, 10, 'comp-entity', [new Port(), new Port()]);
+
     expect(badPortComp.validate()).toBe(false);
 });
 
 test('validate Component: duplicate port labels', () => {
     let c = new Component('comp-name', 'comp-id', [layer1, layer2], 10, 10, 'comp-entity',
             [new Port('port-name', layer1, new Coord(5, 0)), new Port('port-name', layer1, new Coord(0, 5))]);
+
     expect(c.validate()).toBe(false);
 });
 
 test('validate Component: invalid port layers', () => {
     let c = new Component('comp-name', 'comp-id', [layer1, layer2], 10, 10, 'comp-entity',
             [new Port('port-1', 'bad-layer', new Coord(5, 0)), new Port('port-2', layer1, new Coord(0, 5))]);
+
     expect(c.validate()).toBe(false);
 });
 
 test('validate Component: overlapping port locations', () => {
     let c = new Component('comp-name', 'comp-id', [layer1, layer2], 10, 10, 'comp-entity',
             [new Port('port-1', layer1, new Coord(5, 0)), new Port('port-2', layer1, new Coord(5, 0))]);
+
     expect(c.validate()).toBe(false);
 });
 

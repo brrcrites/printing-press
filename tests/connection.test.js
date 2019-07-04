@@ -1,13 +1,24 @@
 const Connection = require('../model/connection.js');
 const ParchKey = require('../model/parch-key.js');
 const Terminal = require('../model/terminal.js');
+const Port = require('../model/port.js');
+const Coord = require('../model/coord.js');
+const Component = require('../model/component.js');
 
 //Suppress console logs
 console.log = jest.fn();
 
-var source = new Terminal('component-1');
-var sink1 = new Terminal('component-2');
-var sink2 = new Terminal('component-3');
+var layer1 = 'layer-1';
+var layer2 = 'layer-2';
+var validPort1 = new Port('port-1', layer1, new Coord(0, 0));
+var validPort2 = new Port('port-2', layer2, new Coord(0, 5));
+var invalidPort = new Port('port-1', '', new Coord(0, 0));
+var sourceComponent = new Component('source', 'unique-id-1', [layer1, layer2], 10, 20, 'entity', [validPort1, validPort2]);
+var sink1Component = new Component('sink1', 'unique-id-2', [layer1, layer2], 10, 20, 'entity', [validPort1, validPort2]);
+var sink2Component = new Component('sink2', 'unique-id-3', [layer1, layer2], 10, 20, 'entity', [validPort1, validPort2]);
+var source = new Terminal(sourceComponent, validPort1);
+var sink1 = new Terminal(sink1Component);
+var sink2 = new Terminal(sink2Component);
 
 test('initialize Connection: parameters', () => {
     let c = new Connection('name', 'id', 'layer', source, [sink1, sink2]);

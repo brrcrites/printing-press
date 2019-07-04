@@ -1,5 +1,3 @@
-const ParchKey = require('../model/parch-key.js');
-const TestResult = require('../utils/test-result.js');
 
 /**
  * A class that contains data for sources and sinks on connections.
@@ -8,14 +6,14 @@ const TestResult = require('../utils/test-result.js');
  */
 class Terminal {
     /**
-     * The component ID of the component to which this terminal connects.
+     * The component to which this terminal connects.
      *
      * @since 1.0.0
      * @access public
      *
-     * @type {string}
+     * @type {object}
      */
-    compID;
+    component;
 
     /**
      * The port to which this terminal ID connects on the component.
@@ -34,28 +32,67 @@ class Terminal {
      * @param {string}  compID  The component ID of the component to which this terminal connects.
      * @param {object}  port    The port to which this terminal connects on the component.
      */
-    constructor(compID = ParchKey.DEFAULT_STR_VALUE, port = null) {
-        this.compID = compID;
+    constructor(component = null, port = null) {
+        this.component = component;
         this.port = port;
     }
 
 
     /**
      * Validate the Terminal object.
-     * 
-     * The component ID must not be empty or the default value.
+     *
+     * The component must be a valid Component object. Port can be null, but if
+     * it is not, then it must be a valid Port object.
      *
      * @since 1.0.0
      *
      * @returns {boolean}
      */
     validate() {
-        if (ParchKey.testStringValue(this.compID, 'compID', 'Terminal') !== TestResult.VALID) {
-            return false;
+        let valid = true;
+
+        if (this.component === null) {
+            console.log('Terminal: Field "component" is set to the default value');
+            valid = false;
+        } else {
+            valid = this.component.validate() ? valid : false;
         }
-        
-        return true;
+
+
+        // Port is allowed to be its default value
+        if (this.port) {
+            let validPort = this.port.validate();
+            valid = validPort ? valid : false;
+
+            // Only check whether the port exists if it is valid and the component is assigned
+            if (validPort && this.component && !this.doesPortExist()) {
+                valid = false;
+                console.log('Terminal: Field "port" does not exist on the given component');
+            }
+        }
+
+        return valid;
     }
+
+    /**
+     * Determine whether port exists on component.
+     *
+     * @since 1.0.0
+     *
+     * @returns {boolean}
+     */
+    doesPortExist() {
+        let exists = false;
+
+        for (let i = 0; i < this.component.ports.length; i++) {
+            if (this.component.ports[i] === this.port) {
+                exists = true;
+            }
+        }
+
+        return exists;
+    }
+
 }
 
 module.exports = Terminal;
