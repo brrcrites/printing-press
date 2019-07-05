@@ -28,28 +28,56 @@ test('modify port', () => {
     expect(port.pos.y).toBe(15);
 });
 
-test('validate port: invalid values', () => {
+test('validate port: valid values', () => {
     let goodPort = new Port('label', 'layer', new Coord(0, 0));
-    let badPort = new Port('', '', new Coord(-100, -100));
-    let badLabelPort = new Port('', 'layer', new Coord(1, 1));
-    let badLayerPort = new Port('label', '', new Coord(1, 1));
-    let badCoordPort = new Port('label', 'layer', new Coord(-100, -100));
 
     expect(goodPort.validate()).toBe(true);
+});
+
+test('validate port: invalid values', () => {
+    let badPort = new Port('', '', new Coord(-100, -100));
+
     expect(badPort.validate()).toBe(false);
+});
+
+test('validate port: invalid label value', () => {
+    let badLabelPort = new Port('', 'layer', new Coord(1, 1));
+
     expect(badLabelPort.validate()).toBe(false);
+});
+
+test('validate port: invalid layer value', () => {
+    let badLayerPort = new Port('label', '', new Coord(1, 1));
+
     expect(badLayerPort.validate()).toBe(false);
+});
+
+test('validate port: invalid Coord value', () => {
+    let badCoordPort = new Port('label', 'layer', new Coord(-100, -100));
+
     expect(badCoordPort.validate()).toBe(false);
 });
 
 test('validate port: default values', () => {
     let defPort = new Port();
-    let defLabelPort = new Port(Validation.DEFAULT_STR_VALUE, 'layer', new Coord(0, 0));
-    let defLayerPort = new Port('label', Validation.DEFAULT_STR_VALUE, new Coord(0, 0));
-    let defCoordPort = new Port('label', 'layer');
 
     expect(defPort.validate()).toBe(false);
+});
+
+test('validate port: default  value', () => {
+    let defLabelPort = new Port(Validation.DEFAULT_STR_VALUE, 'layer', new Coord(0, 0));
+
     expect(defLabelPort.validate()).toBe(false);
+});
+
+test('validate port: default  value', () => {
+    let defLayerPort = new Port('label', Validation.DEFAULT_STR_VALUE, new Coord(0, 0));
+
     expect(defLayerPort.validate()).toBe(false);
+});
+
+test('validate port: default  value', () => {
+    let defCoordPort = new Port('label', 'layer');
+
     expect(defCoordPort.validate()).toBe(false);
 });
