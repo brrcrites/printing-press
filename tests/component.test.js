@@ -28,11 +28,11 @@ test('initialize Component: default', () => {
 
     expect(cDef.name).toBe(Validation.DEFAULT_STR_VALUE);
     expect(cDef.id).toBe(Validation.DEFAULT_STR_VALUE);
-    expect(cDef.layers).toBe(null);
+    expect(cDef.layers).toEqual([]);
     expect(cDef.xSpan).toBe(Validation.DEFAULT_SPAN_VALUE);
     expect(cDef.ySpan).toBe(Validation.DEFAULT_SPAN_VALUE);
     expect(cDef.entity).toBe(Validation.DEFAULT_STR_VALUE);
-    expect(cDef.ports).toBe(null);
+    expect(cDef.ports).toEqual([]);
 });
 
 test('modify Component', () => {
@@ -164,8 +164,8 @@ test('validate Component: default ID value', () => {
     expect(defID.validate()).toBe(false);
 });
 
-test('validate Component: default label value', () => {
-    let defLabel = new Component('comp-name', 'comp-id', null, 10, 10, 'comp-entity',
+test('validate Component: default layers value', () => {
+    let defLabel = new Component('comp-name', 'comp-id', [], 10, 10, 'comp-entity',
             [port00, port05]);
     expect(defLabel.validate()).toBe(false);
 });

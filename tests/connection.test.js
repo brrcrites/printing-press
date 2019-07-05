@@ -37,7 +37,7 @@ test('initialize Connection: default', () => {
     expect(c.id).toBe(ParchKey.DEFAULT_STR_VALUE);
     expect(c.layer).toBe(ParchKey.DEFAULT_STR_VALUE);
     expect(c.source).toBe(null);
-    expect(c.sinks).toBe(null);
+    expect(c.sinks).toEqual([]);
 });
 
 test('modify Connection', () => {

@@ -54,7 +54,7 @@ class Connection {
      *                          sinks of the connection.
      */
     constructor(name = ParchKey.DEFAULT_STR_VALUE, id = ParchKey.DEFAULT_STR_VALUE, layer = ParchKey.DEFAULT_STR_VALUE,
-                source = null, sinks = null) {
+                source = null, sinks = []) {
 
         this.name = name;
         this.id = id;
@@ -95,7 +95,7 @@ class Connection {
     }
 
     validateSinks() {
-        if (this.sinks === null) {
+        if (this.sinks.length === 0) {
             console.log('Connection: Field "sinks" is set to the default value.');
             return false;
         }

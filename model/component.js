@@ -76,9 +76,9 @@ class Component extends ParchKey {
      * @param {string}  entity  The type of component this component object represents.
      * @param {Port[]}  ports   The ports on this component.
      */
-    constructor(name = Validation.DEFAULT_STR_VALUE, id = Validation.DEFAULT_STR_VALUE, layers = null,
+    constructor(name = Validation.DEFAULT_STR_VALUE, id = Validation.DEFAULT_STR_VALUE, layers = [],
                 xSpan = Validation.DEFAULT_SPAN_VALUE, ySpan = Validation.DEFAULT_SPAN_VALUE,
-                entity = Validation.DEFAULT_STR_VALUE, ports = null) {
+                entity = Validation.DEFAULT_STR_VALUE, ports = []) {
 
         super(name, id);
         this.layers = layers;
@@ -115,7 +115,7 @@ class Component extends ParchKey {
     validateLayers() {
         let valid = true;
 
-        if (!this.layers) {
+        if (this.layers === 0) {
             console.log('Component: Field "layers" is set to the default value.');
             return false;
         }
@@ -157,7 +157,7 @@ class Component extends ParchKey {
     validatePorts() {
         let valid = true;
 
-        if (!this.ports) {
+        if (this.ports.length === 0) {
             console.log('Component: Field "ports" is set to the default value.');
             return false;
         }
