@@ -82,15 +82,13 @@ class Terminal {
      * @returns {boolean}
      */
     doesPortExist() {
-        let exists = false;
-
         for (let i = 0; i < this.component.ports.length; i++) {
             if (this.component.ports[i] === this.port) {
-                exists = true;
+                return true;
             }
         }
 
-        return exists;
+        return false;
     }
 
 }
