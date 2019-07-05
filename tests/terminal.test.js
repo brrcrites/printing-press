@@ -11,7 +11,7 @@ var layer2 = 'layer-2';
 var validPort1 = new Port('port-1', layer1, new Coord(0, 0));
 var validPort2 = new Port('port-2', layer2, new Coord(0, 5));
 var validPort3 = new Port('port-3', 'layer-3', new Coord(0, 10));
-var invalidPort = new Port('port-1', '', new Coord(0, 0));
+var invalidPort = new Port('invalid-port-1', '', new Coord(0, 0));
 var validComponent = new Component('name', 'unique-id', [layer1, layer2], 10, 20, 'entity', [validPort1, validPort2]);
 var invalidComponent = new Component('', '', [layer1, layer1], 0, 0, '', [new Port(), new Port()]);
 
