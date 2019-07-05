@@ -1,5 +1,4 @@
 const Coord = require('./coord.js');
-const TestResult = require('../utils/test-result.js');
 const Validation = require('../utils/validation.js');
 
 class Port {
@@ -63,17 +62,15 @@ class Port {
      * @see Coord.validate
      */
     validate() {
-        if (Validation.testStringValue(this.label, 'label', 'Port') !== TestResult.VALID ||
-                Validation.testStringValue(this.layer, 'layer', 'Port') !== TestResult.VALID) {
-            return false;
-        }
+        let valid = Validation.testStringValue(this.label, 'label', 'Port');
+        valid = Validation.testStringValue(this.layer, 'layer', 'Port') ? valid : false;
 
         if (!this.pos.validate()) {
             console.log('Port: Field "pos" is invalid.');
-            return false;
+            valid = false;
         }
 
-        return true;
+        return valid;
     }
 }
 
