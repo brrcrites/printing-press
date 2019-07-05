@@ -149,46 +149,54 @@ test('validate Component: port locations', () => {
 
 test('validate Component: default values', () => {
     let def = new Component();
+
     expect(def.validate()).toBe(false);
 });
 
 test('validate Component: default name value', () => {
     let defName = new Component(Validation.DEFAULT_STR_VALUE, 'comp-id', [layer1, layer2], 10, 10, 'comp-entity',
             [port00, port05]);
+
     expect(defName.validate()).toBe(false);
 });
 
 test('validate Component: default ID value', () => {
     let defID = new Component('comp-name', Validation.DEFAULT_STR_VALUE, [layer1, layer2], 10, 10, 'comp-entity',
             [port00, port05]);
+
     expect(defID.validate()).toBe(false);
 });
 
 test('validate Component: default layers value', () => {
     let defLabel = new Component('comp-name', 'comp-id', [], 10, 10, 'comp-entity',
             [port00, port05]);
+
     expect(defLabel.validate()).toBe(false);
 });
 
 test('validate Component: default x-span value', () => {
     let defXSpan = new Component('comp-name', 'comp-id', [layer1, layer2], Validation.DEFAULT_SPAN_VALUE, 10, 'comp-entity',
             [port00, port05]);
+
     expect(defXSpan.validate()).toBe(false);
 });
 
 test('validate Component: default y-span value', () => {
     let defYSpan = new Component('comp-name', 'comp-id', [layer1, layer2], 10, Validation.DEFAULT_SPAN_VALUE, 'comp-entity',
             [port00, port05]);
+
     expect(defYSpan.validate()).toBe(false);
 });
 
 test('validate Component: default entity value', () => {
     let defEntity = new Component('comp-name', 'comp-id', [layer1, layer2], 10, 10, Validation.DEFAULT_STR_VALUE,
             [port00, port05]);
+
     expect(defEntity.validate()).toBe(false);
 });
 
 test('validate Component: default ports value', () => {
     let defPorts = new Component('comp-name', 'comp-id', [layer1, layer2], 10, 10, 'comp-entity');
+
     expect(defPorts.validate()).toBe(false);
 });
