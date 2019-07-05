@@ -1,6 +1,5 @@
 const ParchKey = require('./parch-key.js');
 const Validation = require('../utils/validation.js');
-const TestResult = require('../utils/test-result.js');
 
 class Connection {
     /**
@@ -53,7 +52,7 @@ class Connection {
      * @param {object}  sinks   An array of Terminal objects representing the
      *                          sinks of the connection.
      */
-    constructor(name = ParchKey.DEFAULT_STR_VALUE, id = ParchKey.DEFAULT_STR_VALUE, layer = ParchKey.DEFAULT_STR_VALUE,
+    constructor(name = Validation.DEFAULT_STR_VALUE, id = Validation.DEFAULT_STR_VALUE, layer = Validation.DEFAULT_STR_VALUE,
                 source = null, sinks = []) {
 
         this.name = name;
@@ -67,12 +66,9 @@ class Connection {
     validate() {
         let valid = true;
 
-        if (Validation.testStringValue(this.name, 'name', 'Connection') !== TestResult.VALID ||
-                Validation.testStringValue(this.id, 'id', 'Connection') !== TestResult.VALID ||
-                Validation.testStringValue(this.layer, 'layer', 'Connection') !== TestResult.VALID) {
-            valid = false;
-        }
-
+        valid = Validation.testStringValue(this.name, 'name', 'Connection') ? valid : false;
+        valid = Validation.testStringValue(this.id, 'id', 'Connection') ? valid : false;
+        valid = Validation.testStringValue(this.layer, 'layer', 'Connection') ? valid : false;
         valid = this.validateSource() ? valid : false;
         valid = this.validateSinks() ? valid : false;
 
@@ -80,15 +76,10 @@ class Connection {
     }
 
     validateSource() {
-        if (this.source === null) {
-            console.log('Connection: Field "source" is set to the default value.');
-            return false;
-        }
-
         // Make sure the source is not default value before validating it
-        if (!this.source.validate()) {
-            return false;
+        if (!this.source || !this.source.validate()) {
             console.log('Connection: Field "source" is invalid.');
+            return false;
         }
 
         return true;
@@ -96,7 +87,7 @@ class Connection {
 
     validateSinks() {
         if (this.sinks.length === 0) {
-            console.log('Connection: Field "sinks" is set to the default value.');
+            console.log('Connection: Field "sinks" contains no Terminal objects.');
             return false;
         }
 

@@ -1,9 +1,9 @@
 const Connection = require('../model/connection.js');
-const ParchKey = require('../model/parch-key.js');
 const Terminal = require('../model/terminal.js');
 const Port = require('../model/port.js');
 const Coord = require('../model/coord.js');
 const Component = require('../model/component.js');
+const Validation = require('../utils/validation.js');
 
 //Suppress console logs
 console.log = jest.fn();
@@ -36,9 +36,9 @@ test('initialize Connection: parameters', () => {
 test('initialize Connection: default', () => {
     let c = new Connection();
 
-    expect(c.name).toBe(ParchKey.DEFAULT_STR_VALUE);
-    expect(c.id).toBe(ParchKey.DEFAULT_STR_VALUE);
-    expect(c.layer).toBe(ParchKey.DEFAULT_STR_VALUE);
+    expect(c.name).toBe(Validation.DEFAULT_STR_VALUE);
+    expect(c.id).toBe(Validation.DEFAULT_STR_VALUE);
+    expect(c.layer).toBe(Validation.DEFAULT_STR_VALUE);
     expect(c.source).toBe(null);
     expect(c.sinks).toEqual([]);
 });
@@ -108,19 +108,19 @@ test('validate Connection: default values', () => {
 });
 
 test('validate Connection: default name value', () => {
-    let defNameCon = new Connection(ParchKey.DEFAULT_STR_VALUE, 'id', 'layer', source, [sink1, sink2]);
+    let defNameCon = new Connection(Validation.DEFAULT_STR_VALUE, 'id', 'layer', source, [sink1, sink2]);
 
     expect(defNameCon.validate()).toBe(false);
 });
 
 test('validate Connection: default ID value', () => {
-    let defIDCon = new Connection('name', ParchKey.DEFAULT_STR_VALUE, 'layer', source, [sink1, sink2]);
+    let defIDCon = new Connection('name', Validation.DEFAULT_STR_VALUE, 'layer', source, [sink1, sink2]);
 
     expect(defIDCon.validate()).toBe(false);
 });
 
 test('validate Connection: default layer value', () => {
-    let defLayerCon = new Connection('name', 'id', ParchKey.DEFAULT_STR_VALUE, source, [sink1, sink2]);
+    let defLayerCon = new Connection('name', 'id', Validation.DEFAULT_STR_VALUE, source, [sink1, sink2]);
 
     expect(defLayerCon.validate()).toBe(false);
 });

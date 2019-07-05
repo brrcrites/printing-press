@@ -1,4 +1,3 @@
-const TestResult = require('./test-result.js');
 
 /**
  * A class that holds generic validation functions
@@ -11,7 +10,7 @@ class Validation {
      * @returns {string}
      */
     static get DEFAULT_STR_VALUE() {
-        return 'unassigned';
+        return '';
     }
 
     /**
@@ -40,11 +39,11 @@ class Validation {
     /**
      * Test a string value against the ParchKey name/id rules.
      *
-     * Strings cannot be null. Strings cannot equal the default value.
+     * Strings cannot be empty.
      *
      * @since 1.0.0
      *
-     * @see ParchKey.DEFAULT_STR_VALUE
+     * @see Validation.DEFAULT_STR_VALUE
      *
      * @param {string}  value   The value to be tested.
      * @param {string}  field   A string representation of the field name for
@@ -52,27 +51,21 @@ class Validation {
      * @param {string}  caller  A string representation of the caller's class
      *                          for the error message.
      *
-     * @returns {string}    A TestResult depending on whether the string was
-     *                      default, invalid or valid.
+     * @returns {boolean}       true if the string is valid, false otherwise.
      */
     static testStringValue(value, field, caller) {
-        if(value === '') {
-            console.log(caller + ': Field "' + field + '" cannot be empty.');
-            return TestResult.INVALID;
-        }
-
         if (value === Validation.DEFAULT_STR_VALUE) {
-            console.log(caller + ': Field "' + field + '" is set to the default value.');
-            return TestResult.DEFAULT;
+            console.log(caller + ': Field "' + field + '" cannot be empty.');
+            return false;
         }
 
-        return TestResult.VALID;
+        return true;
     }
 
     /**
      * Tests the given value against the rules of spans.
      *
-     * Cannot be less than 1. Cannot equal the default span value.
+     * Cannot be less than 1.
      *
      * @since 1.0.0
      *
@@ -81,21 +74,15 @@ class Validation {
      * @param {string}  caller  A string representation of the caller's class
      *                          for the error message.
      *
-     * @returns {string}    A TestResult value depending on whether the spa was
-     *                      default, invalid or valid.
+     * @returns {boolean}       true if the span is valid, false otherwise.
      */
     static testSpanValue(value, axis, caller) {
-        if (value === Validation.DEFAULT_SPAN_VALUE) {
-            console.log(caller + ': Field "' + axis + 'Span" is set to the default value.');
-            return TestResult.DEFAULT;
-        }
-
         if (value < 1) {
             console.log(caller + ': Field "' + axis + 'Span" cannot be less than 1.');
-            return TestResult.INVALID;
+            return false;
         }
 
-        return TestResult.VALID;
+        return true;
     }
 
     /**
@@ -111,21 +98,16 @@ class Validation {
      * @param {string}  caller  A string representation of the caller's class
      *                          for the error message.
      *
-     * @returns {string}    A TestResult value depending on whether the spa was
-     *                      default, invalid or valid.
+     * @returns {boolean}       true if the coord value is valid, false
+     *                          otherwise.
      */
     static testCoordValue(value, field, caller) {
-        if (value === Validation.DEFAULT_COORD_VALUE) {
-            console.log(caller + ': Field "' + field + '" is set to the default value.');
-            return TestResult.DEFAULT;
-        }
-
         if (value < 0) {
             console.log(caller + ': Field "' + field + '" cannot be negative.');
-            return TestResult.INVALID;
+            return false;
         }
 
-        return TestResult.VALID;
+        return true;
     }
 }
 

@@ -51,13 +51,10 @@ class Terminal {
     validate() {
         let valid = true;
 
-        if (this.component === null) {
-            console.log('Terminal: Field "component" is set to the default value');
+        if (!this.component || !this.component.validate()) {
+            console.log('Terminal: Field "component" is invalid.');
             valid = false;
-        } else {
-            valid = this.component.validate() ? valid : false;
         }
-
 
         // Port is allowed to be its default value
         if (this.port) {

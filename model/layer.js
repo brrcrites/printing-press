@@ -1,4 +1,5 @@
 const ParchKey = require('./parch-key.js');
+const Validation = require('../utils/validation.js');
 
 class Layer extends ParchKey {
 
@@ -11,7 +12,7 @@ class Layer extends ParchKey {
      * @param {string}  name    The layer name.
      * @param {string}  id      The layer id.
      */
-    constructor(name = ParchKey.DEFAULT_STR_VALUE, id = ParchKey.DEFAULT_STR_VALUE) {
+    constructor(name = Validation.DEFAULT_STR_VALUE, id = Validation.DEFAULT_STR_VALUE) {
         super(name, id);
     }
 

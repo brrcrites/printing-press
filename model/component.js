@@ -1,5 +1,4 @@
 const ParchKey = require('./parch-key.js');
-const TestResult = require('../utils/test-result.js');
 const Validation = require('../utils/validation.js');
 
 class Component extends ParchKey {
@@ -93,11 +92,9 @@ class Component extends ParchKey {
         let valid = super.validate();
 
         valid = this.validateLayers() ? valid : false;
-        if (Validation.testSpanValue(this.xSpan, 'x', 'Component') !== TestResult.VALID ||
-                Validation.testSpanValue(this.ySpan, 'y', 'Component') !== TestResult.VALID) {
-            valid = false;
-        }
-        valid = this.validateEntity() ? valid : false;
+        valid = Validation.testSpanValue(this.xSpan, 'x', 'Component') ? valid : false;
+        valid = Validation.testSpanValue(this.ySpan, 'y', 'Component') ? valid : false;
+        valid = Validation.testStringValue(this.entity, 'entity', 'Component') ? valid : false;
         valid = this.validatePorts() ? valid : false;
 
         return valid;
@@ -116,7 +113,7 @@ class Component extends ParchKey {
         let valid = true;
 
         if (this.layers === 0) {
-            console.log('Component: Field "layers" is set to the default value.');
+            console.log('Component: Field "layers" is contains no Layers.');
             return false;
         }
 
@@ -128,21 +125,6 @@ class Component extends ParchKey {
         });
 
         return valid;
-    }
-
-    /**
-     * Validates the entity field.
-     *
-     * Follows the rules of ParchKey's test string function.
-     *
-     * @since 1.0.0
-     *
-     * @see Validation.testStringValue
-     *
-     * @returns {boolean}
-     */
-    validateEntity() {
-        return Validation.testStringValue(this.entity, 'entity', 'Component') === TestResult.VALID;
     }
 
     /**
@@ -158,7 +140,7 @@ class Component extends ParchKey {
         let valid = true;
 
         if (this.ports.length === 0) {
-            console.log('Component: Field "ports" is set to the default value.');
+            console.log('Component: Field "ports" contains no Port objects.');
             return false;
         }
 

@@ -1,4 +1,3 @@
-const TestResult = require('../utils/test-result.js');
 const Validation = require('../utils/validation.js');
 
 /**
@@ -65,12 +64,8 @@ class Coord {
      * @returns {boolean} true if x and y are positive, false otherwise.
      */
     validate() {
-        if (Validation.testCoordValue(this.x, 'x', 'Coord') !== TestResult.VALID ||
-                Validation.testCoordValue(this.y, 'y', 'Coord') !== TestResult.VALID) {
-            return false;
-        }
-
-        return true;
+        return Validation.testCoordValue(this.x, 'x', 'Coord')
+                && Validation.testCoordValue(this.y, 'y', 'Coord');
     }
 
     /**
