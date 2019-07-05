@@ -39,6 +39,24 @@ test('modify Terminal', () => {
     expect(t.port).toEqual(new Port());
 });
 
+test('validate Terminal: invalid modified Terminal', () => {
+    let t = new Terminal();
+
+    t.component = new Component();
+    t.port = new Port();
+
+    expect(t.validate()).toBe(false);
+});
+
+test('validate Terminal: valid modified Terminal', () => {
+    let t = new Terminal();
+
+    t.component = validComponent;
+    t.port = validPort1;
+
+    expect(t.validate()).toBe(true);
+});
+
 test('validate Terminal: valid given values', () => {
     let t = new Terminal(validComponent, validPort1);
 
