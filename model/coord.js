@@ -64,8 +64,10 @@ class Coord {
      * @returns {boolean} true if x and y are positive, false otherwise.
      */
     validate() {
-        return Validation.testCoordValue(this.x, 'x', 'Coord')
-                && Validation.testCoordValue(this.y, 'y', 'Coord');
+        let valid = Validation.testCoordValue(this.x, 'x', 'Coord');
+        valid = Validation.testCoordValue(this.y, 'y', 'Coord') ? valid : false;
+
+        return valid;
     }
 
     /**
