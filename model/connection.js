@@ -87,7 +87,7 @@ class Connection {
 
     validateSinks() {
         if (this.sinks.length === 0) {
-            console.log('Connection: Field "sinks" contains no Terminal objects.');
+            console.log('Connection: Field "sinks" is invalid.');
             return false;
         }
 
