@@ -34,7 +34,7 @@ test('validate Layer: invalid id value', () => {
     expect(badIDLayer.validate()).toBe(false);
 });
 
-test('validate Layer: invalid values', () => {
+test('validate Layer: invalid name and id values', () => {
     let badBothLayer = new Layer('', '');
 
     expect(badBothLayer.validate()).toBe(false);

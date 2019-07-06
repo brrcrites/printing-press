@@ -34,7 +34,7 @@ test('validate port: valid values', () => {
     expect(goodPort.validate()).toBe(true);
 });
 
-test('validate port: invalid values', () => {
+test('validate port: invalid name, id, and Coord values', () => {
     let badPort = new Port('', '', new Coord(-100, -100));
 
     expect(badPort.validate()).toBe(false);
@@ -64,19 +64,19 @@ test('validate port: default values', () => {
     expect(defPort.validate()).toBe(false);
 });
 
-test('validate port: default  value', () => {
+test('validate port: default label value', () => {
     let defLabelPort = new Port(Validation.DEFAULT_STR_VALUE, 'layer', new Coord(0, 0));
 
     expect(defLabelPort.validate()).toBe(false);
 });
 
-test('validate port: default  value', () => {
+test('validate port: default layer value', () => {
     let defLayerPort = new Port('label', Validation.DEFAULT_STR_VALUE, new Coord(0, 0));
 
     expect(defLayerPort.validate()).toBe(false);
 });
 
-test('validate port: default  value', () => {
+test('validate port: default Coord value', () => {
     let defCoordPort = new Port('label', 'layer');
 
     expect(defCoordPort.validate()).toBe(false);
