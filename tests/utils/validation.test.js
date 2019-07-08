@@ -38,3 +38,15 @@ test('test coord value: default', () => {
 test('test coord value: valid', () => {
     expect(Validation.testCoordValue(15, 'field', 'Validation Test')).toBe(true);
 });
+
+test('test dimension value: invalid', () => {
+    expect(Validation.testDimensionValue(-432, 'field', 'Validation Test')).toBe(false);
+});
+
+test('test dimension value: default', () => {
+    expect(Validation.testDimensionValue(Validation.DEFAULT_DIM_VALUE, 'field', 'Validation Test')).toBe(false);
+});
+
+test('test dimension value: valid', () => {
+    expect(Validation.testDimensionValue(42, 'field', 'Validation Test')).toBe(true);
+});
