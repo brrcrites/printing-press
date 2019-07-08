@@ -92,8 +92,7 @@ class Component extends ParchKey {
         let valid = super.validate();
 
         valid = this.validateLayers() ? valid : false;
-        valid = Validation.testSpanValue(this.xSpan, 'x', 'Component') ? valid : false;
-        valid = Validation.testSpanValue(this.ySpan, 'y', 'Component') ? valid : false;
+        valid = this.validateSpans() ? valid : false;
         valid = Validation.testStringValue(this.entity, 'entity', 'Component') ? valid : false;
         valid = this.validatePorts() ? valid : false;
 
@@ -123,6 +122,13 @@ class Component extends ParchKey {
                 console.log('Component: Field "layers" cannot have any empty strings. See layers[${index}].');
             }
         });
+
+        return valid;
+    }
+
+    validateSpans() {
+        let valid = Validation.testSpanValue(this.xSpan, 'x', 'Component');
+        valid = Validation.testSpanValue(this.ySpan, 'y', 'Component') ? valid : false;
 
         return valid;
     }
