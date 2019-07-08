@@ -1,9 +1,9 @@
-const Connection = require('../model/connection.js');
-const Terminal = require('../model/terminal.js');
-const Port = require('../model/port.js');
-const Coord = require('../model/coord.js');
-const Component = require('../model/component.js');
-const Validation = require('../utils/validation.js');
+const Connection = require('../../model/connection.js');
+const Terminal = require('../../model/terminal.js');
+const Port = require('../../model/port.js');
+const Coord = require('../../model/coord.js');
+const Component = require('../../model/component.js');
+const Validation = require('../../utils/validation.js');
 
 //Suppress console logs
 console.log = jest.fn();

@@ -1,4 +1,4 @@
-const Validation = require('../utils/validation.js');
+const Validation = require('../../utils/validation.js');
 
 //Suppress console logs
 console.log = jest.fn();
