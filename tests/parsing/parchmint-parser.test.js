@@ -1,6 +1,9 @@
 const ParchmintParser = require('../../parsing/parchmint-parser.js');
 const Layer = require('../../model/layer.js');
 
+// Suppress console logs
+console.log = jest.fn();
+
 const validParchmintLayers = '"layers": [\n' +
         '    {\n' +
         '        "id": "unique-flow-layer-id-string",\n' +
