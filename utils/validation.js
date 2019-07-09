@@ -48,6 +48,19 @@ class Validation {
     }
 
     /**
+     * The default type of a Connection Feature.
+     *
+     * @since 1.0.0
+     *
+     * @see Connection.type
+     *
+     * @returns {string}
+     */
+    static get DEFAULT_CON_TYPE() {
+        return 'channel';
+    }
+
+    /**
      * Test a string value against the ParchKey name/id rules.
      *
      * Strings cannot be empty.
