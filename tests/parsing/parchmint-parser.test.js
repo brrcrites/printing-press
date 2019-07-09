@@ -34,8 +34,11 @@ describe('layers', () => {
     test('initialize with initParchKey', () => {
         let pp = new ParchmintParser();
         let l = new Layer();
+        let layers = parseJSONObj(validParchmintLayers).layers;
 
-        pp.initParchKey(l, parseJSONObj(validParchmintLayers).layers[0]);
+        expect(layers.length).toBe(2);
+
+        pp.initParchKey(l, layers[0]);
 
         expect(l.name).toBe('flow-layer');
         expect(l.id).toBe('unique-flow-layer-id-string');
@@ -44,6 +47,8 @@ describe('layers', () => {
     test('valid JSON array obj', () => {
         let pp = new ParchmintParser();
         let l = pp.parseLayersArray(parseJSONObj(validParchmintLayers));
+
+        expect(l.length).toBe(2);
 
         expect(l[0].name).toBe('flow-layer');
         expect(l[0].id).toBe('unique-flow-layer-id-string');
@@ -56,6 +61,8 @@ describe('layers', () => {
             let pp = new ParchmintParser();
             let l = pp.parseLayersArray(parseJSONObj(invalidParchmintLayers));
 
+            expect(l.length).toBe(2);
+
             expect(l[0].validate()).toBe(false);
         });
 
@@ -63,12 +70,16 @@ describe('layers', () => {
             let pp = new ParchmintParser();
             let l = pp.parseLayersArray(parseJSONObj(invalidParchmintLayers));
 
+            expect(l.length).toBe(2);
+
             expect(l[1].validate()).toBe(false);
         });
 
         test('valid', () => {
             let pp = new ParchmintParser();
             let l = pp.parseLayersArray(parseJSONObj(validParchmintLayers));
+
+            expect(l.length).toBe(2);
 
             expect(l[0].validate()).toBe(true);
             expect(l[1].validate()).toBe(true);
