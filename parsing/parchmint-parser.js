@@ -30,6 +30,8 @@ class ParchmintParser {
      *
      * This method is intended for use on any subclass of ParchKey.
      *
+     * @since 1.0.0
+     *
      * @param {object}  parchKeyObj The ParchKey object to initialize.
      * @param {object}  jsonObj     The JSON object with which to initialize.
      */
@@ -40,6 +42,8 @@ class ParchmintParser {
 
     /**
      * Parse a JSON object for the layers key.
+     *
+     * @since 1.0.0
      *
      * @param {object} jsonObj  A parsed JSON object representing the Parchmint file.
      *
