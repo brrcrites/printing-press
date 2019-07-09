@@ -1,7 +1,7 @@
-const Terminal = require('../model/terminal.js');
-const Port = require('../model/port.js');
-const Component = require('../model/component.js');
-const Coord = require('../model/coord.js');
+const Terminal = require('../../model/terminal.js');
+const Port = require('../../model/port.js');
+const Component = require('../../model/component.js');
+const Coord = require('../../model/coord.js');
 
 // Suppress console logs
 console.log = jest.fn();

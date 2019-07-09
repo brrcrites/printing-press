@@ -1,5 +1,5 @@
-const Layer = require('../model/layer.js');
-const ParchKey = require('../model/parch-key.js');
+const Layer = require('../../model/layer.js');
+const ParchKey = require('../../model/parch-key.js');
 
 // Suppress console logs
 console.log = jest.fn();

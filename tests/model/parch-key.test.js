@@ -1,4 +1,4 @@
-const ParchKey = require('../model/parch-key');
+const ParchKey = require('../../model/parch-key');
 
 test('instantiate ParchKey class', () => {
     function instantiateParch() {
