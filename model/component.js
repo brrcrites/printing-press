@@ -120,6 +120,7 @@ class Component extends ParchKey {
         // Component Feature Fields
         this.layer = Validation.DEFAULT_STR_VALUE;
         this.depth = Validation.DEFAULT_DIM_VALUE;
+        this.location = null;
     }
 
     /**
@@ -136,10 +137,11 @@ class Component extends ParchKey {
      *                          direction.
      * @param {number}  depth   How deep the component should be.
      */
-    initFeature(name, id, layer, xSpan, ySpan, depth) {
+    initFeature(name, id, layer, location, xSpan, ySpan, depth) {
         this.name = name;
         this.id = id;
         this.layer = layer;
+        this.location = location;
         this.xSpan = xSpan;
         this.ySpan = ySpan;
         this.depth = depth;
@@ -155,8 +157,9 @@ class Component extends ParchKey {
      * @param {string}  layer   The layer on which this component exists.
      * @param {number}  depth   How deep the component should be.
      */
-    initFeatureExclusives(layer, depth) {
+    initFeatureExclusives(layer, location, depth) {
         this.layer = layer;
+        this.location = location;
         this.depth = depth;
     }
 
@@ -297,7 +300,12 @@ class Component extends ParchKey {
     validateFeature() {
         let valid = super.validate();
         valid = Validation.testStringValue(this.layer, 'layer', 'Component') ? valid : false;
-        valid = Validation.testCoordValue(this.location, 'location', 'Component') ? valid : false;
+        if (!this.location) {
+            valid = false;
+            console.log('Component: Field "location" is invalid.');
+        } else {
+            valid = this.location.validate() ? valid : false;
+        }
         valid = this.validateSpans() ? valid : false;
         valid = Validation.testDimensionValue(this.depth, 'depth', 'Component') ? valid : false;
 
