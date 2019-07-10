@@ -78,6 +78,14 @@ class Validation {
      * @returns {boolean}       true if the string is valid, false otherwise.
      */
     static testStringValue(value, field, caller) {
+        if (!value) {
+            console.log(caller + 'Field "' + field + '" equates to falsey.');
+            return false;
+        }
+        if (typeof value !== 'string') {
+            console.log(caller + 'Field "' + field + '" is not a string.');
+            return false;
+        }
         if (value === Validation.DEFAULT_STR_VALUE) {
             console.log(caller + ': Field "' + field + '" cannot be empty.');
             return false;
@@ -101,6 +109,10 @@ class Validation {
      * @returns {boolean}       true if the span is valid, false otherwise.
      */
     static testSpanValue(value, axis, caller) {
+        if (typeof value !== 'number') {
+            console.log(caller + 'Field "' + axis + '" is not a number.');
+            return false;
+        }
         if (value < 1) {
             console.log(caller + ': Field "' + axis + 'Span" cannot be less than 1.');
             return false;
@@ -126,6 +138,10 @@ class Validation {
      *                          otherwise.
      */
     static testCoordValue(value, field, caller) {
+        if (typeof value !== 'number') {
+            console.log(caller + 'Field "' + field + '" is not a number.');
+            return false;
+        }
         if (value < 0) {
             console.log(caller + ': Field "' + field + '" cannot be negative.');
             return false;
@@ -151,6 +167,10 @@ class Validation {
      *                          otherwise.
      */
     static testDimensionValue(value, field, caller) {
+        if (typeof value !== 'number') {
+            console.log(caller + 'Field "' + field + '" is not a number.');
+            return false;
+        }
         if (value < 0) {
             console.log(caller + ': Field "' + field + '" cannot be negative.');
             return false;
