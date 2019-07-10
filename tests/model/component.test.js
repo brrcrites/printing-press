@@ -200,3 +200,118 @@ test('validate Component: default ports value', () => {
 
     expect(defPorts.validate()).toBe(false);
 });
+
+describe('Component Feature', () => {
+    describe('initialization', () => {
+        test('initFeature method', () => {
+            let c = new Component();
+            c.initFeature('comp-name', 'comp-id', layer1, new Coord(), 10, 15, 20);
+
+            expect(c.name).toBe('comp-name');
+            expect(c.id).toBe('comp-id');
+            expect(c.layer).toBe(layer1);
+            expect(c.location).toEqual(new Coord());
+            expect(c.xSpan).toBe(10);
+            expect(c.ySpan).toBe(15);
+            expect(c.depth).toBe(20);
+        });
+
+        test('initFeatureExclusives method', () => {
+            let c = new Component();
+            c.initFeatureExclusives(layer2, new Coord(), 5);
+
+            expect(c.name).toBe(Validation.DEFAULT_STR_VALUE);
+            expect(c.id).toBe(Validation.DEFAULT_STR_VALUE);
+            expect(c.layer).toBe(layer2);
+            expect(c.location).toEqual(new Coord());
+            expect(c.xSpan).toBe(Validation.DEFAULT_SPAN_VALUE);
+            expect(c.ySpan).toBe(Validation.DEFAULT_SPAN_VALUE);
+            expect(c.depth).toBe(5);
+        });
+
+        test('modify fields', () => {
+            let c = new Component();
+            c.name = 'comp-name';
+            c.id = 'comp-id';
+            c.layer = layer1;
+            c.location = new Coord();
+            c.xSpan = 10;
+            c.ySpan = 15;
+            c.depth = 20;
+
+            expect(c.name).toBe('comp-name');
+            expect(c.id).toBe('comp-id');
+            expect(c.layer).toBe(layer1);
+            expect(c.location).toEqual(new Coord());
+            expect(c.xSpan).toBe(10);
+            expect(c.ySpan).toBe(15);
+            expect(c.depth).toBe(20);
+        });
+    });
+
+    describe('validation', () => {
+        test('valid', () => {
+            let c = new Component();
+            c.initFeature('name', 'id', layer1, new Coord(0, 0), 10, 15, 4);
+
+            expect(c.validateFeature()).toBe(true);
+        });
+
+        describe('invalid', () => {
+            test('all fields', () => {
+                let c = new Component();
+
+                expect(c.validateFeature()).toBe(false);
+            });
+
+            test('name', () => {
+                let c = new Component();
+                c.initFeature(Validation.DEFAULT_STR_VALUE, 'id', layer1, new Coord(0, 0), 10, 15, 20);
+
+                expect(c.validateFeature()).toBe(false);
+            });
+
+            test('id', () => {
+                let c = new Component();
+                c.initFeature('name', Validation.DEFAULT_STR_VALUE, layer1, new Coord(0, 0), 10, 15, 20);
+
+                expect(c.validateFeature()).toBe(false);
+            });
+
+            test('layer', () => {
+                let c = new Component();
+                c.initFeature('name', 'id', Validation.DEFAULT_STR_VALUE, new Coord(0, 0), 10, 15, 20);
+
+                expect(c.validateFeature()).toBe(false);
+            });
+
+            test('location', () => {
+                let c = new Component();
+                c.initFeature('name', 'id', layer1, new Coord(), 10, 15, 20);
+
+                expect(c.validateFeature()).toBe(false);
+            });
+
+            test('xSpan', () => {
+                let c = new Component();
+                c.initFeature('name', 'id', layer1,new Coord(0, 0), Validation.DEFAULT_SPAN_VALUE,  15, 20);
+
+                expect(c.validateFeature()).toBe(false);
+            });
+
+            test('ySpan', () => {
+                let c = new Component();
+                c.initFeature('name', 'id', layer1, new Coord(0, 0), 10, Validation.DEFAULT_SPAN_VALUE, 20);
+
+                expect(c.validateFeature()).toBe(false);
+            });
+
+            test('depth', () => {
+                let c = new Component();
+                c.initFeature('name', 'id', layer1, new Coord(0, 0), 10, 15, Validation.DEFAULT_DIM_VALUE);
+
+                expect(c.validateFeature()).toBe(false);
+            });
+        });
+    });
+});

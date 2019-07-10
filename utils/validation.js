@@ -37,6 +37,17 @@ class Validation {
     }
 
     /**
+     * The default dimension value.
+     *
+     * @since 1.0.0
+     *
+     * @returns {number}
+     */
+    static get DEFAULT_DIM_VALUE() {
+        return -1;
+    }
+
+    /**
      * Test a string value against the ParchKey name/id rules.
      *
      * Strings cannot be empty.
@@ -54,6 +65,14 @@ class Validation {
      * @returns {boolean}       true if the string is valid, false otherwise.
      */
     static testStringValue(value, field, caller) {
+        if (!value) {
+            console.log(caller + 'Field "' + field + '" equates to falsey.');
+            return false;
+        }
+        if (typeof value !== 'string') {
+            console.log(caller + 'Field "' + field + '" is not a string.');
+            return false;
+        }
         if (value === Validation.DEFAULT_STR_VALUE) {
             console.log(caller + ': Field "' + field + '" cannot be empty.');
             return false;
@@ -77,6 +96,10 @@ class Validation {
      * @returns {boolean}       true if the span is valid, false otherwise.
      */
     static testSpanValue(value, axis, caller) {
+        if (typeof value !== 'number') {
+            console.log(caller + 'Field "' + axis + '" is not a number.');
+            return false;
+        }
         if (value < 1) {
             console.log(caller + ': Field "' + axis + 'Span" cannot be less than 1.');
             return false;
@@ -86,7 +109,7 @@ class Validation {
     }
 
     /**
-     * Tests the given value agains the rules of coords.
+     * Tests the given value against the rules of coords.
      *
      * Cannot be negative. Cannot equal the default value.
      *
@@ -102,6 +125,39 @@ class Validation {
      *                          otherwise.
      */
     static testCoordValue(value, field, caller) {
+        if (typeof value !== 'number') {
+            console.log(caller + 'Field "' + field + '" is not a number.');
+            return false;
+        }
+        if (value < 0) {
+            console.log(caller + ': Field "' + field + '" cannot be negative.');
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Tests the given value against the rules of dimensions (depth/width).
+     *
+     * Dimensions cannot be negative.
+     *
+     * @since 1.0.0
+     *
+     * @param {number}  value   A value to test against the span rules.
+     * @param {string}  field   A string representation of the field name for
+     *                          the error message.
+     * @param {string}  caller  A string representation of the caller's class
+     *                          for the error message.
+     *
+     * @returns {boolean}       true if the dimension is valid, false
+     *                          otherwise.
+     */
+    static testDimensionValue(value, field, caller) {
+        if (typeof value !== 'number') {
+            console.log(caller + 'Field "' + field + '" is not a number.');
+            return false;
+        }
         if (value < 0) {
             console.log(caller + ': Field "' + field + '" cannot be negative.');
             return false;

@@ -53,6 +53,37 @@ class Component extends ParchKey {
      */
     ports;
 
+
+    /**
+     * The layer on which the Feature Component exists.
+     *
+     * @since 1.0.0
+     * @access public
+     *
+     * @type {string}
+     */
+    layer;
+
+    /**
+     * The location of this component in the Architecture.
+     *
+     * @since 1.0.0
+     * @access public
+     *
+     * @type {object}
+     */
+    location;
+
+    /**
+     * How deep the component should be.
+     *
+     * @since 1.0.0
+     * @access public
+     *
+     * @type {number}
+     */
+    depth;
+
     /**
      *
      * Constructs the Component object.
@@ -86,14 +117,57 @@ class Component extends ParchKey {
         this.entity = entity;
         this.ports = ports;
 
+        // Component Feature Fields
+        this.layer = Validation.DEFAULT_STR_VALUE;
+        this.depth = Validation.DEFAULT_DIM_VALUE;
+        this.location = null;
+    }
+
+    /**
+     * Initialize all the fields of a Connection Feature.
+     *
+     * @since 1.0.0
+     *
+     * @param {string}  name    The name of the component.
+     * @param {string}  id      The unique id of the component.
+     * @param {string}  layer   The layer on which this component exists.
+     * @param {number}  xSpan   How much space this component takes up in the x
+     *                          direction.
+     * @param {number}  ySpan   How much space this component takes up in the y
+     *                          direction.
+     * @param {number}  depth   How deep the component should be.
+     */
+    initFeature(name, id, layer, location, xSpan, ySpan, depth) {
+        this.name = name;
+        this.id = id;
+        this.layer = layer;
+        this.location = location;
+        this.xSpan = xSpan;
+        this.ySpan = ySpan;
+        this.depth = depth;
+    }
+
+    /**
+     * Initialize the fields exclusive to a Connection Feature.
+     *
+     * This excludes the name, id, and spans to ease parsing.
+     *
+     * @since 1.0.0
+     *
+     * @param {string}  layer   The layer on which this component exists.
+     * @param {number}  depth   How deep the component should be.
+     */
+    initFeatureExclusives(layer, location, depth) {
+        this.layer = layer;
+        this.location = location;
+        this.depth = depth;
     }
 
     validate() {
         let valid = super.validate();
 
         valid = this.validateLayers() ? valid : false;
-        valid = Validation.testSpanValue(this.xSpan, 'x', 'Component') ? valid : false;
-        valid = Validation.testSpanValue(this.ySpan, 'y', 'Component') ? valid : false;
+        valid = this.validateSpans() ? valid : false;
         valid = Validation.testStringValue(this.entity, 'entity', 'Component') ? valid : false;
         valid = this.validatePorts() ? valid : false;
 
@@ -123,6 +197,20 @@ class Component extends ParchKey {
                 console.log('Component: Field "layers" cannot have any empty strings. See layers[${index}].');
             }
         });
+
+        return valid;
+    }
+
+    /**
+     * Validate the x/y-span fields
+     *
+     * Spans must be greater than 0.
+     *
+     * @returns {boolean}
+     */
+    validateSpans() {
+        let valid = Validation.testSpanValue(this.xSpan, 'x', 'Component');
+        valid = Validation.testSpanValue(this.ySpan, 'y', 'Component') ? valid : false;
 
         return valid;
     }
@@ -194,6 +282,32 @@ class Component extends ParchKey {
                         ') at index ' + i + '.');
             }
         }
+
+        return valid;
+    }
+
+    /**
+     * Validate the Component object as a Feature Component.
+     *
+     * All rules are listed in the Validation class. Depth is considered a dimension.
+     *
+     * @see Validation
+     *
+     * @since 1.0.0
+     *
+     * @return {boolean}
+     */
+    validateFeature() {
+        let valid = super.validate();
+        valid = Validation.testStringValue(this.layer, 'layer', 'Component') ? valid : false;
+        if (!this.location) {
+            valid = false;
+            console.log('Component: Field "location" is invalid.');
+        } else {
+            valid = this.location.validate() ? valid : false;
+        }
+        valid = this.validateSpans() ? valid : false;
+        valid = Validation.testDimensionValue(this.depth, 'depth', 'Component') ? valid : false;
 
         return valid;
     }
