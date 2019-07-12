@@ -38,81 +38,24 @@ class Connection extends ParchKey {
 
 
     /**
-     * The id of the abstract connection this connection is segment of.
+     * The abstract Connection this Connection Feature represents.
      *
      * @since 1.0.0
      * @access public
      *
-     * @type {string}
+     * @type {object}
      */
     connection;
 
     /**
-     * The width of the channel tangentially to its direction of travel.
-     *
-     * For validation purposes this is a dimension.
-     *
-     * @see Validation.testDimensionValue
+     * The Connection Segments that make up a Connection Feature
      *
      * @since 1.0.0
      * @access public
      *
-     * @type {number}
+     * @type {Array}
      */
-    width;
-
-
-    /**
-     * The channel depth.
-     *
-     * For validation purposes this is a dimension.
-     *
-     * @see Validation.testDimensionValue
-     *
-     * @since 1.0.0
-     * @access public
-     *
-     * @type {number}
-     */
-    depth;
-
-    /**
-     * The starting point of this line segment.
-     *
-     * Represented as a Coord object.
-     *
-     * @since 1.0.0
-     * @access public
-     *
-     * @type {object}
-     */
-    sourcePoint;
-
-    /**
-     * The ending point of this line segment.
-     *
-     * Represented as a Coord object.
-     *
-     * @since 1.0.0
-     * @access public
-     *
-     * @type {object}
-     */
-    sinkPoint;
-
-    /**
-     * The type of connection.
-     *
-     * Currently always set to "channel". Treat this as a constant and do not
-     * change it.
-     *
-     * @since 1.0.0
-     * @acess public
-     *
-     * @type {string}
-     */
-    type;
-
+    connSegments;
 
     /**
      * Construct the Connection object.
@@ -137,12 +80,8 @@ class Connection extends ParchKey {
         this.sinks = sinks;
 
         // Connection Feature fields
-        this.connection = Validation.DEFAULT_STR_VALUE;
-        this.width = Validation.DEFAULT_DIM_VALUE;
-        this.depth = Validation.DEFAULT_DIM_VALUE;
-        this.sourcePoint = null;
-        this.sinkPoint = null;
-        this.type = Validation.DEFAULT_CON_TYPE;
+        this.connection = null;
+        this.connSegments = [];
     }
 
     /**
@@ -150,29 +89,22 @@ class Connection extends ParchKey {
      *
      * @since 1.0.0
      *
-     * @param {string}  name        The name of the connection feature.
-     * @param {string}  id          The unique id of this connection feature
-     *                              segment.
-     * @param {string}  connection  The id of the connection this connection
-     *                              is a segment of.
-     * @param {string}  layer       The layer on which this connection feature
-     *                              exists.
-     * @param {number}  width       The width of the channel tangentially to
-     *                              its direction of travel.
-     * @param {number}  depth       The depth of the channel.
-     * @param {object}  sourcePoint The source point of this connection
-     *                              feature.
-     * @param {object}  sinkPoint   The sink point of this connection feature.
+     * @param {string}  name            The name of the Connection Feature.
+     * @param {string}  id              The unique id of this Connection Feature
+     *                                  segment.
+     * @param {object}  connection      The abstract Connection this Connection
+     *                                  Feature represents.
+     * @param {string}  layer           The layer on which this Connection
+     *                                  Feature exists.
+     * @param {Array}   connSegments    An array of Connection Segment objects
+     *                                  that make up this Connection Feature.
      */
-    initFeature(name, id, connection, layer, width, depth, sourcePoint, sinkPoint) {
+    initFeature(name, id, connection, layer, connSegments) {
         this.name = name;
         this.id = id;
         this.connection = connection;
         this.layer = layer;
-        this.width = width;
-        this.depth = depth;
-        this.sourcePoint = sourcePoint;
-        this.sinkPoint = sinkPoint;
+        this.connSegments = connSegments;
     }
 
     /**
@@ -182,21 +114,14 @@ class Connection extends ParchKey {
      *
      * @since 1.0.0
      *
-     * @param {string}  connection  The id of the connection this connection
-     *                              is a segment of.
-     * @param {number}  width       The width of the channel tangentially to
-     *                              its direction of travel.
-     * @param {number}  depth       The depth of the channel.
-     * @param {object}  sourcePoint The source point of this connection
-     *                              feature.
-     * @param {object}  sinkPoint   The sink point of this connection feature.
+     * @param {object}  connection      The abstract Connection this Connection
+     *                                  Feature represents.
+     * @param {Array}   connSegments    An array of ConnectionSegment objects
+     *                                  that make up this Connection Feature.
      */
-    initFeatureExclusives(connection, width, depth, sourcePoint, sinkPoint) {
+    initFeatureExclusives(connection, connSegments) {
         this.connection = connection;
-        this.sourcePoint = sourcePoint;
-        this.width = width;
-        this.depth = depth;
-        this.sinkPoint = sinkPoint;
+        this.connSegments = connSegments;
     }
 
     /**
@@ -283,58 +208,73 @@ class Connection extends ParchKey {
      */
     validateFeature() {
         let valid = super.validate();
-        valid = Validation.testStringValue(this.connection, 'connection', 'Connection') ? valid : false;
-        valid = Validation.testStringValue(this.layer, 'layer', 'Connection') ? valid : false;
-        valid = Validation.testDimensionValue(this.width, 'width', 'Connection') ? valid : false;
-        valid = Validation.testDimensionValue(this.depth, 'depth', 'Connection') ? valid : false;
-        valid = this.validateSinkSourcePoints() ? valid : false;
-        if (this.type !== Validation.DEFAULT_CON_TYPE) {
+
+        if (!this.connection || !this.connection.validate()) {
             valid = false;
-            console.log('Connection: Field "type" is invalid. It must be "' + Validation.DEFAULT_CON_TYPE + '", but' +
-                    ' it is "' + this.type + '".');
+            console.log('Connection Feature: Field "connection" is invalid.');
         }
+
+        valid = this.validateFeatureLayer() ? valid : false;
+        valid = this.validateFeatureConnSegments() ? valid : false;
 
         return valid;
     }
 
     /**
-     * Validate the sinkPoint and sourcePoint objects.
+     * Validate the Connection Feature's layer.
      *
-     * The line between sinkPoint and sourcePoint must be straight and cannot
-     * have the same x and y values. Both must not evaluate to falsey and be
-     * valid Coord objects.
+     * The layer must be a valid string. The Connection Feature reference must
+     * be valid. The layer must match the referenced Connection Feature's
+     * layer.
      *
      * @since 1.0.0
      *
-     * @see validateEndpoint
+     * @returns {boolean}
+     */
+    validateFeatureLayer() {
+        if (Validation.testStringValue(this.layer, 'layer', 'Connection Feature')) {
+            if (!this.connection) {
+                console.log('Connection Feature: Field "connection" is invalid.');
+                return false;
+            }
+
+            if (this.connection.layer !== this.layer) {
+                console.log('Connection Feature: Field "layer" (' + this.layer + 'does not match the layer in the' +
+                        ' referenced abstract Connection (' + this.connection.layer + ').');
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Validate the array of ConnectionSegment objects.
+     *
+     * The length of the array must not be zero. Each ConnectionSegment object
+     * in the array must be valid.
+     *
+     * @since 1.0.0
      *
      * @returns {boolean}
      */
-    validateSinkSourcePoints() {
+    validateFeatureConnSegments() {
         let valid = true;
 
-        if (!this.sourcePoint || !this.sourcePoint.validate()) {
-            console.log('Connection: Fields "sourcePoint" is invalid.');
+        if (this.connSegments.length === 0) {
+            console.log('Connection Feature: Field "connSegments" cannot be an empty array.');
             return false;
         }
 
-        if (!this.sinkPoint || !this.sinkPoint.validate()) {
-            console.log('Connection: Fields "sinkPoint" is invalid.');
-            return false;
-        }
-
-        // Check that this connection is a straight line
-        if ((this.sinkPoint.x !== this.sourcePoint.x) && (this.sinkPoint.y !== this.sourcePoint.y)) {
-            valid = false;
-            console.log('Connection: Fields "sinkPoint" and "sourcePoint" are invalid. They must be a straight line.');
-        }
-
-        // Check that this connection is not a single point
-        if (this.sourcePoint.is(this.sinkPoint)) {
-            valid = false;
-            console.log('Connection: Fields "sinkPoint" and "sourcePoint" are invalid. They cannot have the same x/y' +
-                    ' values.');
-        }
+        this.connSegments.forEach((value, index) => {
+            if (!value.validate()) {
+                valid = false;
+                console.log('Connection Feature: Field "connSegments" contains an invalid ConnectionSegment object' +
+                        ' at index ' + index + '.');
+            }
+        });
 
         return valid;
     }

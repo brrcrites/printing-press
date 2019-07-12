@@ -2,7 +2,7 @@ const Validation = require('../../utils/validation.js');
 const Layer = require('../../model/layer.js');
 
 //Suppress console logs
-//console.log = jest.fn();
+console.log = jest.fn();
 
 test('test string value: invalid', () => {
     expect(Validation.testStringValue('', 'test field', 'Validation Test')).toBe(false);
@@ -80,20 +80,20 @@ test('channel value', () => {
     expect(Validation.DEFAULT_CON_TYPE).toBe('channel');
 });
 
-test('validate array: valid', () => {
+test('validate map: valid', () => {
     let layers = new Map([['layer-1', new Layer('name-1', 'layer-1')], ['layer-2', new Layer('name-2', 'layer-2')],
         ['layer-3', new Layer('name-3', 'layer-3')]]);
 
     expect(Validation.validateMap(layers, 'field', 'Validation Test')).toBe(true);
 });
 
-test('validate array: invalid: no elements', () => {
+test('validate map: invalid: no elements', () => {
     let layers = new Map([]);
 
     expect(Validation.validateMap(layers, 'field', 'Validation Test')).toBe(false);
 });
 
-test('validate array: invalid: invalid elements', () => {
+test('validate map: invalid: invalid elements', () => {
     let layers = new Map([['layer-1', new Layer('', 'layer-1')], ['layer-2', new Layer('name-2', '')],
         ['layer-3', new Layer('name-3', 'layer-3')]]);
 

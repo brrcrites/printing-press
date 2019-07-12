@@ -10,6 +10,8 @@ var layer1 = 'layer-1-id';
 var layer2 = 'layer-2-id';
 var port00 = new Port('port-1-label', layer1, new Coord(0, 0));
 var port05 = new Port('port-2-label', layer2, new Coord(0, 5));
+var validAbstractComponent = new Component('comp-name', 'unique-comp-id-1', [layer1, layer2], 10, 15, 'entity', [port00,
+        port05]);
 
 test('initialize Component: parameters', () => {
     let cVal = new Component('name', 'id', [layer1, layer2], 10, 20, 'entity', [port00, port05]);
@@ -205,10 +207,9 @@ describe('Component Feature', () => {
     describe('initialization', () => {
         test('initFeature method', () => {
             let c = new Component();
-            c.initFeature('comp-name', 'comp-id', layer1, new Coord(), 10, 15, 20);
+            c.initFeature(validAbstractComponent, layer1, new Coord(), 10, 15, 20);
 
-            expect(c.name).toBe('comp-name');
-            expect(c.id).toBe('comp-id');
+            expect(c.component).toEqual(validAbstractComponent);
             expect(c.layer).toBe(layer1);
             expect(c.location).toEqual(new Coord());
             expect(c.xSpan).toBe(10);
@@ -218,10 +219,9 @@ describe('Component Feature', () => {
 
         test('initFeatureExclusives method', () => {
             let c = new Component();
-            c.initFeatureExclusives(layer2, new Coord(), 5);
+            c.initFeatureExclusives(validAbstractComponent, layer2, new Coord(), 5);
 
-            expect(c.name).toBe(Validation.DEFAULT_STR_VALUE);
-            expect(c.id).toBe(Validation.DEFAULT_STR_VALUE);
+            expect(c.component).toEqual(validAbstractComponent);
             expect(c.layer).toBe(layer2);
             expect(c.location).toEqual(new Coord());
             expect(c.xSpan).toBe(Validation.DEFAULT_SPAN_VALUE);
@@ -231,16 +231,14 @@ describe('Component Feature', () => {
 
         test('modify fields', () => {
             let c = new Component();
-            c.name = 'comp-name';
-            c.id = 'comp-id';
+            c.component = validAbstractComponent;
             c.layer = layer1;
             c.location = new Coord();
             c.xSpan = 10;
             c.ySpan = 15;
             c.depth = 20;
 
-            expect(c.name).toBe('comp-name');
-            expect(c.id).toBe('comp-id');
+            expect(c.component).toEqual(validAbstractComponent);
             expect(c.layer).toBe(layer1);
             expect(c.location).toEqual(new Coord());
             expect(c.xSpan).toBe(10);
@@ -252,7 +250,7 @@ describe('Component Feature', () => {
     describe('validation', () => {
         test('valid', () => {
             let c = new Component();
-            c.initFeature('name', 'id', layer1, new Coord(0, 0), 10, 15, 4);
+            c.initFeature(validAbstractComponent, layer1, new Coord(0, 0), 10, 15, 4);
 
             expect(c.validateFeature()).toBe(true);
         });
@@ -264,51 +262,95 @@ describe('Component Feature', () => {
                 expect(c.validateFeature()).toBe(false);
             });
 
-            test('name', () => {
+            test('component', () => {
                 let c = new Component();
-                c.initFeature(Validation.DEFAULT_STR_VALUE, 'id', layer1, new Coord(0, 0), 10, 15, 20);
+                c.initFeature(new Component(), layer1, new Coord(0, 0), 10, 15, 20);
 
                 expect(c.validateFeature()).toBe(false);
             });
 
-            test('id', () => {
-                let c = new Component();
-                c.initFeature('name', Validation.DEFAULT_STR_VALUE, layer1, new Coord(0, 0), 10, 15, 20);
+            describe('layer', () => {
+                test('invalid string', () => {
+                    let c = new Component();
+                    c.initFeature(validAbstractComponent, Validation.DEFAULT_STR_VALUE, new Coord(0, 0), 10, 15, 20);
 
-                expect(c.validateFeature()).toBe(false);
-            });
+                    expect(c.validateFeature()).toBe(false);
+                });
 
-            test('layer', () => {
-                let c = new Component();
-                c.initFeature('name', 'id', Validation.DEFAULT_STR_VALUE, new Coord(0, 0), 10, 15, 20);
+                test('unmatched layer', () => {
+                    let c = new Component();
+                    c.initFeature(validAbstractComponent, 'invalid-layer', new Coord(0, 0), 10, 15,
+                            4);
 
-                expect(c.validateFeature()).toBe(false);
+                    expect(c.validateFeature()).toBe(false);
+                });
+
+                test('missing component reference', () => {
+                    let c = new Component();
+                    c.initFeature(null, 'invalid-layer', new Coord(0, 0), 10, 15,
+                            4);
+
+                    expect(c.validateFeature()).toBe(false);
+                });
             });
 
             test('location', () => {
                 let c = new Component();
-                c.initFeature('name', 'id', layer1, new Coord(), 10, 15, 20);
+                c.initFeature(validAbstractComponent, layer1, new Coord(), 10, 15, 20);
 
                 expect(c.validateFeature()).toBe(false);
             });
 
-            test('xSpan', () => {
-                let c = new Component();
-                c.initFeature('name', 'id', layer1,new Coord(0, 0), Validation.DEFAULT_SPAN_VALUE,  15, 20);
+            describe('spans', () => {
 
-                expect(c.validateFeature()).toBe(false);
-            });
+                test('negative xSpan', () => {
+                    let c = new Component();
+                    c.initFeature(validAbstractComponent, layer1,new Coord(0, 0), Validation.DEFAULT_SPAN_VALUE,  15, 20);
 
-            test('ySpan', () => {
-                let c = new Component();
-                c.initFeature('name', 'id', layer1, new Coord(0, 0), 10, Validation.DEFAULT_SPAN_VALUE, 20);
+                    expect(c.validateFeature()).toBe(false);
+                });
 
-                expect(c.validateFeature()).toBe(false);
+                test('negative ySpan', () => {
+                    let c = new Component();
+                    c.initFeature(validAbstractComponent, layer1, new Coord(0, 0), 10, Validation.DEFAULT_SPAN_VALUE, 20);
+
+                    expect(c.validateFeature()).toBe(false);
+                });
+
+                test('mismatched xSpan', () => {
+                    let c = new Component();
+                    c.initFeature(validAbstractComponent, layer1, new Coord(0, 0), 20, 15, 4);
+
+                    expect(c.validateFeature()).toBe(false);
+                });
+
+                test('mismatched ySpan', () => {
+                    let c = new Component();
+                    c.initFeature(validAbstractComponent, layer1, new Coord(0, 0), 10, 25, 4);
+
+                    expect(c.validateFeature()).toBe(false);
+                });
+
+                test('mismatched both', () => {
+                    let c = new Component();
+                    c.initFeature(validAbstractComponent, layer1, new Coord(0, 0), 20, 25, 4);
+
+                    expect(c.validateFeature()).toBe(false);
+                });
+
+                test('negative matching both', () => {
+                    let c = new Component();
+                    c.initFeature(new Component('name', 'id', [layer1, layer2], -12, -23, 'entity', [port00, port05]),
+                            layer1, new Coord(0, 0), -12, -23, 10);
+
+                    expect(c.validateFeature()).toBe(false);
+                    expect(c.validateFeatureSpans()).toBe(false);
+                })
             });
 
             test('depth', () => {
                 let c = new Component();
-                c.initFeature('name', 'id', layer1, new Coord(0, 0), 10, 15, Validation.DEFAULT_DIM_VALUE);
+                c.initFeature(validAbstractComponent, layer1, new Coord(0, 0), 10, 15, Validation.DEFAULT_DIM_VALUE);
 
                 expect(c.validateFeature()).toBe(false);
             });
