@@ -52,7 +52,7 @@ class Validation {
      *
      * @since 1.0.0
      *
-     * @see Connection.type
+     * @see Connection.connectionType
      *
      * @returns {string}
      */
