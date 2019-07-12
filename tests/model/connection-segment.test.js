@@ -53,6 +53,7 @@ describe('validation', () => {
     describe('invalid', () => {
         test('all fields', () => {
             let c = new ConnectionSegment();
+            c.connectionType = Validation.DEFAULT_STR_VALUE;
 
             expect(c.validate()).toBe(false);
         });
@@ -95,6 +96,13 @@ describe('validation', () => {
 
                 expect(c.validate()).toBe(false);
             });
+        });
+
+        test('connectionType', () => {
+            let c = new ConnectionSegment(10, 5, validSource, validSink);
+            c.connectionType = 'not-a-channel';
+
+            expect(c.validate()).toBe(false);
         });
     });
 });

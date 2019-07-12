@@ -54,6 +54,19 @@ class ConnectionSegment {
      */
     sinkPoint;
 
+    /**
+     * The type of connection.
+     *
+     * Currently always set to "channel". Treat this as a constant and do not
+     * change it.
+     *
+     * @since 1.0.0
+     * @access public
+     *
+     * @type {string}
+     */
+    connectionType;
+
 
     /**
      * Construct the ConnectionSegment object.
@@ -75,6 +88,7 @@ class ConnectionSegment {
         this.depth = depth;
         this.sourcePoint = sourcePoint;
         this.sinkPoint = sinkPoint;
+        this.connectionType = Validation.DEFAULT_CON_TYPE;
     }
 
     /**
@@ -93,6 +107,12 @@ class ConnectionSegment {
         let valid = Validation.testDimensionValue(this.width, 'width', 'Connection');
         valid = Validation.testDimensionValue(this.depth, 'depth', 'Connection') ? valid : false;
         valid = this.validateSinkSourcePoints() ? valid : false;
+
+        if (this.connectionType !== Validation.DEFAULT_CON_TYPE) {
+            valid = false;
+            console.log('Connection Feature: Field "connectionType" is invalid. It must be "'
+                    + Validation.DEFAULT_CON_TYPE + '", but it is "' + this.connectionType + '".');
+        }
 
         return valid;
     }

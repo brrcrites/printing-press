@@ -47,29 +47,6 @@ class Connection extends ParchKey {
      */
     connection;
 
-    /**
-     * The segments that make up this Connection Feature.
-     *
-     * @since 1.0.0
-     * @access public
-     *
-     * @type {Array}
-     */
-    connSegments;
-
-    /**
-     * The type of connection.
-     *
-     * Currently always set to "channel". Treat this as a constant and do not
-     * change it.
-     *
-     * @since 1.0.0
-     * @access public
-     *
-     * @type {string}
-     */
-    connectionType;
-
 
     /**
      * Construct the Connection object.
@@ -96,7 +73,6 @@ class Connection extends ParchKey {
         // Connection Feature fields
         this.connection = null;
         this.connSegments = [];
-        this.connectionType = Validation.DEFAULT_CON_TYPE;
     }
 
     /**
@@ -231,12 +207,6 @@ class Connection extends ParchKey {
 
         valid = this.validateFeatureLayer() ? valid : false;
         valid = this.validateFeatureConnSegments() ? valid : false;
-
-        if (this.connectionType !== Validation.DEFAULT_CON_TYPE) {
-            valid = false;
-            console.log('Connection Feature: Field "connectionType" is invalid. It must be "'
-                    + Validation.DEFAULT_CON_TYPE + '", but it is "' + this.connectionType + '".');
-        }
 
         return valid;
     }
