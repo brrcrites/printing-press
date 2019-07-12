@@ -269,11 +269,29 @@ describe('Component Feature', () => {
                 expect(c.validateFeature()).toBe(false);
             });
 
-            test('layer', () => {
-                let c = new Component();
-                c.initFeature(validAbstractComponent, Validation.DEFAULT_STR_VALUE, new Coord(0, 0), 10, 15, 20);
+            describe('layer', () => {
+                test('invalid string', () => {
+                    let c = new Component();
+                    c.initFeature(validAbstractComponent, Validation.DEFAULT_STR_VALUE, new Coord(0, 0), 10, 15, 20);
 
-                expect(c.validateFeature()).toBe(false);
+                    expect(c.validateFeature()).toBe(false);
+                });
+
+                test('unmatched layer', () => {
+                    let c = new Component();
+                    c.initFeature(validAbstractComponent, 'invalid-layer', new Coord(0, 0), 10, 15,
+                            4);
+
+                    expect(c.validateFeature()).toBe(false);
+                });
+
+                test('missing component reference', () => {
+                    let c = new Component();
+                    c.initFeature(null, 'invalid-layer', new Coord(0, 0), 10, 15,
+                            4);
+
+                    expect(c.validateFeature()).toBe(false);
+                });
             });
 
             test('location', () => {

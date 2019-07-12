@@ -321,7 +321,8 @@ class Component extends ParchKey {
             console.log('Component Feature: Field "component" is invalid.');
         }
 
-        valid = Validation.testStringValue(this.layer, 'layer', 'Component Feature') ? valid : false;
+        valid = this.validateFeatureLayer() ? valid : false;
+
         if (!this.location) {
             valid = false;
             console.log('Component Feature: Field "location" is invalid.');
@@ -365,6 +366,37 @@ class Component extends ParchKey {
         }
 
         return valid;
+    }
+
+    /**
+     * Validate the layer of a Component Feature.
+     *
+     * The layer must match one of the layers in the referenced abstract
+     * Component's layer list. The abstract Component must not evaluate to
+     * falsey.
+     *
+     * @since 1.0.0
+     *
+     * @returns {boolean}
+     */
+    validateFeatureLayer() {
+        if (Validation.testStringValue(this.layer, 'layer', 'Component Feature')) {
+            if (!this.component) {
+                console.log('Component Feature: Field "component" is invalid.');
+                return false;
+            }
+            // If the layer is a valid string, test whether it exists in the referenced abstract Component's layers
+            // list.
+            if (this.component.layers.indexOf(this.layer) === -1) {
+                console.log('Component Feature: Field "layer" (' + this.layer + ') does not match any layer listed' +
+                        ' in the abstract Component\'s layer list.');
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        return true;
     }
 
 }
