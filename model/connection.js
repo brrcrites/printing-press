@@ -285,6 +285,7 @@ class Connection extends ParchKey {
         let valid = true;
 
         if (this.connSegments.length === 0) {
+            console.log('Connection Feature: Field "connSegments" cannot be an empty array.');
             return false;
         }
 
