@@ -85,6 +85,16 @@ class Component extends ParchKey {
     depth;
 
     /**
+     * The abstract Component object that this Component Feature represents.
+     *
+     * @since 1.0.0
+     * @access public
+     *
+     * @type {object}
+     */
+    component;
+
+    /**
      *
      * Constructs the Component object.
      *
@@ -121,6 +131,7 @@ class Component extends ParchKey {
         this.layer = Validation.DEFAULT_STR_VALUE;
         this.depth = Validation.DEFAULT_DIM_VALUE;
         this.location = null;
+        this.component = null;
     }
 
     /**
@@ -128,18 +139,18 @@ class Component extends ParchKey {
      *
      * @since 1.0.0
      *
-     * @param {string}  name    The name of the component.
-     * @param {string}  id      The unique id of the component.
-     * @param {string}  layer   The layer on which this component exists.
-     * @param {number}  xSpan   How much space this component takes up in the x
-     *                          direction.
-     * @param {number}  ySpan   How much space this component takes up in the y
-     *                          direction.
-     * @param {number}  depth   How deep the component should be.
+     * @param {object}  component   The abstract Component that this Component
+     *                              Feature represents.
+     * @param {string}  layer       The layer on which this component exists.
+     * @param {object}  location    The location of the Component Feature on the
+     * @param {number}  xSpan       How much space this component takes up in
+     *                              the x direction.
+     * @param {number}  ySpan       How much space this component takes up in
+     *                              the y direction.
+     * @param {number}  depth       How deep the component should be.
      */
-    initFeature(name, id, layer, location, xSpan, ySpan, depth) {
-        this.name = name;
-        this.id = id;
+    initFeature(component, layer, location, xSpan, ySpan, depth) {
+        this.component = component;
         this.layer = layer;
         this.location = location;
         this.xSpan = xSpan;
@@ -154,10 +165,15 @@ class Component extends ParchKey {
      *
      * @since 1.0.0
      *
-     * @param {string}  layer   The layer on which this component exists.
-     * @param {number}  depth   How deep the component should be.
+     * @param {object}  component   The abstract component that this Component
+     *                              Feature represents.
+     * @param {string}  layer       The layer on which this component exists.
+     * @param {object}  location    The location of the Component Feature on
+     *                              the Architecture.
+     * @param {number}  depth       How deep the component should be.
      */
-    initFeatureExclusives(layer, location, depth) {
+    initFeatureExclusives(component, layer, location, depth) {
+        this.component = component;
         this.layer = layer;
         this.location = location;
         this.depth = depth;
@@ -298,18 +314,92 @@ class Component extends ParchKey {
      * @return {boolean}
      */
     validateFeature() {
-        let valid = super.validate();
-        valid = Validation.testStringValue(this.layer, 'layer', 'Component') ? valid : false;
+        let valid = true;
+
+        if (!this.component || !this.component.validate()) {
+            valid = false;
+            console.log('Component Feature: Field "component" is invalid.');
+        }
+
+        valid = this.validateFeatureLayer() ? valid : false;
+
         if (!this.location) {
             valid = false;
-            console.log('Component: Field "location" is invalid.');
+            console.log('Component Feature: Field "location" is invalid.');
         } else {
             valid = this.location.validate() ? valid : false;
         }
-        valid = this.validateSpans() ? valid : false;
-        valid = Validation.testDimensionValue(this.depth, 'depth', 'Component') ? valid : false;
+
+        valid = this.validateFeatureSpans() ? valid : false;
+        valid = Validation.testDimensionValue(this.depth, 'depth', 'Component Feature') ? valid : false;
 
         return valid;
+    }
+
+    /**
+     * Validate the x/y-spans in the scope of a Component Feature.
+     *
+     * Both x- and y-spans must be valid. Both x- and y- spans must match the
+     * abstract Component's spans.
+     *
+     * @since 1.0.0
+     *
+     * @see Validation.testSpanValue
+     *
+     * @returns {boolean}
+     */
+    validateFeatureSpans() {
+        let valid = this.validateSpans();
+        
+        valid = Validation.testSpanValue(this.xSpan, 'x', 'Component Feature') ? valid : false;
+        valid = Validation.testSpanValue(this.ySpan, 'y', 'Component Feature') ? valid : false;
+
+        // Only compare spans if the component is referenced
+        if (this.component) {
+            if (this.xSpan !== this.component.xSpan) {
+                valid = false;
+                console.log('Component Feature: Field "xSpan" (' + this.xSpan + 'does not match the abstract' +
+                        ' Component\'s xSpan (' + this.component.xSpan + '.');
+            }
+            if (this.ySpan !== this.component.ySpan) {
+                valid = false;
+                console.log('Component Feature: Field "ySpan" (' + this.ySpan + 'does not match the abstract' +
+                        ' Component\'s ySpan (' + this.component.ySpan + '.');
+            }
+        }
+
+        return valid;
+    }
+
+    /**
+     * Validate the layer of a Component Feature.
+     *
+     * The layer must match one of the layers in the referenced abstract
+     * Component's layer list. The abstract Component must not evaluate to
+     * falsey.
+     *
+     * @since 1.0.0
+     *
+     * @returns {boolean}
+     */
+    validateFeatureLayer() {
+        if (Validation.testStringValue(this.layer, 'layer', 'Component Feature')) {
+            if (!this.component) {
+                console.log('Component Feature: Field "component" is invalid.');
+                return false;
+            }
+            // If the layer is a valid string, test whether it exists in the referenced abstract Component's layers
+            // list.
+            if (this.component.layers.indexOf(this.layer) === -1) {
+                console.log('Component Feature: Field "layer" (' + this.layer + ') does not match any layer listed' +
+                        ' in the abstract Component\'s layer list.');
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        return true;
     }
 
 }

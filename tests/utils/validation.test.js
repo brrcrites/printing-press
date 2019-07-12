@@ -74,3 +74,6 @@ test('test dimension value: string', () => {
 test('test dimension value: valid', () => {
     expect(Validation.testDimensionValue(42, 'field', 'Validation Test')).toBe(true);
 });
+test('test channel value', () => {
+    expect(Validation.DEFAULT_CON_TYPE).toBe('channel');
+});
