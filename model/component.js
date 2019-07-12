@@ -350,6 +350,9 @@ class Component extends ParchKey {
      */
     validateFeatureSpans() {
         let valid = this.validateSpans();
+        
+        valid = Validation.testSpanValue(this.xSpan, 'x', 'Component Feature') ? valid : false;
+        valid = Validation.testSpanValue(this.ySpan, 'y', 'Component Feature') ? valid : false;
 
         // Only compare spans if the component is referenced
         if (this.component) {

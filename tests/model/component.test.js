@@ -303,14 +303,14 @@ describe('Component Feature', () => {
 
             describe('spans', () => {
 
-                test('xSpan', () => {
+                test('negative xSpan', () => {
                     let c = new Component();
                     c.initFeature(validAbstractComponent, layer1,new Coord(0, 0), Validation.DEFAULT_SPAN_VALUE,  15, 20);
 
                     expect(c.validateFeature()).toBe(false);
                 });
 
-                test('ySpan', () => {
+                test('negative ySpan', () => {
                     let c = new Component();
                     c.initFeature(validAbstractComponent, layer1, new Coord(0, 0), 10, Validation.DEFAULT_SPAN_VALUE, 20);
 
@@ -337,6 +337,15 @@ describe('Component Feature', () => {
 
                     expect(c.validateFeature()).toBe(false);
                 });
+
+                test('negative matching both', () => {
+                    let c = new Component();
+                    c.initFeature(new Component('name', 'id', [layer1, layer2], -12, -23, 'entity', [port00, port05]),
+                            layer1, new Coord(0, 0), -12, -23, 10);
+
+                    expect(c.validateFeature()).toBe(false);
+                    expect(c.validateFeatureSpans()).toBe(false);
+                })
             });
 
             test('depth', () => {
