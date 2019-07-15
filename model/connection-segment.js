@@ -1,6 +1,7 @@
+const ParchKey = require('./parch-key.js');
 const Validation = require('../utils/validation.js');
 
-class ConnectionSegment {
+class ConnectionSegment extends ParchKey {
     /**
      * The width of the ConnectionSegment tangentially to its direction of travel.
      *
@@ -82,8 +83,11 @@ class ConnectionSegment {
      *                              feature.
      * @param {object}  sinkPoint   The sink point of this connection feature.
      */
-    constructor(width = Validation.DEFAULT_DIM_VALUE, depth = Validation.DEFAULT_DIM_VALUE, sourcePoint = null,
+    constructor(name = Validation.DEFAULT_STR_VALUE, id = Validation.DEFAULT_STR_VALUE,
+                width = Validation.DEFAULT_DIM_VALUE, depth = Validation.DEFAULT_DIM_VALUE, sourcePoint = null,
                 sinkPoint = null) {
+        super(name, id);
+
         this.width = width;
         this.depth = depth;
         this.sourcePoint = sourcePoint;
@@ -104,7 +108,8 @@ class ConnectionSegment {
      * @returns {boolean}
      */
     validate() {
-        let valid = Validation.testDimensionValue(this.width, 'width', 'Connection');
+        let valid = super.validate();
+        valid = Validation.testDimensionValue(this.width, 'width', 'Connection') ? valid : false;
         valid = Validation.testDimensionValue(this.depth, 'depth', 'Connection') ? valid : false;
         valid = this.validateSinkSourcePoints() ? valid : false;
 

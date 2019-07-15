@@ -25,8 +25,8 @@ var sink1 = new Terminal(sink1Component, validPort3);
 var sink2 = new Terminal(sink2Component, validPort6);
 
 var validAbstractConnection = new Connection('name', 'unique-id', layer1, source, [sink1, sink2]);
-var validConnSeg1 = new ConnectionSegment(10, 5, new Coord(0, 0), new Coord(5, 5));
-var validConnSeg2 = new ConnectionSegment(20, 40, new Coord(5, 5), new Coord(5, 10));
+var validConnSeg1 = new ConnectionSegment('segment-2', 'segment-id-1', 10, 5, new Coord(0, 0), new Coord(5, 5));
+var validConnSeg2 = new ConnectionSegment('segment-1', 'segment-id-2', 20, 40, new Coord(5, 5), new Coord(5, 10));
 
 test('initialize Connection: parameters', () => {
     let c = new Connection('name', 'id', 'layer', source, [sink1, sink2]);
