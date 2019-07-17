@@ -2,15 +2,6 @@ const ParchKey = require('./parch-key.js');
 const Validation = require('../utils/validation.js');
 
 class Connection extends ParchKey {
-    /**
-     * The layer on which the connection exists.
-     *
-     * @since 1.0.0
-     * @access public
-     *
-     * @type {string}
-     */
-    layer;
 
     /**
      * The source of the the connection.
@@ -36,26 +27,15 @@ class Connection extends ParchKey {
      */
     sinks;
 
-
     /**
-     * The abstract Connection this Connection Feature represents.
-     *
-     * @since 1.0.0
-     * @access public
-     *
-     * @type {object}
-     */
-    connection;
-
-    /**
-     * The Connection Segments that make up a Connection Feature
+     * The Connection Segments that make up this Connection.
      *
      * @since 1.0.0
      * @access public
      *
      * @type {Array}
      */
-    connSegments;
+    segments;
 
     /**
      * Construct the Connection object.
@@ -64,64 +44,21 @@ class Connection extends ParchKey {
      *
      * @since 1.0.0
      *
-     * @param {string}  name    The name of the connection.
-     * @param {string}  id      The unique id of the connection.
-     * @param {string}  layer   The layer on which the connection exists.
-     * @param {object}  source  A Terminal object representing the source of
-     *                          the connection.
-     * @param {object}  sinks   An array of Terminal objects representing the
-     *                          sinks of the connection.
+     * @param {string}  name        The name of the Connection.
+     * @param {string}  id          The unique id of the Connection.
+     * @param {object}  source      A Terminal object representing the source of
+     *                              the Connection.
+     * @param {object}  sinks       An array of Terminal objects representing
+     *                              the sinks of the Connection.
+     * @param {object}  segments    An array of Connection Segments that make up
+     *                              this Connection.
      */
-    constructor(name = Validation.DEFAULT_STR_VALUE, id = Validation.DEFAULT_STR_VALUE, layer = Validation.DEFAULT_STR_VALUE,
-                source = null, sinks = []) {
+    constructor(name = Validation.DEFAULT_STR_VALUE, id = Validation.DEFAULT_STR_VALUE, source = null, sinks = [],
+                segments = []) {
         super(name, id);
-        this.layer = layer;
         this.source = source;
         this.sinks = sinks;
-
-        // Connection Feature fields
-        this.connection = null;
-        this.connSegments = [];
-    }
-
-    /**
-     * Initialize all the fields of a Connection Feature.
-     *
-     * @since 1.0.0
-     *
-     * @param {string}  name            The name of the Connection Feature.
-     * @param {string}  id              The unique id of this Connection Feature
-     *                                  segment.
-     * @param {object}  connection      The abstract Connection this Connection
-     *                                  Feature represents.
-     * @param {string}  layer           The layer on which this Connection
-     *                                  Feature exists.
-     * @param {Array}   connSegments    An array of Connection Segment objects
-     *                                  that make up this Connection Feature.
-     */
-    initFeature(name, id, connection, layer, connSegments) {
-        this.name = name;
-        this.id = id;
-        this.connection = connection;
-        this.layer = layer;
-        this.connSegments = connSegments;
-    }
-
-    /**
-     * Initialize the fields that are exclusive to a Connection Feature.
-     *
-     * This is meant to ease the parsing and object generation.
-     *
-     * @since 1.0.0
-     *
-     * @param {object}  connection      The abstract Connection this Connection
-     *                                  Feature represents.
-     * @param {Array}   connSegments    An array of ConnectionSegment objects
-     *                                  that make up this Connection Feature.
-     */
-    initFeatureExclusives(connection, connSegments) {
-        this.connection = connection;
-        this.connSegments = connSegments;
+        this.segments = segments;
     }
 
     /**
@@ -138,9 +75,9 @@ class Connection extends ParchKey {
      */
     validate() {
         let valid = super.validate();
-        valid = Validation.testStringValue(this.layer, 'layer', 'Connection') ? valid : false;
         valid = this.validateSource() ? valid : false;
         valid = this.validateSinks() ? valid : false;
+        valid = this.validateSegments() ? valid : false;
 
         return valid;
     }
@@ -195,84 +132,26 @@ class Connection extends ParchKey {
     }
 
     /**
-     * Validate the Connection Feature.
-     *
-     * Name, id, connection and layer follow Validation's string rules.
-     * objects.
-     *
-     * @since 1.0.0
-     *
-     * @see validateSinkSourcePoints
-     *
-     * @returns {boolean}
-     */
-    validateFeature() {
-        let valid = super.validate();
-
-        if (!this.connection || !this.connection.validate()) {
-            valid = false;
-            console.log('Connection Feature: Field "connection" is invalid.');
-        }
-
-        valid = this.validateFeatureLayer() ? valid : false;
-        valid = this.validateFeatureConnSegments() ? valid : false;
-
-        return valid;
-    }
-
-    /**
-     * Validate the Connection Feature's layer.
-     *
-     * The layer must be a valid string. The Connection Feature reference must
-     * be valid. The layer must match the referenced Connection Feature's
-     * layer.
-     *
-     * @since 1.0.0
-     *
-     * @returns {boolean}
-     */
-    validateFeatureLayer() {
-        if (Validation.testStringValue(this.layer, 'layer', 'Connection Feature')) {
-            if (!this.connection) {
-                console.log('Connection Feature: Field "connection" is invalid.');
-                return false;
-            }
-
-            if (this.connection.layer !== this.layer) {
-                console.log('Connection Feature: Field "layer" (' + this.layer + 'does not match the layer in the' +
-                        ' referenced abstract Connection (' + this.connection.layer + ').');
-                return false;
-            }
-        } else {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      * Validate the array of ConnectionSegment objects.
      *
-     * The length of the array must not be zero. Each ConnectionSegment object
-     * in the array must be valid.
+     * Each ConnectionSegment object in the array must be valid.
      *
      * @since 1.0.0
      *
      * @returns {boolean}
      */
-    validateFeatureConnSegments() {
+    validateSegments() {
         let valid = true;
 
-        if (this.connSegments.length === 0) {
-            console.log('Connection Feature: Field "connSegments" cannot be an empty array.');
-            return false;
+        if (this.segments.length === 0) {
+            console.log('Connection (WARNING): Field "segments" has a length of zero.');
         }
 
-        this.connSegments.forEach((value, index) => {
+        this.segments.forEach((value, index) => {
             if (!value.validate()) {
                 valid = false;
-                console.log('Connection Feature: Field "connSegments" contains an invalid ConnectionSegment object' +
-                        ' at index ' + index + '.');
+                console.log('Connection: Field "segments" contains an invalid ConnectionSegment object' + ' at index ' +
+                        + index + '.');
             }
         });
 
