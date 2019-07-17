@@ -331,7 +331,7 @@ class Component extends ParchKey {
         }
 
         valid = this.validateFeatureSpans() ? valid : false;
-        valid = Validation.testDimensionValue(this.depth, 'depth', 'Component Feature') ? valid : false;
+        valid = Validation.testWidthValue(this.depth, 'depth', 'Component Feature') ? valid : false;
 
         return valid;
     }

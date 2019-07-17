@@ -7,7 +7,7 @@ class ConnectionSegment extends ParchKey {
      *
      * For validation purposes this is a dimension.
      *
-     * @see Validation.testDimensionValue
+     * @see Validation.testWidthValue
      *
      * @since 1.0.0
      * @access public
@@ -22,7 +22,7 @@ class ConnectionSegment extends ParchKey {
      *
      * For validation purposes this is a dimension.
      *
-     * @see Validation.testDimensionValue
+     * @see Validation.testWidthValue
      *
      * @since 1.0.0
      * @access public
@@ -109,8 +109,8 @@ class ConnectionSegment extends ParchKey {
      */
     validate() {
         let valid = super.validate();
-        valid = Validation.testDimensionValue(this.width, 'width', 'Connection') ? valid : false;
-        valid = Validation.testDimensionValue(this.depth, 'depth', 'Connection') ? valid : false;
+        valid = Validation.testWidthValue(this.width, 'width', 'Connection') ? valid : false;
+        valid = Validation.testDepthValue(this.depth, 'depth', 'Connection') ? valid : false;
         valid = this.validateSinkSourcePoints() ? valid : false;
 
         if (this.connectionType !== Validation.DEFAULT_CON_TYPE) {

@@ -61,11 +61,11 @@ test('test coord value: valid', () => {
 });
 
 test('test dimension value: invalid', () => {
-    expect(Validation.testDimensionValue(-432, 'field', 'Validation Test')).toBe(false);
+    expect(Validation.testWidthValue(-432, 'field', 'Validation Test')).toBe(false);
 });
 
 test('test dimension value: default', () => {
-    expect(Validation.testDimensionValue(Validation.DEFAULT_DIM_VALUE, 'field', 'Validation Test')).toBe(false);
+    expect(Validation.testWidthValue(Validation.DEFAULT_DIM_VALUE, 'field', 'Validation Test')).toBe(false);
 });
 
 test('test dimension value: string', () => {
@@ -73,7 +73,7 @@ test('test dimension value: string', () => {
 });
 
 test('test dimension value: valid', () => {
-    expect(Validation.testDimensionValue(42, 'field', 'Validation Test')).toBe(true);
+    expect(Validation.testWidthValue(42, 'field', 'Validation Test')).toBe(true);
 });
 
 test('channel value', () => {
