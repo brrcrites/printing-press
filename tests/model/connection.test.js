@@ -9,14 +9,12 @@ const Validation = require('../../utils/validation.js');
 //Suppress console logs
 console.log = jest.fn();
 
-var layer1 = 'layer-1';
-var layer2 = 'layer-2';
-var validPort1 = new Port('port-1', layer1, new Coord(0, 0));
-var validPort2 = new Port('port-2', layer2, new Coord(0, 5));
-var validPort3 = new Port('port-3', layer1, new Coord(0, 10));
-var validPort4 = new Port('port-4', layer2, new Coord(0, 15));
-var validPort5 = new Port('port-5', layer1, new Coord(0, 20));
-var validPort6 = new Port('port-6', layer2, new Coord(5, 0));
+var validPort1 = new Port('port-1', new Coord(0, 0));
+var validPort2 = new Port('port-2', new Coord(0, 5));
+var validPort3 = new Port('port-3', new Coord(0, 10));
+var validPort4 = new Port('port-4', new Coord(0, 15));
+var validPort5 = new Port('port-5', new Coord(0, 20));
+var validPort6 = new Port('port-6', new Coord(5, 0));
 var sourceComponent = new Component('source', 'unique-id-1', 10, 20, 'entity', [validPort1, validPort2]);
 var sink1Component = new Component('sink1', 'unique-id-2', 10, 20, 'entity', [validPort3, validPort4]);
 var sink2Component = new Component('sink2', 'unique-id-3', 10, 20, 'entity', [validPort5, validPort6]);

@@ -7,10 +7,8 @@ const Validation = require('../../utils/validation.js');
 //Suppress console logs
 console.log = jest.fn();
 
-var layer1 = 'layer-1-id';
-var layer2 = 'layer-2-id';
-var port00 = new Port('port-1-label', layer1, new Coord(0, 0));
-var port05 = new Port('port-2-label', layer2, new Coord(0, 5));
+var port00 = new Port('port-1-label', new Coord(0, 0));
+var port05 = new Port('port-2-label', new Coord(0, 5));
 var feature66 = new ComponentFeature(new Coord(6, 6), 10);
 var feature5050 = new ComponentFeature(new Coord(50, 50), 5);
 
@@ -130,25 +128,15 @@ describe('validation', () => {
 
         test('duplicate port labels', () => {
             let c = new Component('comp-name', 'comp-id', 10, 10, 'comp-entity',
-                    [new Port('port-name', layer1, new Coord(5, 0)), new Port('port-name', layer1, new Coord(0, 5))],
+                    [new Port('port-name', new Coord(5, 0)), new Port('port-name', new Coord(0, 5))],
                     [feature66, feature5050]);
 
             expect(c.validate()).toBe(false);
         });
-
-        /* TODO: Add this back in after layers has been fixed in Port
-        test('port layers', () => {
-            let c = new Component('comp-name', 'comp-id', 10, 10, 'comp-entity',
-                    [new Port('port-1', 'bad-layer', new Coord(5, 0)), new Port('port-2', layer1, new Coord(0, 5))],
-                    [feature66, feature5050]);
-
-            expect(c.validate()).toBe(false);
-        });
-        */
 
         test('overlapping port locations', () => {
             let c = new Component('comp-name', 'comp-id', 10, 10, 'comp-entity',
-                    [new Port('port-1', layer1, new Coord(5, 0)), new Port('port-2', layer1, new Coord(5, 0))],
+                    [new Port('port-1', new Coord(5, 0)), new Port('port-2', new Coord(5, 0))],
                     [feature66, feature5050]);
 
             expect(c.validate()).toBe(false);
@@ -156,7 +144,7 @@ describe('validation', () => {
 
         test('port locations', () => {
             let c = new Component('comp-name', 'comp-id', 10, 10, 'comp-entity',
-                    [new Port('port-1', layer1, new Coord())], [feature66, feature5050]);
+                    [new Port('port-1', new Coord())], [feature66, feature5050]);
 
             c.ports[0].pos.setLocation(0, 0);
             expect(c.validate()).toBe(true);
