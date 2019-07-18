@@ -55,14 +55,14 @@ class Component extends ParchKey {
     layer;
 
     /**
-     * The Component Features to be placed on the Architecture.
+     * The Component Feature to be placed on the Architecture.
      *
      * @since 1.0.0
      * @access public
      *
-     * @type {Array}
+     * @type {object}
      */
-    features;
+    feature;
 
     /**
      *
@@ -87,20 +87,19 @@ class Component extends ParchKey {
      * @param {string}  entity      The type of component this component object
      *                              represents.
      * @param {Array}   ports       The ports on this component.
-     * @param {Array}   features    The Component Features to be placed on the
-     *                              Architecture that reference this abstract
-     *                              Component.
+     * @param {object}  feature     The Component Feature to be placed on the
+     *                              Architecture that references this Component.
      */
     constructor(name = Validation.DEFAULT_STR_VALUE, id = Validation.DEFAULT_STR_VALUE,
                 xSpan = Validation.DEFAULT_SPAN_VALUE, ySpan = Validation.DEFAULT_SPAN_VALUE,
-                entity = Validation.DEFAULT_STR_VALUE, ports = [], features = []) {
+                entity = Validation.DEFAULT_STR_VALUE, ports = [], feature = null) {
 
         super(name, id);
         this.xSpan = xSpan;
         this.ySpan = ySpan;
         this.entity = entity;
         this.ports = ports;
-        this.features = features;
+        this.feature = feature;
     }
 
     /**
@@ -180,7 +179,6 @@ class Component extends ParchKey {
                 }
             }
 
-
         });
 
         // Check invalid port locations
@@ -215,21 +213,30 @@ class Component extends ParchKey {
         return valid;
     }
 
+    /**
+     * Validate the Component Feature.
+     *
+     * The Component Feature can evaluate to falsey. If it does not, then it
+     * must be valid.
+     *
+     * @since 1.0.0
+     *
+     * @see ComponentFeature.validate
+     *
+     * @returns {boolean}
+     */
     validateFeatures() {
-        let valid = true;
-
-        if (this.features.length === 0) {
-            console.log('Component (WARNING): Field "features" has a length of zero.');
+        if (!this.feature) {
+            console.log('Component (WARNING): Field "feature" has not been set.');
+            return true;
         }
 
-        this.features.forEach((value, index) => {
-            if (!value.validate()) {
-                valid = false;
-                console.log('Component: Field "features" contains an invalid Component Feature at index ' + index + '.');
-            }
-        });
+        if (!this.feature.validate()) {
+            console.log('Component: Field "feature" is an invalid Component Feature.');
+            return false;
+        }
 
-        return valid;
+        return true;
     }
 
 }
