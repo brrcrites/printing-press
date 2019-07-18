@@ -47,6 +47,15 @@ class Connection extends ParchKey {
      */
     connection;
 
+    /**
+     * The Connection Segments that make up a Connection Feature
+     *
+     * @since 1.0.0
+     * @access public
+     *
+     * @type {Array}
+     */
+    connSegments;
 
     /**
      * Construct the Connection object.
