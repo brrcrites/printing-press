@@ -63,7 +63,7 @@ class Validation {
     /**
      * Test a string value against the ParchKey name/id rules.
      *
-     * Strings cannot be empty.
+     * Strings cannot be empty. Must be a string. Must not evaluate to falsey.
      *
      * @since 1.0.0
      *
@@ -97,7 +97,7 @@ class Validation {
     /**
      * Tests the given value against the rules of spans.
      *
-     * Cannot be less than 1.
+     * Cannot be less than 1. Must be a number.
      *
      * @since 1.0.0
      *
@@ -124,11 +124,11 @@ class Validation {
     /**
      * Tests the given value against the rules of coords.
      *
-     * Cannot be negative. Cannot equal the default value.
+     * Cannot be negative. Cannot equal the default value. Must be a number.
      *
      * @since 1.0.0
      *
-     * @param {number}  value   A value to test against the span rules.
+     * @param {number}  value   A value to test against the Coord rules.
      * @param {string}  field   A string representation of the field name for
      *                          the error message.
      * @param {string}  caller  A string representation of the caller's class
@@ -151,13 +151,15 @@ class Validation {
     }
 
     /**
-     * Tests the given value against the rules of dimensions (depth/width).
+     * Tests the given value against the rules of dimensions.
      *
-     * Dimensions cannot be negative.
+     * Widths cannot be negative.
      *
      * @since 1.0.0
      *
-     * @param {number}  value   A value to test against the span rules.
+     * @see ConnectionSegment.width
+     *
+     * @param {number}  value   A value to test against the dimension rules.
      * @param {string}  field   A string representation of the field name for
      *                          the error message.
      * @param {string}  caller  A string representation of the caller's class
@@ -166,7 +168,7 @@ class Validation {
      * @returns {boolean}       true if the dimension is valid, false
      *                          otherwise.
      */
-    static testDimensionValue(value, field, caller) {
+    static testWidthValue(value, field, caller) {
         if (typeof value !== 'number') {
             console.log(caller + ': Field "' + field + '" is not a number.');
             return false;
@@ -177,6 +179,96 @@ class Validation {
         }
 
         return true;
+    }
+
+    /**
+     * Tests the given value against the rules of depth.
+     *
+     * Depth must be a number.
+     *
+     * @since 1.0.0
+     *
+     * @see ConnectionSegment.depth
+     * @see ComponentFeature.depth
+     *
+     * @param {number}  value   A value to test against the depth rules.
+     * @param {string}  field   A string representation of the field name for
+     *                          the error message.
+     * @param {string}  caller  A string representation of the caller's class
+     *                          for the error message.
+     * @returns {boolean}
+     */
+    static testDepthValue(value, field, caller) {
+        if (typeof value !== 'number') {
+            console.log(caller + ': Field "' + field + '" is not a number.');
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * THIS IS SLOW. REWRITE THIS USING A SET INSTEAD
+     * Check whether IDs are unique in the given array.
+     *
+     * @since 1.0.0
+     *
+     * @param {Array}   array   An array of objects that contain an id
+     *                          field.
+     * @param {string}  field   A string representation of the field name for
+     *                          the error message.
+     * @param {string}  caller  A string representation of the caller's class
+     *                          for the error message.
+     *
+     * @return {boolean}    true if the array contains unique IDs, false
+     *                      otherwise.
+     */
+    static testIDUniqueness(array, field, caller) {
+        for (let i = 0; i < array.length - 1; i++) {
+            for (let j = i + 1; j < array.length; j++) {
+                if (array[i].id === array[j].id) {
+                    console.log(caller + ': Field "' + field + '" has matching IDs: "' + array[i] + '" at indices' +
+                            ' ' + i + ' and ' + j + '.');
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Convenience function that validates a map of ParchKey subclasses.
+     *
+     * The map size must be greater than zero. Each element must be valid.
+     *
+     * @since 1.0.0
+     *
+     * @param {Array}   map   An map of objects that subclass ParchKey.
+     * @param {string}  field   A string representation of the field name for
+     *                          the error message.
+     * @param {string}  caller  A string representation of the caller's class
+     *                          for the error message.
+     *
+     * @returns {boolean}   true if all objects in the map are valid, false
+     *                      otherwise.
+     */
+    static validateMap(map, field, caller) {
+        let valid = true;
+
+        if (map.size === 0) {
+            console.log(caller + ': Field "' + field + '" cannot be an empty map.');
+            return false;
+        }
+
+        for (let value of map.values()) {
+            if (!value.validate()) {
+                valid = false;
+                console.log(caller + ': Field "' + field + '" has an invalid element with ID "' + value.id + '".');
+            }
+        }
+
+        return valid;
     }
 }
 
