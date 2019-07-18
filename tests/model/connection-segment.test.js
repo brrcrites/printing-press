@@ -52,10 +52,18 @@ describe('initialization', () => {
 });
 
 describe('validation', () => {
-    test('valid', () => {
-        let c = new ConnectionSegment('name', 'unique-id', 10, 5, validSource, validSink);
+    describe('valid', () => {
+        test('positive depth', () => {
+            let c = new ConnectionSegment('name', 'unique-id', 10, 5, validSource, validSink);
 
-        expect(c.validate()).toBe(true);
+            expect(c.validate()).toBe(true);
+        });
+
+        test('negative depth', () => {
+            let c = new ConnectionSegment('name', 'unique-id', 10, -5, validSource, validSink);
+
+            expect(c.validate()).toBe(true);
+        });
     });
 
     describe('invalid', () => {
@@ -85,7 +93,7 @@ describe('validation', () => {
         });
 
         test('depth', () => {
-            let c = new ConnectionSegment('name', 'unique-id', 10, -45, validSource, validSink);
+            let c = new ConnectionSegment('name', 'unique-id', 10, 'nan', validSource, validSink);
 
             expect(c.validate()).toBe(false);
         });

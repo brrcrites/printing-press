@@ -37,7 +37,7 @@ class ComponentFeature {
      * Location must not evaluate to falsey and be a valid Coord object. Depth
      * must be a valid dimension.
      *
-     * @see Validation.testDimensionValue
+     * @see Validation.testDepthValue
      *
      * @since 1.0.0
      *
@@ -51,7 +51,7 @@ class ComponentFeature {
             console.log('Component Feature: Field "location" is invalid.');
         }
 
-        valid = Validation.testDimensionValue(this.depth, 'depth', 'Component Feature') ? valid : false;
+        valid = Validation.testDepthValue(this.depth, 'depth', 'Component Feature') ? valid : false;
 
         return valid;
     }
