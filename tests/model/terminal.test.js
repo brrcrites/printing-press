@@ -15,74 +15,85 @@ var invalidPort = new Port('invalid-port-1', '', new Coord(0, 0));
 var validComponent = new Component('name', 'unique-id', [layer1, layer2], 10, 20, 'entity', [validPort1, validPort2]);
 var invalidComponent = new Component('', '', [layer1, layer1], 0, 0, '', [new Port(), new Port()]);
 
-test('initialize Terminal: parameters', () => {
-    let t = new Terminal(new Component(), new Port());
+describe('initialization', () => {
+    describe('constructor', () => {
+        test('parameters', () => {
+            let t = new Terminal(new Component(), new Port());
 
-    expect(t.component).toEqual(new Component());
-    expect(t.port).toEqual(new Port());
+            expect(t.component).toEqual(new Component());
+            expect(t.port).toEqual(new Port());
+        });
+
+        test('default', () => {
+            let t = new Terminal();
+
+            expect(t.component).toBe(null);
+            expect(t.port).toBe(null);
+        });
+    });
+
+    test('modify fields', () => {
+        let t = new Terminal();
+
+        t.component = new Component();
+        t.port = new Port();
+
+        expect(t.component).toEqual(new Component());
+        expect(t.port).toEqual(new Port());
+    });
 });
 
-test('initialize Terminal: default', () => {
-    let t = new Terminal();
+describe('validation', () => {
+    describe('invalid', () => {
+        test('modified Terminal', () => {
+            let t = new Terminal();
 
-    expect(t.component).toBe(null);
-    expect(t.port).toBe(null);
+            t.component = new Component();
+            t.port = new Port();
+
+            expect(t.validate()).toBe(false);
+        });
+
+        test('values', () => {
+            let t = new Terminal(invalidComponent, invalidPort);
+
+            expect(t.validate()).toBe(false);
+        });
+
+        test('port', () => {
+            let t = new Terminal(validComponent, validPort3);
+
+            expect(t.validate()).toBe(false);
+        });
+
+        test('default values', () => {
+            let t = new Terminal();
+
+            expect(t.validate()).toBe(false);
+        });
+    });
+
+    describe('valid', () => {
+        test('modified Terminal', () => {
+            let t = new Terminal();
+
+            t.component = validComponent;
+            t.port = validPort1;
+
+            expect(t.validate()).toBe(true);
+        });
+
+        test('given values', () => {
+            let t = new Terminal(validComponent, validPort1);
+
+            expect(t.validate()).toBe(true);
+        });
+
+        test('default values', () => {
+            let t = new Terminal(validComponent);
+
+            expect(t.validate()).toBe(true);
+        });
+    });
 });
 
-test('modify Terminal', () => {
-    let t = new Terminal();
-
-    t.component = new Component();
-    t.port = new Port();
-
-    expect(t.component).toEqual(new Component());
-    expect(t.port).toEqual(new Port());
-});
-
-test('validate Terminal: invalid modified Terminal', () => {
-    let t = new Terminal();
-
-    t.component = new Component();
-    t.port = new Port();
-
-    expect(t.validate()).toBe(false);
-});
-
-test('validate Terminal: valid modified Terminal', () => {
-    let t = new Terminal();
-
-    t.component = validComponent;
-    t.port = validPort1;
-
-    expect(t.validate()).toBe(true);
-});
-
-test('validate Terminal: valid given values', () => {
-    let t = new Terminal(validComponent, validPort1);
-
-    expect(t.validate()).toBe(true);
-});
-
-test('validate Terminal: valid default values', () => {
-    let t = new Terminal(validComponent);
-
-    expect(t.validate()).toBe(true);
-});
-
-test('validate Terminal: invalid values', () => {
-    let t = new Terminal(invalidComponent, invalidPort);
-
-    expect(t.validate()).toBe(false);
-});
-
-test('validate Terminal: invalid port', () => {
-    let t = new Terminal(validComponent, validPort3);
-
-    expect(t.validate()).toBe(false);
-});
-
-test('validate Terminal: invalid default values', () => {
-    let t = new Terminal();
-
-    expect(t.validate()).toBe(false);
-});
