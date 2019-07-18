@@ -63,7 +63,7 @@ class Validation {
     /**
      * Test a string value against the ParchKey name/id rules.
      *
-     * Strings cannot be empty.
+     * Strings cannot be empty. Must be a string. Must not evaluate to falsey.
      *
      * @since 1.0.0
      *
@@ -97,7 +97,7 @@ class Validation {
     /**
      * Tests the given value against the rules of spans.
      *
-     * Cannot be less than 1.
+     * Cannot be less than 1. Must be a number.
      *
      * @since 1.0.0
      *
@@ -124,11 +124,11 @@ class Validation {
     /**
      * Tests the given value against the rules of coords.
      *
-     * Cannot be negative. Cannot equal the default value.
+     * Cannot be negative. Cannot equal the default value. Must be a number.
      *
      * @since 1.0.0
      *
-     * @param {number}  value   A value to test against the span rules.
+     * @param {number}  value   A value to test against the Coord rules.
      * @param {string}  field   A string representation of the field name for
      *                          the error message.
      * @param {string}  caller  A string representation of the caller's class
@@ -151,13 +151,15 @@ class Validation {
     }
 
     /**
-     * Tests the given value against the rules of dimensions (depth/width).
+     * Tests the given value against the rules of dimensions.
      *
-     * Dimensions cannot be negative.
+     * Widths cannot be negative.
      *
      * @since 1.0.0
      *
-     * @param {number}  value   A value to test against the span rules.
+     * @see ConnectionSegment.width
+     *
+     * @param {number}  value   A value to test against the dimension rules.
      * @param {string}  field   A string representation of the field name for
      *                          the error message.
      * @param {string}  caller  A string representation of the caller's class
@@ -166,13 +168,39 @@ class Validation {
      * @returns {boolean}       true if the dimension is valid, false
      *                          otherwise.
      */
-    static testDimensionValue(value, field, caller) {
+    static testWidthValue(value, field, caller) {
         if (typeof value !== 'number') {
             console.log(caller + ': Field "' + field + '" is not a number.');
             return false;
         }
         if (value < 0) {
             console.log(caller + ': Field "' + field + '" cannot be negative.');
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Tests the given value against the rules of depth.
+     *
+     * Depth must be a number.
+     *
+     * @since 1.0.0
+     *
+     * @see ConnectionSegment.depth
+     * @see ComponentFeature.depth
+     *
+     * @param {number}  value   A value to test against the depth rules.
+     * @param {string}  field   A string representation of the field name for
+     *                          the error message.
+     * @param {string}  caller  A string representation of the caller's class
+     *                          for the error message.
+     * @returns {boolean}
+     */
+    static testDepthValue(value, field, caller) {
+        if (typeof value !== 'number') {
+            console.log(caller + ': Field "' + field + '" is not a number.');
             return false;
         }
 

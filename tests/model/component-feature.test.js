@@ -32,10 +32,18 @@ describe('initialization', () => {
 });
 
 describe('validation', () => {
-    test('valid', () => {
-        let c = new ComponentFeature(new Coord(20, 30), 14);
+    describe('valid', () => {
+        test('positive depth', () => {
+            let c = new ComponentFeature(new Coord(20, 30), 14);
 
-        expect(c.validate()).toBe(true);
+            expect(c.validate()).toBe(true);
+        });
+
+        test('negative depth', () => {
+            let c = new ComponentFeature(new Coord(34, 213), -6854)
+
+            expect(c.validate()).toBe(true);
+        });
     });
 
     describe('invalid', () => {
@@ -60,7 +68,7 @@ describe('validation', () => {
         });
 
         test('depth', () => {
-            let c = new ComponentFeature(new Coord(59, 123), -4);
+            let c = new ComponentFeature(new Coord(59, 123), 'nan');
 
             expect(c.validate()).toBe(false);
         });
