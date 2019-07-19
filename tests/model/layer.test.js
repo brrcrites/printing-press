@@ -17,16 +17,14 @@ var port0_5 = new Port('port-0_5-label', new Coord(0, 5));
 var port5_0 = new Port('port-5_0-label', new Coord(5, 0));
 var port10_0 = new Port('port-10_0-label', new Coord(10, 0));
 
-var compFeat00 = new ComponentFeature(new Coord(0, 0), 10);
-var compFeat5050 = new ComponentFeature(new Coord(50, 50), 3);
-var compFeat9090 = new ComponentFeature(new Coord(90, 90), 2);
-var compFeat040 = new ComponentFeature(new Coord(0, 40), 123);
+var compFeat0_5 = new ComponentFeature(new Coord(0, 5), 10);
+var compFeat90_96 = new ComponentFeature(new Coord(90, 96), 2);
 
 var component1 = new Component('comp-1-name', 'unique-id-comp-1', 20, 25, 'entity-1',
-        [port0_0, port0_5], [compFeat00, compFeat5050]);
+        [port0_0, port0_5], compFeat0_5);
 var component2 = new Component('comp-2-name', 'unique-id-comp-2', 30, 35, 'entity-2',
-        [port5_0, port10_0], [compFeat9090, compFeat040]);
-var component3 = new Component('comp-3-name', 'unique-id-comp-3', 5, 5, 'entity-3',
+        [port5_0, port10_0], compFeat90_96);
+var component3 = new Component('comp-3-name', 'unique-id-comp-3', 5, 6, 'entity-3',
         [port0_0, port5_0]);
 
 var sourceTerm1 = new Terminal(component1, port0_0);
