@@ -4,16 +4,6 @@ const Validation = require('../utils/validation.js');
 class Component extends ParchKey {
 
     /**
-     * An array containing all of the Layers that this component exists on.
-     *
-     * @since   1.0.0
-     * @access  public
-     *
-     * @type    {Layer[]}
-     */
-    layers;
-
-    /**
      * The amount of space this component takes up in the x direction.
      *
      * @since   1.0.0
@@ -65,34 +55,14 @@ class Component extends ParchKey {
     layer;
 
     /**
-     * The location of this component in the Architecture.
+     * The Component Feature to be placed on the Architecture.
      *
      * @since 1.0.0
      * @access public
      *
      * @type {object}
      */
-    location;
-
-    /**
-     * How deep the component should be.
-     *
-     * @since 1.0.0
-     * @access public
-     *
-     * @type {number}
-     */
-    depth;
-
-    /**
-     * The abstract Component object that this Component Feature represents.
-     *
-     * @since 1.0.0
-     * @access public
-     *
-     * @type {object}
-     */
-    component;
+    feature;
 
     /**
      *
@@ -108,111 +78,52 @@ class Component extends ParchKey {
      *
      * @see Validation.DEFAULT_STR_VALUE
      *
-     * @param {string}  name    The name of the component.
-     * @param {string}  id      The unique id of the component.
-     * @param {Layer[]} layers  The Layers on which this component exists.
-     * @param {number}  xSpan   How much space this component takes up in the x direction.
-     * @param {number}  ySpan   How much space this component takes up in the y direction.
-     * @param {string}  entity  The type of component this component object represents.
-     * @param {Port[]}  ports   The ports on this component.
-     */
-    constructor(name = Validation.DEFAULT_STR_VALUE, id = Validation.DEFAULT_STR_VALUE, layers = [],
-                xSpan = Validation.DEFAULT_SPAN_VALUE, ySpan = Validation.DEFAULT_SPAN_VALUE,
-                entity = Validation.DEFAULT_STR_VALUE, ports = []) {
-
-        super(name, id);
-        this.layers = layers;
-        this.xSpan = xSpan;
-        this.ySpan = ySpan;
-        this.entity = entity;
-        this.ports = ports;
-
-        // Component Feature Fields
-        this.layer = Validation.DEFAULT_STR_VALUE;
-        this.depth = Validation.DEFAULT_DIM_VALUE;
-        this.location = null;
-        this.component = null;
-    }
-
-    /**
-     * Initialize all the fields of a Connection Feature.
-     *
-     * @since 1.0.0
-     *
-     * @param {object}  component   The abstract Component that this Component
-     *                              Feature represents.
-     * @param {string}  layer       The layer on which this component exists.
-     * @param {object}  location    The location of the Component Feature on the
+     * @param {string}  name        The name of the component.
+     * @param {string}  id          The unique id of the component.
      * @param {number}  xSpan       How much space this component takes up in
      *                              the x direction.
      * @param {number}  ySpan       How much space this component takes up in
      *                              the y direction.
-     * @param {number}  depth       How deep the component should be.
+     * @param {string}  entity      The type of component this component object
+     *                              represents.
+     * @param {Array}   ports       The ports on this component.
+     * @param {object}  feature     The Component Feature to be placed on the
+     *                              Architecture that references this Component.
      */
-    initFeature(component, layer, location, xSpan, ySpan, depth) {
-        this.component = component;
-        this.layer = layer;
-        this.location = location;
+    constructor(name = Validation.DEFAULT_STR_VALUE, id = Validation.DEFAULT_STR_VALUE,
+                xSpan = Validation.DEFAULT_SPAN_VALUE, ySpan = Validation.DEFAULT_SPAN_VALUE,
+                entity = Validation.DEFAULT_STR_VALUE, ports = [], feature = null) {
+
+        super(name, id);
         this.xSpan = xSpan;
         this.ySpan = ySpan;
-        this.depth = depth;
+        this.entity = entity;
+        this.ports = ports;
+        this.feature = feature;
     }
 
     /**
-     * Initialize the fields exclusive to a Connection Feature.
+     * Validate the Component object.
      *
-     * This excludes the name, id, and spans to ease parsing.
-     *
-     * @since 1.0.0
-     *
-     * @param {object}  component   The abstract component that this Component
-     *                              Feature represents.
-     * @param {string}  layer       The layer on which this component exists.
-     * @param {object}  location    The location of the Component Feature on
-     *                              the Architecture.
-     * @param {number}  depth       How deep the component should be.
-     */
-    initFeatureExclusives(component, layer, location, depth) {
-        this.component = component;
-        this.layer = layer;
-        this.location = location;
-        this.depth = depth;
-    }
-
-    validate() {
-        let valid = super.validate();
-
-        valid = this.validateLayers() ? valid : false;
-        valid = this.validateSpans() ? valid : false;
-        valid = Validation.testStringValue(this.entity, 'entity', 'Component') ? valid : false;
-        valid = this.validatePorts() ? valid : false;
-
-        return valid;
-    }
-
-    /**
-     * Validates the layers field.
-     *
-     * No layer string can be empty. The layers field itself cannot be null.
+     * Entity must not be set to the default string value. See other fields'
+     * validate functions for their requirements.
      *
      * @since 1.0.0
+     *
+     * @see validateSpans
+     * @see validatePorts
+     * @see validateFeatures
+     * @see Validation.testStringValue
      *
      * @returns {boolean}
      */
-    validateLayers() {
-        let valid = true;
+    validate() {
+        let valid = super.validate();
 
-        if (this.layers === 0) {
-            console.log('Component: Field "layers" is contains no Layers.');
-            return false;
-        }
-
-        this.layers.forEach(function (value, index, array) {
-            if (value === '') {
-                valid = false;
-                console.log('Component: Field "layers" cannot have any empty strings. See layers[${index}].');
-            }
-        });
+        valid = this.validateSpans() ? valid : false;
+        valid = Validation.testStringValue(this.entity, 'entity', 'Component') ? valid : false;
+        valid = this.validatePorts() ? valid : false;
+        valid = this.validateFeatures() ? valid : false;
 
         return valid;
     }
@@ -234,7 +145,8 @@ class Component extends ParchKey {
     /**
      * Validate the ports field.
      *
-     * Calls the Port validation function on each port in the array. The ports field cannot be null.
+     * Calls the Port validation function on each port in the array. The ports
+     * array cannot have a length of zero.
      *
      * @since 1.0.0
      *
@@ -266,7 +178,6 @@ class Component extends ParchKey {
                             ' indices ' + index + ' and ' + i + '.');
                 }
             }
-
 
         });
 
@@ -303,99 +214,25 @@ class Component extends ParchKey {
     }
 
     /**
-     * Validate the Component object as a Feature Component.
+     * Validate the Component Feature.
      *
-     * All rules are listed in the Validation class. Depth is considered a dimension.
-     *
-     * @see Validation
-     *
-     * @since 1.0.0
-     *
-     * @return {boolean}
-     */
-    validateFeature() {
-        let valid = true;
-
-        if (!this.component || !this.component.validate()) {
-            valid = false;
-            console.log('Component Feature: Field "component" is invalid.');
-        }
-
-        valid = this.validateFeatureLayer() ? valid : false;
-
-        if (!this.location) {
-            valid = false;
-            console.log('Component Feature: Field "location" is invalid.');
-        } else {
-            valid = this.location.validate() ? valid : false;
-        }
-
-        valid = this.validateFeatureSpans() ? valid : false;
-        valid = Validation.testWidthValue(this.depth, 'depth', 'Component Feature') ? valid : false;
-
-        return valid;
-    }
-
-    /**
-     * Validate the x/y-spans in the scope of a Component Feature.
-     *
-     * Both x- and y-spans must be valid. Both x- and y- spans must match the
-     * abstract Component's spans.
+     * The Component Feature can evaluate to falsey. If it does not, then it
+     * must be valid.
      *
      * @since 1.0.0
      *
-     * @see Validation.testSpanValue
+     * @see ComponentFeature.validate
      *
      * @returns {boolean}
      */
-    validateFeatureSpans() {
-        let valid = this.validateSpans();
-        
-        valid = Validation.testSpanValue(this.xSpan, 'x', 'Component Feature') ? valid : false;
-        valid = Validation.testSpanValue(this.ySpan, 'y', 'Component Feature') ? valid : false;
-
-        // Only compare spans if the component is referenced
-        if (this.component) {
-            if (this.xSpan !== this.component.xSpan) {
-                valid = false;
-                console.log('Component Feature: Field "xSpan" (' + this.xSpan + 'does not match the abstract' +
-                        ' Component\'s xSpan (' + this.component.xSpan + '.');
-            }
-            if (this.ySpan !== this.component.ySpan) {
-                valid = false;
-                console.log('Component Feature: Field "ySpan" (' + this.ySpan + 'does not match the abstract' +
-                        ' Component\'s ySpan (' + this.component.ySpan + '.');
-            }
+    validateFeatures() {
+        if (!this.feature) {
+            console.log('Component (WARNING): Field "feature" has not been set.');
+            return true;
         }
 
-        return valid;
-    }
-
-    /**
-     * Validate the layer of a Component Feature.
-     *
-     * The layer must match one of the layers in the referenced abstract
-     * Component's layer list. The abstract Component must not evaluate to
-     * falsey.
-     *
-     * @since 1.0.0
-     *
-     * @returns {boolean}
-     */
-    validateFeatureLayer() {
-        if (Validation.testStringValue(this.layer, 'layer', 'Component Feature')) {
-            if (!this.component) {
-                console.log('Component Feature: Field "component" is invalid.');
-                return false;
-            }
-            // If the layer is a valid string, test whether it exists in the referenced abstract Component's layers
-            // list.
-            if (this.component.layers.indexOf(this.layer) === -1) {
-                console.log('Component Feature: Field "layer" (' + this.layer + ') does not match any layer listed' +
-                        ' in the abstract Component\'s layer list.');
-                return false;
-            }
-        } else {
+        if (!this.feature.validate()) {
+            console.log('Component: Field "feature" is an invalid Component Feature.');
             return false;
         }
 
