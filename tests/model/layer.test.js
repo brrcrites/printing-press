@@ -101,31 +101,31 @@ describe('validation', () => {
         });
 
         test('components', () => {
-            let l = new Layer('name', 'id', [new Component(), component2], [connection1, connection2]);
+            let badComponents = new Layer('name', 'id', [new Component(), component2], [connection1, connection2]);
 
-            expect(l.validate()).toBe(false);
+            expect(badComponents.validate()).toBe(false);
         });
 
         test('connections', () => {
-            let l = new Layer('name', 'id', [component1, component2], [new Connection(), connection2]);
+            let badConnections = new Layer('name', 'id', [component1, component2], [new Connection(), connection2]);
 
-            expect(l.validate()).toBe(false);
+            expect(badConnections.validate()).toBe(false);
         });
 
         describe('mismatched component', () => {
             test('source', () => {
                 let con = new Connection('bad-connection', 'unique-bad-con-id', invalidTerm, [sinkTerm1, sinkTerm2]);
                 console.log('HERE IT IS: (inv, con): (' + invalidTerm + ', ' + con.source + ')');
-                let l = new Layer('name', 'id', [component1, component2], [con]);
+                let mismatchedComponent = new Layer('name', 'id', [component1, component2], [con]);
 
-                expect(l.validate()).toBe(false);
+                expect(mismatchedComponent.validate()).toBe(false);
             });
 
             test('sink', () => {
                 let con = new Connection('bad-connection', 'unique-con-id', sourceTerm1, [invalidTerm]);
-                let l = new Layer('name', 'id', [component1, component2], [con]);
+                let badSink = new Layer('name', 'id', [component1, component2], [con]);
 
-                expect(l.validate()).toBe(false);
+                expect(badSink.validate()).toBe(false);
             });
         });
     });
