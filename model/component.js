@@ -49,7 +49,7 @@ class Component extends ParchKey {
      * @since 1.0.0
      * @access public
      *
-     * @type {Array}
+     * @type {object}
      */
     feature;
 
