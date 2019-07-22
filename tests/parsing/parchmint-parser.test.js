@@ -74,17 +74,5 @@ describe('layers', () => {
 
             expect(l[1].validate()).toBe(false);
         });
-
-        /*
-        test('valid', () => {
-            let pp = new ParchmintParser();
-            let l = pp.parseLayersArray(parseJSONObj(validParchmintLayers));
-
-            expect(l.length).toBe(2);
-
-            expect(l[0].validate()).toBe(true);
-            expect(l[1].validate()).toBe(true);
-        });
-         */
     });
 });

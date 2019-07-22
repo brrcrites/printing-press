@@ -25,14 +25,6 @@ class Layer extends ParchKey {
      */
     connections;
 
-    /**
-     * Whether this Layer is valid.
-     *
-     * @since 1.0.0
-     *
-     * @type {boolean}
-     */
-    valid;
 
     /**
      * @class
@@ -70,12 +62,17 @@ class Layer extends ParchKey {
     validate() {
         let valid = super.validate();
 
-        // Components
-        if (this.components.length === 0) {
-            valid = false;
-            console.log('Layer (' + this.id + '): Field "components" cannot be empty.');
+        if (this.components.length === 0 && this.connections.length === 0) {
+            console.log('Layer (' + this.id + ') (WARNING): contains no component and no connections');
+        }
+        else if (this.components.length === 0) {
+            console.log('Layer (' + this.id + ') (WARNING): contains no components.');
+        }
+        else if (this.connections.length === 0) {
+            console.log('Layer (' + this.id + ') (WARNING): contains no connections.');
         }
 
+        // Components
         this.components.forEach((value, index) => {
             if (!value.validate()) {
                 valid = false;
@@ -86,11 +83,6 @@ class Layer extends ParchKey {
 
 
         // Connections
-        if (this.connections.length === 0) {
-            valid = false;
-            console.log('Layer (' + this.id + '): Field "connections" cannot be empty.');
-        }
-
         this.connections.forEach((conValue, conIndex) => {
             if (!conValue.validate()) {
                 valid = false;

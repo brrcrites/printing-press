@@ -10,12 +10,10 @@ console.log = jest.fn();
 var validPort1 = new Port('port-1', new Coord(0, 0));
 var validPort2 = new Port('port-2', new Coord(0, 5));
 var validPort3 = new Port('port-3', new Coord(0, 10));
-var invalidPort = new Port('invalid-port-1', new Coord());
-var feature107 = new ComponentFeature(new Coord(10, 7), 5);
-var feature4060 = new ComponentFeature(new Coord(40, 60), 10);
-var validComponent = new Component('name', 'unique-id', 10, 20, 'entity', [validPort1, validPort2], [feature107, feature4060]);
-var invalidComponent = new Component('', '', 0, 0, '', [new Port(), new Port()], [new ComponentFeature(),
-    new ComponentFeature()]);
+var invalidPort = new Port('invalid-port-1', new Coord(-1, -10));
+var feature10_7 = new ComponentFeature(new Coord(10, 7), 5);
+var validComponent = new Component('name', 'unique-id', 10, 20, 'entity', [validPort1, validPort2], feature10_7);
+var invalidComponent = new Component('', '', 0, 0, '', [new Port(), new Port()], new ComponentFeature());
 
 test('initialize Terminal: parameters', () => {
     let t = new Terminal(new Component(), new Port());

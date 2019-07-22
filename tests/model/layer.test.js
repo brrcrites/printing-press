@@ -17,16 +17,14 @@ var port0_5 = new Port('port-0_5-label', new Coord(0, 5));
 var port5_0 = new Port('port-5_0-label', new Coord(5, 0));
 var port10_0 = new Port('port-10_0-label', new Coord(10, 0));
 
-var compFeat00 = new ComponentFeature(new Coord(0, 0), 10);
-var compFeat5050 = new ComponentFeature(new Coord(50, 50), 3);
-var compFeat9090 = new ComponentFeature(new Coord(90, 90), 2);
-var compFeat040 = new ComponentFeature(new Coord(0, 40), 123);
+var compFeat0_5 = new ComponentFeature(new Coord(0, 5), 10);
+var compFeat90_96 = new ComponentFeature(new Coord(90, 96), 2);
 
 var component1 = new Component('comp-1-name', 'unique-id-comp-1', 20, 25, 'entity-1',
-        [port0_0, port0_5], [compFeat00, compFeat5050]);
+        [port0_0, port0_5], compFeat0_5);
 var component2 = new Component('comp-2-name', 'unique-id-comp-2', 30, 35, 'entity-2',
-        [port5_0, port10_0], [compFeat9090, compFeat040]);
-var component3 = new Component('comp-3-name', 'unique-id-comp-3', 5, 5, 'entity-3',
+        [port5_0, port10_0], compFeat90_96);
+var component3 = new Component('comp-3-name', 'unique-id-comp-3', 5, 6, 'entity-3',
         [port0_0, port5_0]);
 
 var sourceTerm1 = new Terminal(component1, port0_0);
@@ -103,38 +101,47 @@ describe('validation', () => {
         });
 
         test('components', () => {
-            let l = new Layer('name', 'id', [new Component(), component2], [connection1, connection2]);
+            let badComponents = new Layer('name', 'id', [new Component(), component2], [connection1, connection2]);
 
-            expect(l.validate()).toBe(false);
+            expect(badComponents.validate()).toBe(false);
         });
 
         test('connections', () => {
-            let l = new Layer('name', 'id', [component1, component2], [new Connection(), connection2]);
+            let badConnections = new Layer('name', 'id', [component1, component2], [new Connection(), connection2]);
 
-            expect(l.validate()).toBe(false);
+            expect(badConnections.validate()).toBe(false);
         });
 
         describe('mismatched component', () => {
             test('source', () => {
                 let con = new Connection('bad-connection', 'unique-bad-con-id', invalidTerm, [sinkTerm1, sinkTerm2]);
-                console.log('HERE IT IS: (inv, con): (' + invalidTerm + ', ' + con.source + ')');
-                let l = new Layer('name', 'id', [component1, component2], [con]);
+                let mismatchedComponent = new Layer('name', 'id', [component1, component2], [con]);
 
-                expect(l.validate()).toBe(false);
+                expect(mismatchedComponent.validate()).toBe(false);
             });
 
             test('sink', () => {
                 let con = new Connection('bad-connection', 'unique-con-id', sourceTerm1, [invalidTerm]);
-                let l = new Layer('name', 'id', [component1, component2], [con]);
+                let badSink = new Layer('name', 'id', [component1, component2], [con]);
 
-                expect(l.validate()).toBe(false);
+                expect(badSink.validate()).toBe(false);
             });
         });
     });
 
-    test('valid', () => {
-        let goodLayer = new Layer('good-name', 'good-id', [component1, component2], [connection1, connection2]);
+    describe('valid', () => {
+        test('all values', () => {
+            let goodLayer = new Layer('good-name', 'good-id', [component1, component2], [connection1, connection2]);
 
-        expect(goodLayer.validate()).toBe(true);
+            expect(goodLayer.validate()).toBe(true);
+        });
+
+        test('no components/connections', () => {
+            let goodNoCompConn = new Layer('good-name', 'good-id');
+
+            expect(goodNoCompConn.validate()).toBe(true);
+        });
     });
+
+
 });
