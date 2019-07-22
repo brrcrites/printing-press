@@ -24,15 +24,7 @@ class Layer extends ParchKey {
      * @type {Array}
      */
     connections;
-
-    /**
-     * Whether this Layer is valid.
-     *
-     * @since 1.0.0
-     *
-     * @type {boolean}
-     */
-    valid;
+    
 
     /**
      * @class
