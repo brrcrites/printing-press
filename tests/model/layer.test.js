@@ -115,7 +115,6 @@ describe('validation', () => {
         describe('mismatched component', () => {
             test('source', () => {
                 let con = new Connection('bad-connection', 'unique-bad-con-id', invalidTerm, [sinkTerm1, sinkTerm2]);
-                console.log('HERE IT IS: (inv, con): (' + invalidTerm + ', ' + con.source + ')');
                 let mismatchedComponent = new Layer('name', 'id', [component1, component2], [con]);
 
                 expect(mismatchedComponent.validate()).toBe(false);
