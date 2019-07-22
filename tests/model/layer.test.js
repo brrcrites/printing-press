@@ -130,9 +130,19 @@ describe('validation', () => {
         });
     });
 
-    test('valid', () => {
-        let goodLayer = new Layer('good-name', 'good-id', [component1, component2], [connection1, connection2]);
+    describe('valid', () => {
+        test('all values', () => {
+            let goodLayer = new Layer('good-name', 'good-id', [component1, component2], [connection1, connection2]);
 
-        expect(goodLayer.validate()).toBe(true);
+            expect(goodLayer.validate()).toBe(true);
+        });
+
+        test('no components/connections', () => {
+            let goodNoCompConn = new Layer('good-name', 'good-id');
+
+            expect(goodNoCompConn.validate()).toBe(true);
+        });
     });
+
+
 });
