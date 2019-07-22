@@ -137,14 +137,12 @@ class Architecture {
 
             if (this.hasParams) {
                 layerValue.components.forEach((compValue, compIndex) => {
-                    compValue.features.forEach((featValue, featIndex) => {
-                        if (!this.validateLocation(featValue.location, compValue.xSpan, compValue.ySpan)) {
-                            valid = false;
-                            console.log('Architecture: Field "layers" contains a Component (ID: ' + compValue.id + ',' +
-                                    'index: ' + compIndex + ') whose feature (index: ' + featIndex + ') exists ' +
-                                    'outside of the params.')
-                        }
-                    });
+                    // Check that we have a feature, if we do then compare its location to the given params
+                    if (compValue.feature && !this.validateLocation(compValue.feature.location, compValue.xSpan, compValue.ySpan)) {
+                        valid = false;
+                        console.log('Architecture: Field "layers" contains a Component (ID: ' + compValue.id + ',' +
+                                'index: ' + compIndex + ') whose feature exists outside of the params.');
+                    }
                 });
 
                 layerValue.connections.forEach((connValue, connIndex) => {
@@ -153,13 +151,13 @@ class Architecture {
                             valid = false;
                             console.log('Architecture: Field "layers" contains a Connection (ID: ' + connValue.id +
                                     ', index: ' + connIndex + ') whose sourcePoint (index: ' + segIndex + ') exists ' +
-                                    'outside of the params.')
+                                    'outside of the params.');
                         }
                         if (!this.validateLocation(segValue.sinkPoint)) {
                             valid = false;
                             console.log('Architecture: Field "layers" contains a Connection (ID: ' + connValue.id +
                                     ', index: ' + connIndex + ') whose sinkPoint (index: ' + segIndex + ') exists ' +
-                                    'outside of the params.')
+                                    'outside of the params.');
                         }
                     });
                 });
