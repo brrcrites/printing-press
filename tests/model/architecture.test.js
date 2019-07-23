@@ -20,8 +20,9 @@ var port10_0 = new Port('port-10_0-label', new Coord(10, 0));
 var port1_5 = new Port('port-1_5-label', new Coord(1, 5));
 var port10_10 = new Port('port-10_10-label', new Coord(10, 10));
 
-var compFeat00 = new ComponentFeature(new Coord(0, 0), 10);
-var compFeat9090 = new ComponentFeature(new Coord(90, 90), 2);
+// These two Component Features share the same layer id because they exist on the same layer
+var compFeat00 = new ComponentFeature('comp-1-name', 'unique-top-layer-id', 20, 25, new Coord(0, 0), 10);
+var compFeat9090 = new ComponentFeature('comp-2-name', 'unique-top-layer-id', 30, 35, new Coord(90, 90), 2);
 
 var component1 = new Component('comp-1-name', 'unique-id-comp-1', 20, 25, 'entity-1',
         [port0_0, port0_5], compFeat00);

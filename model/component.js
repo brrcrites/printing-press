@@ -195,7 +195,8 @@ class Component extends ParchKey {
      * Validate the Component Feature.
      *
      * The Component Feature can evaluate to falsey. If it does not, then it
-     * must be valid.
+     * must be valid. The name and spans of the Component and its Feature must
+     * match.
      *
      * @since 1.0.0
      *
@@ -204,17 +205,34 @@ class Component extends ParchKey {
      * @returns {boolean}
      */
     validateFeatures() {
+        let valid = true;
+
         if (!this.feature) {
             console.log('Component (WARNING): Field "feature" has not been set.');
             return true;
         }
 
         if (!this.feature.validate()) {
+            valid = false;
             console.log('Component: Field "feature" is an invalid Component Feature.');
-            return false;
         }
 
-        return true;
+        if (this.xSpan !== this.feature.xSpan) {
+            valid = false;
+            console.log('Component: Field "xSpan" does not match the Component Feature.');
+        }
+
+        if (this.ySpan !== this.feature.ySpan) {
+            valid = false;
+            console.log('Component: Field "ySpan" does not match the Component Feature.');
+        }
+
+        if (this.name !== this.feature.name) {
+            valid = false;
+            console.log('Component: Field "name" does not match the Component Feature.');
+        }
+
+        return valid;
     }
 
 }
