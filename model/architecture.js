@@ -9,7 +9,7 @@ class Architecture {
      * @since 1.0.0
      * @access public
      *
-     * @type {object}
+     * @type {string}
      */
     name;
 
