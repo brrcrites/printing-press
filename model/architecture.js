@@ -24,16 +24,6 @@ class Architecture {
     layers;
 
     /**
-     * Whether this Architecture has x- and y-span parameters.
-     *
-     * @since 1.0.0
-     * @access public
-     *
-     * @type {boolean}
-     */
-    hasParams;
-
-    /**
      * The size of this Architecture in the x-direction.
      *
      * @since 1.0.0
@@ -104,10 +94,8 @@ class Architecture {
      * @returns {boolean}   The resulting value of hasParams.
      */
     determineParams() {
-        this.hasParams = Validation.testSpanValue(this.xSpan, 'x', 'Architecture (WARNING):') &&
+        return Validation.testSpanValue(this.xSpan, 'x', 'Architecture (WARNING):') &&
                 Validation.testSpanValue(this.ySpan, 'y', 'Architecture (WARNING):');
-
-        return this.hasParams;
     }
 
     /**
@@ -121,7 +109,7 @@ class Architecture {
      */
     validate() {
         let valid = Validation.testStringValue(this.name, 'name', 'Architecture');
-        this.determineParams();
+        let hasParams = this.determineParams();
 
         if (this.layers.length === 0) {
             valid = false;
@@ -135,7 +123,7 @@ class Architecture {
                         + layerIndex);
             }
 
-            if (this.hasParams) {
+            if (hasParams) {
                 layerValue.components.forEach((compValue, compIndex) => {
                     // Check that we have a feature, if we do then compare its location to the given params
                     if (compValue.feature && !this.validateLocation(compValue.feature.location, compValue.xSpan, compValue.ySpan)) {

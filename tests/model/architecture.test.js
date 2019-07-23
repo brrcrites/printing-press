@@ -61,7 +61,6 @@ describe('initialization', () => {
             expect(a.layers).toEqual([topLayer, botLayer]);
             expect(a.xSpan).toBe(5);
             expect(a.ySpan).toBe(51);
-            expect(a.hasParams).toBe(false);
         });
 
         test('default', () => {
@@ -71,7 +70,6 @@ describe('initialization', () => {
             expect(a.layers).toEqual([]);
             expect(a.xSpan).toBe(Validation.DEFAULT_SPAN_VALUE);
             expect(a.ySpan).toBe(Validation.DEFAULT_SPAN_VALUE);
-            expect(a.hasParams).toBe(false);
         });
     });
 
@@ -82,13 +80,11 @@ describe('initialization', () => {
         a.layers = [topLayer, botLayer];
         a.xSpan = 10;
         a.ySpan = 15;
-        a.hasParams = true;
 
         expect(a.name).toBe('arch');
         expect(a.layers).toEqual([topLayer, botLayer]);
         expect(a.xSpan).toBe(10);
         expect(a.ySpan).toBe(15);
-        expect(a.hasParams).toBe(true);
     });
 });
 
@@ -99,8 +95,6 @@ describe('determineParams', () => {
         a.xSpan = 10;
         a.ySpan = 15;
         expect(a.determineParams()).toBe(true);
-
-        expect(a.hasParams).toBe(true);
     });
 
     test('does not have params', () => {
@@ -109,8 +103,6 @@ describe('determineParams', () => {
         a.xSpan = -14;
         a.ySpan = -9876543;
         expect(a.determineParams()).toBe(false);
-
-        expect(a.hasParams).toBe(false);
     });
 });
 
