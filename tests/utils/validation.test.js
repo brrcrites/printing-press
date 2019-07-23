@@ -100,6 +100,28 @@ describe('depth values', () => {
    });
 });
 
+describe('depth value', () => {
+    describe('valid', () => {
+        test('negative', () => {
+            expect(Validation.testDepthValue(-10, 'depth', 'Validation Test')).toBe(true);
+        });
+
+        test('positive', () => {
+            expect(Validation.testDepthValue(45, 'depth', 'Validation Test')).toBe(true);
+        });
+    });
+
+    describe('invalid', () => {
+        test('string', () => {
+            expect(Validation.testDepthValue('nan', 'depth', 'Validation Test')).toBe(false);
+        });
+
+        test('array', () => {
+            expect(Validation.testDepthValue([], 'depth', 'Validation Test')).toBe(false);
+        });
+    });
+});
+
 test('channel value', () => {
     expect(Validation.DEFAULT_CON_TYPE).toBe('channel');
 });

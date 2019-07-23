@@ -2,6 +2,7 @@ const Terminal = require('../../model/terminal.js');
 const Port = require('../../model/port.js');
 const Component = require('../../model/component.js');
 const Coord = require('../../model/coord.js');
+const ComponentFeature = require('../../model/component-feature.js');
 
 // Suppress console logs
 console.log = jest.fn();
@@ -12,8 +13,9 @@ var validPort1 = new Port('port-1', layer1, new Coord(0, 0));
 var validPort2 = new Port('port-2', layer2, new Coord(0, 5));
 var validPort3 = new Port('port-3', 'layer-3', new Coord(0, 10));
 var invalidPort = new Port('invalid-port-1', '', new Coord(0, 0));
-var validComponent = new Component('name', 'unique-id', [layer1, layer2], 10, 20, 'entity', [validPort1, validPort2]);
-var invalidComponent = new Component('', '', [layer1, layer1], 0, 0, '', [new Port(), new Port()]);
+var feature10_7 = new ComponentFeature(new Coord(10, 7), 5);
+var validComponent = new Component('name', 'unique-id', 10, 20, 'entity', [validPort1, validPort2], feature10_7);
+var invalidComponent = new Component('', '', 0, 0, '', [new Port(), new Port()], new ComponentFeature());
 
 describe('initialization', () => {
     describe('constructor', () => {

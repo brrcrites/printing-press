@@ -37,7 +37,7 @@ class ComponentFeature {
      * Location must not evaluate to falsey and be a valid Coord object. Depth
      * must be a valid dimension.
      *
-     * @see Validation.testWidthValue
+     * @see Validation.testDepthValue
      *
      * @since 1.0.0
      *

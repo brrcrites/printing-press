@@ -29,8 +29,10 @@ class Terminal {
      * @class
      * @since 1.0.0
      *
-     * @param {string}  compID  The component ID of the component to which this terminal connects.
-     * @param {object}  port    The port to which this terminal connects on the component.
+     * @param {string}  component   The component to which this terminal
+     *                              connects.
+     * @param {object}  port        The port to which this terminal connects on
+     *                              the component.
      */
     constructor(component = null, port = null) {
         this.component = component;
