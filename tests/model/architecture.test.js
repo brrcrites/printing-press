@@ -21,13 +21,13 @@ var port1_5 = new Port('port-1_5-label', new Coord(1, 5));
 var port10_10 = new Port('port-10_10-label', new Coord(10, 10));
 
 // These two Component Features share the same layer id because they exist on the same layer
-var compFeat00 = new ComponentFeature('comp-1-name', 'unique-top-layer-id', 20, 25, new Coord(0, 0), 10);
-var compFeat9090 = new ComponentFeature('comp-2-name', 'unique-top-layer-id', 30, 35, new Coord(90, 90), 2);
+var compFeat0_0 = new ComponentFeature('comp-1-name', 'unique-top-layer-id', 20, 25, new Coord(0, 0), 10);
+var compFeat90_90 = new ComponentFeature('comp-2-name', 'unique-top-layer-id', 30, 35, new Coord(90, 90), 2);
 
 var component1 = new Component('comp-1-name', 'unique-id-comp-1', 20, 25, 'entity-1',
-        [port0_0, port0_5], compFeat00);
+        [port0_0, port0_5], compFeat0_0);
 var component2 = new Component('comp-2-name', 'unique-id-comp-2', 30, 35, 'entity-2',
-        [port5_0, port10_0], compFeat9090);
+        [port5_0, port10_0], compFeat90_90);
 var component3 = new Component('comp-3-name', 'unique-id-comp-3', 5, 5, 'entity-3',
         [port1_5]);
 var component4 = new Component('comp-4-name', 'unique-id-comp-4', 10, 10, 'entity-4',
@@ -62,7 +62,6 @@ describe('initialization', () => {
             expect(a.layers).toEqual([topLayer, botLayer]);
             expect(a.xSpan).toBe(5);
             expect(a.ySpan).toBe(51);
-            expect(a.hasParams).toBe(false);
         });
 
         test('default', () => {
@@ -72,7 +71,6 @@ describe('initialization', () => {
             expect(a.layers).toEqual([]);
             expect(a.xSpan).toBe(Validation.DEFAULT_SPAN_VALUE);
             expect(a.ySpan).toBe(Validation.DEFAULT_SPAN_VALUE);
-            expect(a.hasParams).toBe(false);
         });
     });
 
@@ -83,13 +81,11 @@ describe('initialization', () => {
         a.layers = [topLayer, botLayer];
         a.xSpan = 10;
         a.ySpan = 15;
-        a.hasParams = true;
 
         expect(a.name).toBe('arch');
         expect(a.layers).toEqual([topLayer, botLayer]);
         expect(a.xSpan).toBe(10);
         expect(a.ySpan).toBe(15);
-        expect(a.hasParams).toBe(true);
     });
 });
 
@@ -100,8 +96,6 @@ describe('determineParams', () => {
         a.xSpan = 10;
         a.ySpan = 15;
         expect(a.determineParams()).toBe(true);
-
-        expect(a.hasParams).toBe(true);
     });
 
     test('does not have params', () => {
@@ -110,8 +104,6 @@ describe('determineParams', () => {
         a.xSpan = -14;
         a.ySpan = -9876543;
         expect(a.determineParams()).toBe(false);
-
-        expect(a.hasParams).toBe(false);
     });
 });
 
