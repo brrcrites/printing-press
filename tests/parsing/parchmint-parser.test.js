@@ -1,5 +1,6 @@
 const ParchmintParser = require('../../parsing/parchmint-parser.js');
 const Layer = require('../../model/layer.js');
+const Coord = require('../../model/coord.js');
 
 // Suppress console logs
 console.log = jest.fn();
@@ -23,6 +24,95 @@ const invalidParchmintLayers = '"layers": [\n' +
         '    {\n' +
         '        "id": "",\n' +
         '        "name": "control-layer"\n' +
+        '    }\n' +
+        ']';
+
+const validParchmintComponentFeatures = '"features": [\n' +
+        '    {\n' +
+        '        "name": "mixer-001",\n' +
+        '        "id": "unique-mixer-id-string",\n' +
+        '        "layer": "unique-flow-layer-id-string",\n' +
+        '        "location": {\n' +
+        '            "x": 500,\n' +
+        '            "y": 2000\n' +
+        '        },\n' +
+        '        "x-span": 4500,\n' +
+        '        "y-span": 1500,\n' +
+        '        "depth": 10\n' +
+        '    }\n' +
+        ']';
+
+const invalidParchmintComponentFeature = '"features": [\n' +
+        '    {\n' +
+        '        "name": "",\n' +
+        '        "id": "unique-mixer-id-string",\n' +
+        '        "layer": "unique-flow-layer-id-string",\n' +
+        '        "location": {\n' +
+        '            "x": -500,\n' +
+        '            "y": 2000\n' +
+        '        },\n' +
+        '        "x-span": 0,\n' +
+        '        "y-span": 1500,\n' +
+        '        "depth": 10\n' +
+        '    }\n' +
+        ']';
+
+const duplicateParchmintComponentFeature = '"features": [\n' +
+        '    {\n' +
+        '        "name": "mixer-001",\n' +
+        '        "id": "unique-mixer-id-string",\n' +
+        '        "layer": "unique-flow-layer-id-string",\n' +
+        '        "location": {\n' +
+        '            "x": 500,\n' +
+        '            "y": 2000\n' +
+        '        },\n' +
+        '        "x-span": 4500,\n' +
+        '        "y-span": 1500,\n' +
+        '        "depth": 10\n' +
+        '    },\n' +
+        '    {\n' +
+        '        "name": "mixer-002",\n' +
+        '        "id": "unique-mixer-id-string",\n' +
+        '        "layer": "unique-flow-layer-id-string",\n' +
+        '        "location": {\n' +
+        '            "x": 1000,\n' +
+        '            "y": 2500\n' +
+        '        },\n' +
+        '        "x-span": 4000,\n' +
+        '        "y-span": 1000,\n' +
+        '        "depth": 5\n' +
+        '    }\n' +
+        ']';
+
+const validParchmintComboFeatures = '"features": [\n' +
+        '    {\n' +
+        '        "name": "mixer-001",\n' +
+        '        "id": "unique-mixer-id-string",\n' +
+        '        "layer": "unique-flow-layer-id-string",\n' +
+        '        "location": {\n' +
+        '            "x": 500,\n' +
+        '            "y": 2000\n' +
+        '        },\n' +
+        '        "x-span": 4500,\n' +
+        '        "y-span": 1500,\n' +
+        '        "depth": 10\n' +
+        '    },\n' +
+        '    {\n' +
+        '        "name": "mixer-flow-connection-segment-001",\n' +
+        '        "id": "unique-channel-segment-id",\n' +
+        '        "connection": "unique-mixer-flow-connection-id",\n' +
+        '        "layer": "unique-flow-layer-id-string",\n' +
+        '        "width": 5,\n' +
+        '        "depth": 10,\n' +
+        '        "source": {\n' +
+        '            "x": 500,\n' +
+        '            "y": 2750\n' +
+        '        },\n' +
+        '        "sink": {\n' +
+        '            "x": 50,\n' +
+        '            "y": 2750\n' +
+        '        },\n' +
+        '        "type": "channel"\n' +
         '    }\n' +
         ']';
 
@@ -73,6 +163,60 @@ describe('layers', () => {
             expect(l.length).toBe(2);
 
             expect(l[1].validate()).toBe(false);
+        });
+    });
+});
+
+describe('component features', () => {
+    describe('parsing', () => {
+        describe('valid', () => {
+            describe('only one', () => {
+                test ('Component Feature', () => {
+                    let pp = new ParchmintParser();
+                    let cf;
+                    pp.parseComponentFeatures(parseJSONObj(validParchmintComponentFeatures));
+
+                    expect(pp.compFeatures.size).toBe(1);
+                    expect(pp.compFeatures.has('unique-mixer-id-string'));
+                    expect(pp.valid).toBe(true);
+
+                    cf = pp.compFeatures.get('unique-mixer-id-string');
+                    expect(cf.name).toBe('mixer-001');
+                    expect(cf.layer).toBe('unique-flow-layer-id-string');
+                    expect(cf.xSpan).toBe(4500);
+                    expect(cf.ySpan).toBe(1500);
+                    expect(cf.location).toEqual(new Coord(500, 2000));
+                    expect(cf.depth).toBe(10);
+                });
+            });
+
+            test('of each Component Feature and Connection Feature', () => {
+                let pp = new ParchmintParser();
+                let cf;
+                pp.parseComponentFeatures(parseJSONObj(validParchmintComboFeatures));
+
+                expect(pp.compFeatures.size).toBe(1);
+                expect(pp.compFeatures.has('unique-mixer-id-string'));
+                expect(pp.valid).toBe(true);
+
+                cf = pp.compFeatures.get('unique-mixer-id-string');
+                expect(cf.name).toBe('mixer-001');
+                expect(cf.layer).toBe('unique-flow-layer-id-string');
+                expect(cf.xSpan).toBe(4500);
+                expect(cf.ySpan).toBe(1500);
+                expect(cf.location).toEqual(new Coord(500, 2000));
+                expect(cf.depth).toBe(10);
+            });
+        });
+
+        describe('invalid', () => {
+            test('Duplicate Component ID', () => {
+                let pp = new ParchmintParser();
+                pp.parseComponentFeatures(parseJSONObj(duplicateParchmintComponentFeature));
+
+                expect(pp.compFeatures.size).toBe(1);
+                expect(pp.valid).toBe(false);
+            });
         });
     });
 });
