@@ -20,13 +20,13 @@ var port10_0 = new Port('port-10_0-label', new Coord(10, 0));
 var port1_5 = new Port('port-1_5-label', new Coord(1, 5));
 var port10_10 = new Port('port-10_10-label', new Coord(10, 10));
 
-var compFeat00 = new ComponentFeature(new Coord(0, 0), 10);
-var compFeat9090 = new ComponentFeature(new Coord(90, 90), 2);
+var compFeat0_0 = new ComponentFeature(new Coord(0, 0), 10);
+var compFeat90_90 = new ComponentFeature(new Coord(90, 90), 2);
 
 var component1 = new Component('comp-1-name', 'unique-id-comp-1', 20, 25, 'entity-1',
-        [port0_0, port0_5], compFeat00);
+        [port0_0, port0_5], compFeat0_0);
 var component2 = new Component('comp-2-name', 'unique-id-comp-2', 30, 35, 'entity-2',
-        [port5_0, port10_0], compFeat9090);
+        [port5_0, port10_0], compFeat90_90);
 var component3 = new Component('comp-3-name', 'unique-id-comp-3', 5, 5, 'entity-3',
         [port1_5]);
 var component4 = new Component('comp-4-name', 'unique-id-comp-4', 10, 10, 'entity-4',
