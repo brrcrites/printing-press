@@ -43,17 +43,6 @@ class Component extends ParchKey {
      */
     ports;
 
-
-    /**
-     * The layer on which the Feature Component exists.
-     *
-     * @since 1.0.0
-     * @access public
-     *
-     * @type {string}
-     */
-    layer;
-
     /**
      * The Component Feature to be placed on the Architecture.
      *
@@ -196,17 +185,6 @@ class Component extends ParchKey {
                 valid = false;
                 console.log('Component: Field "ports" contains a port in an invalid location ' + this.ports[i].pos + ' at' +
                         'index ' + i + '.');
-            }
-        }
-
-        // Check invalid port layers
-        for (let i = 0; i < this.ports.length; i++) {
-            // Make sure we don't search layers if it still has the default value
-            // And make sure that the port's layer exists in the component's layer list
-            if (this.layers && !this.layers.includes(this.ports[i].layer)) {
-                valid = false;
-                console.log('Component: Field "ports" contains a port with an invalid layer (' + this.ports[i].layer +
-                        ') at index ' + i + '.');
             }
         }
 

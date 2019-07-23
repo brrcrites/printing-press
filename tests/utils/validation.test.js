@@ -1,5 +1,4 @@
 const Validation = require('../../utils/validation.js');
-const Layer = require('../../model/layer.js');
 
 //Suppress console logs
 console.log = jest.fn();
