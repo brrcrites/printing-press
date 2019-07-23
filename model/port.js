@@ -13,15 +13,6 @@ class Port {
      */
     label;
     /**
-     * The layer the Port is on.
-     *
-     * @since   1.0.0
-     * @access  public
-     *
-     * @type    {string}
-     */
-    layer;
-    /**
      * The position of the port relative to the top left corner of the
      * component.
      *
@@ -42,13 +33,11 @@ class Port {
      * @since 1.0.0
      *
      * @param {string}  label   The Port's label.
-     * @param {string}  layer   The layer the Port is on.
      * @param {Coord}   pos     The position of the port relative to the top
      *                          left corner of the component.
      */
-    constructor(label = Validation.DEFAULT_STR_VALUE, layer = Validation.DEFAULT_STR_VALUE, pos = new Coord()) {
+    constructor(label = Validation.DEFAULT_STR_VALUE, pos = new Coord()) {
         this.label = label;
-        this.layer = layer;
         this.pos = pos;
     }
 
@@ -63,7 +52,6 @@ class Port {
      */
     validate() {
         let valid = Validation.testStringValue(this.label, 'label', 'Port');
-        valid = Validation.testStringValue(this.layer, 'layer', 'Port') ? valid : false;
 
         if (!this.pos.validate()) {
             console.log('Port: Field "pos" is invalid.');
