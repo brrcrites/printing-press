@@ -42,7 +42,34 @@ const validParchmintComponentFeatures = '"features": [\n' +
         '    }\n' +
         ']';
 
-const invalidParchmintComponentFeature = '"features": [\n' +
+const validParchmintMultipleComponentFeatures = '"features": [\n' +
+        '    {\n' +
+        '        "name": "mixer-001",\n' +
+        '        "id": "unique-mixer-id-string-1",\n' +
+        '        "layer": "unique-flow-layer-id-string",\n' +
+        '        "location": {\n' +
+        '            "x": 500,\n' +
+        '            "y": 2000\n' +
+        '        },\n' +
+        '        "x-span": 4500,\n' +
+        '        "y-span": 1500,\n' +
+        '        "depth": 10\n' +
+        '    },\n' +
+        '    {\n' +
+        '        "name": "mixer-002",\n' +
+        '        "id": "unique-mixer-id-string-2",\n' +
+        '        "layer": "unique-flow-layer-id-string",\n' +
+        '        "location": {\n' +
+        '            "x": 600,\n' +
+        '            "y": 3000\n' +
+        '        },\n' +
+        '        "x-span": 5500,\n' +
+        '        "y-span": 2500,\n' +
+        '        "depth": 20\n' +
+        '    }\n' +
+        ']';
+
+const invalidParchmintComponentFeatures = '"features": [\n' +
         '    {\n' +
         '        "name": "",\n' +
         '        "id": "unique-mixer-id-string",\n' +
@@ -209,6 +236,35 @@ describe('component features', () => {
             });
         });
 
+        describe('multiple', () => {
+            test('Component Features', () => {
+                let pp = new ParchmintParser();
+                let cf;
+                pp.parseComponentFeatures(parseJSONObj(validParchmintMultipleComponentFeatures));
+
+                expect(pp.compFeatures.size).toBe(2);
+                expect(pp.compFeatures.has('unique-mixer-id-string-1'));
+                expect(pp.compFeatures.has('unique-mixer-id-string-2'));
+                expect(pp.valid).toBe(true);
+
+                cf = pp.compFeatures.get('unique-mixer-id-string-1');
+                expect(cf.name).toBe('mixer-001');
+                expect(cf.layer).toBe('unique-flow-layer-id-string');
+                expect(cf.xSpan).toBe(4500);
+                expect(cf.ySpan).toBe(1500);
+                expect(cf.location).toEqual(new Coord(500, 2000));
+                expect(cf.depth).toBe(10);
+
+                cf = pp.compFeatures.get('unique-mixer-id-string-2');
+                expect(cf.name).toBe('mixer-002');
+                expect(cf.layer).toBe('unique-flow-layer-id-string');
+                expect(cf.xSpan).toBe(5500);
+                expect(cf.ySpan).toBe(2500);
+                expect(cf.location).toEqual(new Coord(600, 3000));
+                expect(cf.depth).toBe(20);
+            });
+        });
+
         describe('invalid', () => {
             test('Duplicate Component ID', () => {
                 let pp = new ParchmintParser();
@@ -217,6 +273,40 @@ describe('component features', () => {
                 expect(pp.compFeatures.size).toBe(1);
                 expect(pp.valid).toBe(false);
             });
+        });
+    });
+
+    describe('validation', () => {
+        describe('valid', () => {
+            test('single', () => {
+                let pp = new ParchmintParser();
+                pp.parseComponentFeatures(parseJSONObj(validParchmintComponentFeatures));
+
+                expect(pp.compFeatures.size).toBe(1);
+                for (let value of pp.compFeatures.values()) {
+                    expect(value.validate()).toBe(true);
+                }
+            });
+
+            test('multiple', () => {
+                let pp = new ParchmintParser();
+                pp.parseComponentFeatures(parseJSONObj(validParchmintMultipleComponentFeatures));
+
+                expect(pp.compFeatures.size).toBe(2);
+                for (let value of pp.compFeatures.values()) {
+                    expect(value.validate()).toBe(true);
+                }
+            });
+        });
+
+        test('invalid', () => {
+            let pp = new ParchmintParser();
+            pp.parseComponentFeatures(parseJSONObj(invalidParchmintComponentFeatures));
+
+            expect(pp.compFeatures.size).toBe(1);
+            for (let value of pp.compFeatures.values()) {
+                expect(value.validate()).toBe(false);
+            }
         });
     });
 });
