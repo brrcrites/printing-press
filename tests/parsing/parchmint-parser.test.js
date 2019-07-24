@@ -143,6 +143,56 @@ const validParchmintComboFeatures = '"features": [\n' +
         '    }\n' +
         ']';
 
+const validSinglePort = '"port":\n' +
+        '            {\n' +
+        '                "label": "input-port",\n' +
+        '                "layer": "unique-flow-layer-id-string",\n' +
+        '                "x": 0,\n' +
+        '                "y": 750\n' +
+        '            }';
+
+const validPorts = '"ports": [\n' +
+        '            {\n' +
+        '                "label": "input-port",\n' +
+        '                "layer": "unique-flow-layer-id-string",\n' +
+        '                "x": 0,\n' +
+        '                "y": 750\n' +
+        '            },\n' +
+        '            {\n' +
+        '                "label": "output-port",\n' +
+        '                "layer": "unique-flow-layer-id-string",\n' +
+        '                "x": 4500,\n' +
+        '                "y": 750\n' +
+        '            },\n' +
+        '            {\n' +
+        '                "label": "rotary-control-port",\n' +
+        '                "layer": "unique-control-layer-id-string",\n' +
+        '                "x": 2250,\n' +
+        '                "y": 0\n' +
+        '            }\n' +
+        '        ]';
+
+const duplicateLabelPorts = '"ports": [\n' +
+        '            {\n' +
+        '                "label": "input-port",\n' +
+        '                "layer": "unique-flow-layer-id-string",\n' +
+        '                "x": 0,\n' +
+        '                "y": 750\n' +
+        '            },\n' +
+        '            {\n' +
+        '                "label": "input-port",\n' +
+        '                "layer": "unique-flow-layer-id-string",\n' +
+        '                "x": 4500,\n' +
+        '                "y": 750\n' +
+        '            },\n' +
+        '            {\n' +
+        '                "label": "rotary-control-port",\n' +
+        '                "layer": "unique-control-layer-id-string",\n' +
+        '                "x": 2250,\n' +
+        '                "y": 0\n' +
+        '            }\n' +
+        '        ]';
+
 function parseJSONObj(str) {
     return JSON.parse('{' + str + '}');
 }
@@ -307,6 +357,63 @@ describe('component features', () => {
             for (let value of pp.compFeatures.values()) {
                 expect(value.validate()).toBe(false);
             }
+        });
+    });
+});
+
+describe('ports', () => {
+    describe('parsing', () => {
+        test('single', () => {
+            let p = ParchmintParser.parsePort(parseJSONObj(validSinglePort).port);
+
+            expect(p.label).toBe('input-port');
+            expect(p.pos).toEqual(new Coord(0, 750));
+        });
+
+        test('array', () => {
+            let pp = new ParchmintParser();
+            let ports = pp.parsePorts(parseJSONObj(validPorts).ports);
+            let flow, control;
+
+            expect(pp.valid).toBe(true);
+            expect(ports.size).toBe(2);
+            expect(ports.has('unique-flow-layer-id-string')).toBe(true);
+            expect(ports.has('unique-control-layer-id-string')).toBe(true);
+
+            flow = ports.get('unique-flow-layer-id-string');
+            expect(flow.length).toBe(2);
+            expect(flow[0].label).toBe('input-port');
+            expect(flow[0].pos).toEqual(new Coord(0, 750));
+            expect(flow[1].label).toBe('output-port');
+            expect(flow[1].pos).toEqual(new Coord(4500, 750));
+
+            control = ports.get('unique-control-layer-id-string');
+            expect(control.length).toBe(1);
+            expect(control[0].label).toBe('rotary-control-port');
+            expect(control[0].pos).toEqual(new Coord(2250, 0));
+        });
+
+        test('duplicate labels', () => {
+            let pp = new ParchmintParser();
+            let ports = pp.parsePorts(parseJSONObj(duplicateLabelPorts).ports);
+            let flow, control;
+
+            expect(pp.valid).toBe(false);
+            expect(ports.size).toBe(2);
+            expect(ports.has('unique-flow-layer-id-string')).toBe(true);
+            expect(ports.has('unique-control-layer-id-string')).toBe(true);
+
+            flow = ports.get('unique-flow-layer-id-string');
+            expect(flow.length).toBe(2);
+            expect(flow[0].label).toBe('input-port');
+            expect(flow[0].pos).toEqual(new Coord(0, 750));
+            expect(flow[1].label).toBe('input-port');
+            expect(flow[1].pos).toEqual(new Coord(4500, 750));
+
+            control = ports.get('unique-control-layer-id-string');
+            expect(control.length).toBe(1);
+            expect(control[0].label).toBe('rotary-control-port');
+            expect(control[0].pos).toEqual(new Coord(2250, 0));
         });
     });
 });
