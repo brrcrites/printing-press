@@ -17,6 +17,17 @@ class ComponentFeature {
     name;
 
     /**
+     * The layer of this Component Feature.
+     *
+     *
+     * @since 1.0.0
+     * @access public
+     *
+     * @type {string}
+     */
+    layer;
+
+    /**
      * The size of the component in the x-direction
      *
      * @since 1.0.0
