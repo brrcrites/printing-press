@@ -204,7 +204,7 @@ describe('component features', () => {
                     pp.parseComponentFeatures(parseJSONObj(validParchmintComponentFeatures));
 
                     expect(pp.compFeatures.size).toBe(1);
-                    expect(pp.compFeatures.has('unique-mixer-id-string'));
+                    expect(pp.compFeatures.has('unique-mixer-id-string')).toBe(true);
                     expect(pp.valid).toBe(true);
 
                     cf = pp.compFeatures.get('unique-mixer-id-string');
@@ -223,7 +223,7 @@ describe('component features', () => {
                 pp.parseComponentFeatures(parseJSONObj(validParchmintComboFeatures));
 
                 expect(pp.compFeatures.size).toBe(1);
-                expect(pp.compFeatures.has('unique-mixer-id-string'));
+                expect(pp.compFeatures.has('unique-mixer-id-string')).toBe(true);
                 expect(pp.valid).toBe(true);
 
                 cf = pp.compFeatures.get('unique-mixer-id-string');
@@ -243,8 +243,8 @@ describe('component features', () => {
                 pp.parseComponentFeatures(parseJSONObj(validParchmintMultipleComponentFeatures));
 
                 expect(pp.compFeatures.size).toBe(2);
-                expect(pp.compFeatures.has('unique-mixer-id-string-1'));
-                expect(pp.compFeatures.has('unique-mixer-id-string-2'));
+                expect(pp.compFeatures.has('unique-mixer-id-string-1')).toBe(true);
+                expect(pp.compFeatures.has('unique-mixer-id-string-2')).toBe(true);
                 expect(pp.valid).toBe(true);
 
                 cf = pp.compFeatures.get('unique-mixer-id-string-1');
