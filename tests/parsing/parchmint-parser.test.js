@@ -451,6 +451,110 @@ describe('ports', () => {
     });
 });
 
+describe('terminals', () => {
+    describe('valid', () => {
+        test('single', () => {
+            let pp = new ParchmintParser();
+            let parch = validSingleTerminal + ', ' + validParchmintComponentFeatures + ', ' + validParchmintComponents;
+            let term, comp;
+
+            pp.parseComponentFeatures(parseJSONObj(parch));
+            pp.parseComponents(parseJSONObj(parch));
+            term = pp.parseTerminal(parseJSONObj(parch).terminal, flowLayerID);
+            comp = pp.components.get(flowLayerID)[0];
+
+            expect(pp.valid).toBe(true);
+            expect(term.component).toBeTruthy();
+            expect(term.component).toEqual(comp);
+            expect(term.port).toBeTruthy();
+            expect(term.port).toEqual(comp.ports[0]);
+        });
+
+        describe('multiple', () => {
+            test('one component', () => {
+                let pp = new ParchmintParser();
+                let parch = validMultipleTerminalsOneComponent + ', ' + validParchmintComponents + ', '
+                        + validParchmintComponentFeatures;
+                let terms, comp;
+                pp.parseComponentFeatures(parseJSONObj(parch));
+                pp.parseComponents(parseJSONObj(parch));
+                terms = pp.parseTerminals(parseJSONObj(parch).terminals, flowLayerID);
+                comp = pp.components.get(flowLayerID)[0];
+
+                expect(pp.valid).toBe(true);
+                expect(terms.length).toBe(2);
+
+                expect(terms[0].component).toBeTruthy();
+                expect(terms[0].component).toEqual(comp);
+                expect(terms[0].port).toBeTruthy();
+                expect(terms[0].port).toEqual(comp.ports[0]);
+
+                expect(terms[1].component).toBeTruthy();
+                expect(terms[1].component).toEqual(comp);
+                expect(terms[1].port).toBeTruthy();
+                expect(terms[1].port).toEqual(comp.ports[1]);
+            });
+
+            test('two components', () => {
+                let pp = new ParchmintParser();
+                let parch = validMultipleTerminalsTwoComponents + ', ' + validParchmintMultipleComponents
+                        + ', ' + validParchmintMultipleComponentFeatures;
+                let terms, comps;
+
+                pp.parseComponentFeatures(parseJSONObj(parch));
+                pp.parseComponents(parseJSONObj(parch));
+                terms = pp.parseTerminals(parseJSONObj(parch).terminals, flowLayerID);
+                comps = pp.components.get(flowLayerID);
+
+                expect(pp.valid).toBe(true);
+                expect(terms.length).toBe(2);
+
+                expect(terms[0].component).toBeTruthy();
+                expect(terms[0].component).toEqual(comps[0]);
+                expect(terms[0].port).toBeTruthy();
+                expect(terms[0].port).toEqual(comps[0].ports[0]);
+
+                expect(terms[1].component).toBeTruthy();
+                expect(terms[1].component).toEqual(comps[1]);
+                expect(terms[1].port).toBeTruthy();
+                expect(terms[1].port).toEqual(comps[1].ports[1]);
+            });
+        });
+    });
+
+    describe('invalid', () => {
+        test('component', () => {
+            let pp = new ParchmintParser();
+            let parch = invalidComponentTerminal + ', ' + validParchmintComponents
+                    + ', ' + validParchmintComponentFeatures;
+            let term;
+
+            pp.parseComponentFeatures(parseJSONObj(parch));
+            pp.parseComponents(parseJSONObj(parch));
+            term = pp.parseTerminal(parseJSONObj(parch).terminal, flowLayerID);
+
+            expect(pp.valid).toBe(false);
+            expect(term.component).toBeFalsy();
+            expect(term.port).toBeFalsy();
+        });
+
+        test('port', () => {
+            let pp = new ParchmintParser();
+            let parch = invalidPortTerminal + ', ' + validParchmintComponents
+                    + ', ' + validParchmintComponentFeatures;
+            let term;
+
+            pp.parseComponentFeatures(parseJSONObj(parch));
+            pp.parseComponents(parseJSONObj(parch));
+            term = pp.parseTerminal(parseJSONObj(parch).terminal, flowLayerID);
+
+            expect(pp.valid).toBe(false);
+            expect(term.component).toBeTruthy();
+            expect(term.port).toBeFalsy();
+        });
+    });
+});
+
 //-- Begin Parchmint JSON strings --\\
 const validParchmintLayers = '"layers": [\n' +
         '    {\n' +
@@ -471,6 +575,170 @@ const invalidParchmintLayers = '"layers": [\n' +
         '    {\n' +
         '        "id": "",\n' +
         '        "name": "control-layer"\n' +
+        '    }\n' +
+        ']';
+
+const validParchmintComponents = '"components": [\n' +
+        '    {\n' +
+        '        "id": "unique-mixer-id-string",\n' +
+        '        "name": "mixer-001",\n' +
+        '        "layers": [\n' +
+        '            "unique-flow-layer-id-string",\n' +
+        '            "unique-control-layer-id-string"\n' +
+        '        ],\n' +
+        '        "x-span": 4500,\n' +
+        '        "y-span": 1500,\n' +
+        '        "entity": "rotary-mixer",\n' +
+        '        "ports": [\n' +
+        '            {\n' +
+        '                "label": "input-port",\n' +
+        '                "layer": "unique-flow-layer-id-string",\n' +
+        '                "x": 0,\n' +
+        '                "y": 750\n' +
+        '            },\n' +
+        '            {\n' +
+        '                "label": "output-port",\n' +
+        '                "layer": "unique-flow-layer-id-string",\n' +
+        '                "x": 4500,\n' +
+        '                "y": 750\n' +
+        '            },\n' +
+        '            {\n' +
+        '                "label": "rotary-control-port",\n' +
+        '                "layer": "unique-control-layer-id-string",\n' +
+        '                "x": 2250,\n' +
+        '                "y": 0\n' +
+        '            }\n' +
+        '        ]\n' +
+        '    }\n' +
+        ']';
+
+const validParchmintMultipleComponents = '"components": [\n' +
+        '    {\n' +
+        '        "id": "unique-mixer-id-string-1",\n' +
+        '        "name": "mixer-001",\n' +
+        '        "layers": [\n' +
+        '            "unique-flow-layer-id-string",\n' +
+        '            "unique-control-layer-id-string"\n' +
+        '        ],\n' +
+        '        "x-span": 4500,\n' +
+        '        "y-span": 1500,\n' +
+        '        "entity": "rotary-mixer",\n' +
+        '        "ports": [\n' +
+        '            {\n' +
+        '                "label": "input-port",\n' +
+        '                "layer": "unique-flow-layer-id-string",\n' +
+        '                "x": 0,\n' +
+        '                "y": 750\n' +
+        '            },\n' +
+        '            {\n' +
+        '                "label": "output-port",\n' +
+        '                "layer": "unique-flow-layer-id-string",\n' +
+        '                "x": 4500,\n' +
+        '                "y": 750\n' +
+        '            },\n' +
+        '            {\n' +
+        '                "label": "rotary-control-port",\n' +
+        '                "layer": "unique-control-layer-id-string",\n' +
+        '                "x": 2250,\n' +
+        '                "y": 0\n' +
+        '            }\n' +
+        '        ]\n' +
+        '    },\n' +
+        '    {\n' +
+        '        "id": "unique-mixer-id-string-2",\n' +
+        '        "name": "mixer-002",\n' +
+        '        "layers": [\n' +
+        '            "unique-flow-layer-id-string",\n' +
+        '            "unique-control-layer-id-string"\n' +
+        '        ],\n' +
+        '        "x-span": 5500,\n' +
+        '        "y-span": 2500,\n' +
+        '        "entity": "rotary-mixer",\n' +
+        '        "ports": [\n' +
+        '            {\n' +
+        '                "label": "input-port",\n' +
+        '                "layer": "unique-flow-layer-id-string",\n' +
+        '                "x": 10,\n' +
+        '                "y": 2500\n' +
+        '            },\n' +
+        '            {\n' +
+        '                "label": "output-port",\n' +
+        '                "layer": "unique-flow-layer-id-string",\n' +
+        '                "x": 5500,\n' +
+        '                "y": 1750\n' +
+        '            },\n' +
+        '            {\n' +
+        '                "label": "rotary-control-port",\n' +
+        '                "layer": "unique-control-layer-id-string",\n' +
+        '                "x": 10,\n' +
+        '                "y": 2500\n' +
+        '            }\n' +
+        '        ]\n' +
+        '    }\n' +
+        ']';
+
+const duplicateIDParchmintComponents = '"components": [\n' +
+        '    {\n' +
+        '        "id": "unique-mixer-id-string",\n' +
+        '        "name": "mixer-001",\n' +
+        '        "layers": [\n' +
+        '            "unique-flow-layer-id-string",\n' +
+        '            "unique-control-layer-id-string"\n' +
+        '        ],\n' +
+        '        "x-span": 4500,\n' +
+        '        "y-span": 1500,\n' +
+        '        "entity": "rotary-mixer",\n' +
+        '        "ports": [\n' +
+        '            {\n' +
+        '                "label": "input-port",\n' +
+        '                "layer": "unique-flow-layer-id-string",\n' +
+        '                "x": 0,\n' +
+        '                "y": 750\n' +
+        '            },\n' +
+        '            {\n' +
+        '                "label": "output-port",\n' +
+        '                "layer": "unique-flow-layer-id-string",\n' +
+        '                "x": 4500,\n' +
+        '                "y": 750\n' +
+        '            },\n' +
+        '            {\n' +
+        '                "label": "rotary-control-port",\n' +
+        '                "layer": "unique-control-layer-id-string",\n' +
+        '                "x": 2250,\n' +
+        '                "y": 0\n' +
+        '            }\n' +
+        '        ]\n' +
+        '    },\n' +
+        '    {\n' +
+        '        "id": "unique-mixer-id-string",\n' +
+        '        "name": "mixer-002",\n' +
+        '        "layers": [\n' +
+        '            "unique-flow-layer-id-string",\n' +
+        '            "unique-control-layer-id-string"\n' +
+        '        ],\n' +
+        '        "x-span": 5500,\n' +
+        '        "y-span": 2500,\n' +
+        '        "entity": "rotary-mixer",\n' +
+        '        "ports": [\n' +
+        '            {\n' +
+        '                "label": "input-port",\n' +
+        '                "layer": "unique-flow-layer-id-string",\n' +
+        '                "x": 10,\n' +
+        '                "y": 2500\n' +
+        '            },\n' +
+        '            {\n' +
+        '                "label": "output-port",\n' +
+        '                "layer": "unique-flow-layer-id-string",\n' +
+        '                "x": 5500,\n' +
+        '                "y": 1750\n' +
+        '            },\n' +
+        '            {\n' +
+        '                "label": "rotary-control-port",\n' +
+        '                "layer": "unique-control-layer-id-string",\n' +
+        '                "x": 10,\n' +
+        '                "y": 2500\n' +
+        '            }\n' +
+        '        ]\n' +
         '    }\n' +
         ']';
 
@@ -773,166 +1041,40 @@ const duplicateLabelPorts = '"ports": [\n' +
         '            }\n' +
         '        ]';
 
-const validParchmintComponents = '"components": [\n' +
-        '    {\n' +
-        '        "id": "unique-mixer-id-string",\n' +
-        '        "name": "mixer-001",\n' +
-        '        "layers": [\n' +
-        '            "unique-flow-layer-id-string",\n' +
-        '            "unique-control-layer-id-string"\n' +
-        '        ],\n' +
-        '        "x-span": 4500,\n' +
-        '        "y-span": 1500,\n' +
-        '        "entity": "rotary-mixer",\n' +
-        '        "ports": [\n' +
-        '            {\n' +
-        '                "label": "input-port",\n' +
-        '                "layer": "unique-flow-layer-id-string",\n' +
-        '                "x": 0,\n' +
-        '                "y": 750\n' +
-        '            },\n' +
-        '            {\n' +
-        '                "label": "output-port",\n' +
-        '                "layer": "unique-flow-layer-id-string",\n' +
-        '                "x": 4500,\n' +
-        '                "y": 750\n' +
-        '            },\n' +
-        '            {\n' +
-        '                "label": "rotary-control-port",\n' +
-        '                "layer": "unique-control-layer-id-string",\n' +
-        '                "x": 2250,\n' +
-        '                "y": 0\n' +
-        '            }\n' +
-        '        ]\n' +
-        '    }\n' +
-        ']';
+const validSingleTerminal = '"terminal": {\n' +
+        '            "component": "unique-mixer-id-string",\n' +
+        '            "port": "input-port"\n' +
+        '        }';
 
-const validParchmintMultipleComponents = '"components": [\n' +
-        '    {\n' +
-        '        "id": "unique-mixer-id-string-1",\n' +
-        '        "name": "mixer-001",\n' +
-        '        "layers": [\n' +
-        '            "unique-flow-layer-id-string",\n' +
-        '            "unique-control-layer-id-string"\n' +
-        '        ],\n' +
-        '        "x-span": 4500,\n' +
-        '        "y-span": 1500,\n' +
-        '        "entity": "rotary-mixer",\n' +
-        '        "ports": [\n' +
+const validMultipleTerminalsOneComponent = '"terminals": [\n' +
         '            {\n' +
-        '                "label": "input-port",\n' +
-        '                "layer": "unique-flow-layer-id-string",\n' +
-        '                "x": 0,\n' +
-        '                "y": 750\n' +
+        '                "component": "unique-mixer-id-string",\n' +
+        '                "port": "input-port"\n' +
         '            },\n' +
         '            {\n' +
-        '                "label": "output-port",\n' +
-        '                "layer": "unique-flow-layer-id-string",\n' +
-        '                "x": 4500,\n' +
-        '                "y": 750\n' +
-        '            },\n' +
-        '            {\n' +
-        '                "label": "rotary-control-port",\n' +
-        '                "layer": "unique-control-layer-id-string",\n' +
-        '                "x": 2250,\n' +
-        '                "y": 0\n' +
+        '                "component": "unique-mixer-id-string",\n' +
+        '                "port": "output-port"\n' +
         '            }\n' +
-        '        ]\n' +
-        '    },\n' +
-        '    {\n' +
-        '        "id": "unique-mixer-id-string-2",\n' +
-        '        "name": "mixer-002",\n' +
-        '        "layers": [\n' +
-        '            "unique-flow-layer-id-string",\n' +
-        '            "unique-control-layer-id-string"\n' +
-        '        ],\n' +
-        '        "x-span": 5500,\n' +
-        '        "y-span": 2500,\n' +
-        '        "entity": "rotary-mixer",\n' +
-        '        "ports": [\n' +
-        '            {\n' +
-        '                "label": "input-port",\n' +
-        '                "layer": "unique-flow-layer-id-string",\n' +
-        '                "x": 10,\n' +
-        '                "y": 2500\n' +
-        '            },\n' +
-        '            {\n' +
-        '                "label": "output-port",\n' +
-        '                "layer": "unique-flow-layer-id-string",\n' +
-        '                "x": 5500,\n' +
-        '                "y": 1750\n' +
-        '            },\n' +
-        '            {\n' +
-        '                "label": "rotary-control-port",\n' +
-        '                "layer": "unique-control-layer-id-string",\n' +
-        '                "x": 10,\n' +
-        '                "y": 2500\n' +
-        '            }\n' +
-        '        ]\n' +
-        '    }\n' +
-        ']';
+        '        ]';
 
-const duplicateIDParchmintComponents = '"components": [\n' +
-        '    {\n' +
-        '        "id": "unique-mixer-id-string",\n' +
-        '        "name": "mixer-001",\n' +
-        '        "layers": [\n' +
-        '            "unique-flow-layer-id-string",\n' +
-        '            "unique-control-layer-id-string"\n' +
-        '        ],\n' +
-        '        "x-span": 4500,\n' +
-        '        "y-span": 1500,\n' +
-        '        "entity": "rotary-mixer",\n' +
-        '        "ports": [\n' +
+const validMultipleTerminalsTwoComponents = '"terminals": [\n' +
         '            {\n' +
-        '                "label": "input-port",\n' +
-        '                "layer": "unique-flow-layer-id-string",\n' +
-        '                "x": 0,\n' +
-        '                "y": 750\n' +
+        '                "component": "unique-mixer-id-string-1",\n' +
+        '                "port": "input-port"\n' +
         '            },\n' +
         '            {\n' +
-        '                "label": "output-port",\n' +
-        '                "layer": "unique-flow-layer-id-string",\n' +
-        '                "x": 4500,\n' +
-        '                "y": 750\n' +
-        '            },\n' +
-        '            {\n' +
-        '                "label": "rotary-control-port",\n' +
-        '                "layer": "unique-control-layer-id-string",\n' +
-        '                "x": 2250,\n' +
-        '                "y": 0\n' +
+        '                "component": "unique-mixer-id-string-2",\n' +
+        '                "port": "output-port"\n' +
         '            }\n' +
-        '        ]\n' +
-        '    },\n' +
-        '    {\n' +
-        '        "id": "unique-mixer-id-string",\n' +
-        '        "name": "mixer-002",\n' +
-        '        "layers": [\n' +
-        '            "unique-flow-layer-id-string",\n' +
-        '            "unique-control-layer-id-string"\n' +
-        '        ],\n' +
-        '        "x-span": 5500,\n' +
-        '        "y-span": 2500,\n' +
-        '        "entity": "rotary-mixer",\n' +
-        '        "ports": [\n' +
-        '            {\n' +
-        '                "label": "input-port",\n' +
-        '                "layer": "unique-flow-layer-id-string",\n' +
-        '                "x": 10,\n' +
-        '                "y": 2500\n' +
-        '            },\n' +
-        '            {\n' +
-        '                "label": "output-port",\n' +
-        '                "layer": "unique-flow-layer-id-string",\n' +
-        '                "x": 5500,\n' +
-        '                "y": 1750\n' +
-        '            },\n' +
-        '            {\n' +
-        '                "label": "rotary-control-port",\n' +
-        '                "layer": "unique-control-layer-id-string",\n' +
-        '                "x": 10,\n' +
-        '                "y": 2500\n' +
-        '            }\n' +
-        '        ]\n' +
-        '    }\n' +
-        ']';
+        '        ]';
+
+const invalidComponentTerminal = '"terminal": {\n' +
+        '                "component": "unique-output-id-string",\n' +
+        '                "port": "output-port"\n' +
+        '            }';
+
+const invalidPortTerminal = '"terminal": {\n' +
+        '                "component": "unique-mixer-id-string",\n' +
+        '                "port": "io-port"\n' +
+        '            }';
+

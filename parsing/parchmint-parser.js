@@ -5,6 +5,7 @@ const ComponentFeature = require('../model/component-feature.js');
 const ConnectionSegment = require('../model/connection-segment.js');
 const Coord = require('../model/coord.js');
 const Port = require('../model/port.js');
+const Terminal = require('../model/terminal.js');
 
 
 class ParchmintParser {
@@ -299,6 +300,77 @@ class ParchmintParser {
         });
 
         return portMap;
+    }
+
+    /**
+     * Parse a Terminal object from the given JSON object.
+     *
+     * The component is only searched for on the given layer, so as to get the
+     * correct Port object.
+     *
+     * @since 1.0.0
+     *
+     * @param {object}  termObj A JSON object with fields "component" and
+     *                          "port".
+     * @param {string}  layer   The ID of the Layer on which to search for the
+     *                          Component.
+     * @returns {Terminal}  A Terminal object with the Component and Port if
+     *                      they could both be found, or a default Terminal
+     *                      object otherwise.
+     */
+    parseTerminal(termObj, layer) {
+        let comp = null;
+
+        // First let's find the Component we need
+        this.components.get(layer).forEach(value => {
+            if (value.id === termObj.component) {
+                comp = value;
+            }
+        });
+
+        if (comp) {
+            // If we found a component lets get the Port we need from it
+            for (let value of comp.ports) {
+                if (value.label === termObj.port) {
+                    return new Terminal(comp, value);
+                }
+            }
+        } else {
+            // We didn't find a component which means the Parchmint is invalid
+            this.valid = false;
+            console.log('Parser: Unable to find Component with ID "' + termObj.component + '" on Layer with ID "' +
+                    layer + '". Parsing will continue, using a default Terminal object.');
+            return new Terminal();
+        }
+
+        this.valid = false;
+        console.log('Parser: Unable to find Port with label "' + termObj.port + '" on Component with ID "' +
+                termObj.component + '". Parsing will continue using a Terminal object with a null Port.');
+        return new Terminal(comp);
+    }
+
+    /**
+     * Parse an array of Terminal objects.
+     *
+     * @since 1.0.0
+     *
+     * @see parseTerminal
+     *
+     * @param {Array}   termArr An array of JSON objects with the fields
+     *                          "component" and "port".
+     * @param {string}  layer   The ID of the Layer on which to search for the
+     *                          Component;
+     * @returns {Array} An array of Terminal objects as parsed by the
+     *                  parseTerminal method.
+     */
+    parseTerminals(termArr, layer) {
+        let terms = [];
+
+        termArr.forEach(value => {
+            terms.push(this.parseTerminal(value, layer));
+        });
+
+        return terms;
     }
 
     /**
