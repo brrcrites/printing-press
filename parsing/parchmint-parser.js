@@ -2,6 +2,7 @@ const Validation = require('../utils/validation.js');
 const Layer = require('../model/layer.js');
 const Component = require('../model/component.js');
 const ComponentFeature = require('../model/component-feature.js');
+const ConnectionSegment = require('../model/connection-segment.js');
 const Coord = require('../model/coord.js');
 const Port = require('../model/port.js');
 
@@ -58,6 +59,19 @@ class ParchmintParser {
     compFeatures;
 
     /**
+     * A map containing all of the Connection Segments that have been parsed.
+     *
+     * The key is the ID of a Connection, and the value is an array of
+     * Connection Segment objects that correspond to that Connection.
+     *
+     * @since 1.0.0
+     * @access public
+     *
+     * @type {Map<string, Array>}
+     */
+    connFeatures;
+
+    /**
      * A map containing all of the Components that have been parsed.
      *
      * The key is the ID of a Layer, and the value is an array of Components
@@ -86,6 +100,7 @@ class ParchmintParser {
         this.idSet = new Set();
 
         this.compFeatures = new Map();
+        this.connFeatures = new Map();
         this.components = new Map();
     }
 
@@ -142,13 +157,11 @@ class ParchmintParser {
             let ports = this.parsePorts(compValue.ports);
 
             // Next check whether this ID of this Component is a duplicate
-            if (this.idSet.has(compValue.id)) {
+            if (!this.isUniqueID(compValue.id)) {
                 this.valid = false;
                 console.log('Parser: Duplicate ID (' + compValue.id + ') found in "components" key. Skipping' +
                         ' Component with name ' + compValue.name + ' at index ' + index + '.');
             } else {
-                this.idSet.add(compValue.id);
-
                 // Finally add this component to each Layer it exists on with only the ports on that Layer
                 compValue.layers.forEach(layerValue => {
                     let tempComp = new Component(compValue.name, compValue.id, compValue['x-span'], compValue['y-span'],
@@ -195,6 +208,44 @@ class ParchmintParser {
                    this.compFeatures.set(value.id, new ComponentFeature(value.name, value.layer, value['x-span'],
                            value['y-span'], ParchmintParser.parseCoord(value.location), value.depth));
                }
+            }
+        });
+    }
+
+    /**
+     * Parse a JSON object for the Connection Features.
+     *
+     * Fills the connFeatures map with Connection Features where the keys are
+     * Connection IDs, and the values are Arrays of Connection Segment objects
+     * that correspond to that Connection. Sets the parser invalid if duplicate
+     * IDs are found.
+     *
+     * @since 1.0.0
+     *
+     * @see connFeatures
+     *
+     * @param {object}  jsonObj A parsed JSON object representing the Parchmint
+     *                          file.
+     */
+    parseConnectionFeatures(jsonObj) {
+        jsonObj.features.forEach((value, index) => {
+            // First check whether this is a Connection Feature
+            if (value.type) {
+                // Next check that the ID of this segment is unique
+                if (this.isUniqueID(value.id)) {
+                    // Finally add the Connection Feature to the map
+                    let tempFeat = new ConnectionSegment(value.name, value.id, value.width, value.depth,
+                            ParchmintParser.parseCoord(value.source), ParchmintParser.parseCoord(value.sink));
+                    if (this.connFeatures.has(value.connection)) {
+                        this.connFeatures.get(value.connection).push(tempFeat);
+                    } else {
+                        this.connFeatures.set(value.connection, [tempFeat]);
+                    }
+                } else {
+                    this.valid = false;
+                    console.log('Parser: Duplicate IDs (' + value.id + ') exist for the Connection Features list.' +
+                            ' Skipping Connection Feature with name "' + value.name + '" at index ' + index + '.');
+                }
             }
         });
     }
@@ -262,6 +313,25 @@ class ParchmintParser {
         return new Port(portObj.label, this.parseCoord(portObj));
     }
 
+    /**
+     * Determine whether the given ID is unique.
+     *
+     * If the ID is unique it is added to the ID set.
+     *
+     * @since 1.0.0
+     *
+     * @see idSet
+     * @param {string}  id  The ID to verify.
+     * @returns {boolean}   true if the ID is unique, false otherwise.
+     */
+    isUniqueID(id) {
+        if (this.idSet.has(id)) {
+            return false;
+        }
+
+        this.idSet.add(id);
+        return true;
+    }
 }
 
 module.exports = ParchmintParser;

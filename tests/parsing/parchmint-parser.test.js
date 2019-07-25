@@ -1,6 +1,7 @@
 const ParchmintParser = require('../../parsing/parchmint-parser.js');
 const Layer = require('../../model/layer.js');
 const Coord = require('../../model/coord.js');
+const Validation = require('../../utils/validation.js');
 
 // Suppress console logs
 console.log = jest.fn();
@@ -8,6 +9,8 @@ console.log = jest.fn();
 const flowLayerID = 'unique-flow-layer-id-string';
 const controlLayerID = 'unique-control-layer-id-string';
 const mixerID = 'unique-mixer-id-string';
+const connectionID = 'unique-mixer-flow-connection-id';
+const connFeatID = 'unique-channel-segment-id';
 
 function parseJSONObj(str) {
     return JSON.parse('{' + str + '}');
@@ -307,6 +310,90 @@ describe('component features', () => {
     });
 });
 
+describe('connection-features', () => {
+    describe('one Connection', () => {
+        test('single', () => {
+            let pp = new ParchmintParser();
+            let conn, feat;
+            pp.parseConnectionFeatures(parseJSONObj(validParchmintConnectionFeatures));
+            conn = pp.connFeatures;
+
+            // Ensure the Parser is the way we expect it: valid, connection feature map has 1, etc.
+            expect(pp.valid).toBe(true);
+            expect(conn.size).toBe(1);
+            expect(conn.has(connectionID)).toBe(true);
+            expect(conn.get(connectionID).length).toBe(1);
+
+            // Ensure the connection feature is generated correctly
+            feat = conn.get(connectionID)[0];
+            expect(feat.name).toBe('mixer-flow-connection-segment-001');
+            expect(feat.id).toBe(connFeatID);
+            expect(feat.width).toBe(5);
+            expect(feat.depth).toBe(10);
+            expect(feat.sourcePoint).toEqual(new Coord(500, 2750));
+            expect(feat.sinkPoint).toEqual(new Coord(50, 2750));
+            expect(feat.connectionType).toBe(Validation.DEFAULT_CON_TYPE);  // We don't ever touch this, but it can't
+                                                                            // hurt to check it anyway.
+        });
+
+        test('multiple', () => {
+            let pp = new ParchmintParser();
+            let conn, feat;
+            pp.parseConnectionFeatures(parseJSONObj(validParchmintMultipleConnectionFeaturesOneConnection));
+            conn = pp.connFeatures;
+
+            // Ensure the Parser is in order: valid, 1 key-value pair in the connection feature map, etc.
+            expect(pp.valid).toBe(true);
+            expect(conn.size).toBe(1);
+            expect(conn.has(connectionID));
+            expect(conn.get(connectionID).length).toBe(2);
+
+            // Now ensure the values were added correctly to the Conn Feat map
+            feat = conn.get(connectionID);
+            expect(feat[0].name).toBe('mixer-flow-connection-segment-001');
+            expect(feat[0].id).toBe(connFeatID + '-1');
+            expect(feat[0].width).toBe(5);
+            expect(feat[0].depth).toBe(10);
+            expect(feat[0].sourcePoint).toEqual(new Coord(500, 2750));
+            expect(feat[0].sinkPoint).toEqual(new Coord(50, 2750));
+            expect(feat[0].connectionType).toBe(Validation.DEFAULT_CON_TYPE);
+
+            expect(feat[1].name).toBe('mixer-flow-connection-segment-002');
+            expect(feat[1].id).toBe(connFeatID + '-2');
+            expect(feat[1].width).toBe(15);
+            expect(feat[1].depth).toBe(20);
+            expect(feat[1].sourcePoint).toEqual(new Coord(50, 2750));
+            expect(feat[1].sinkPoint).toEqual(new Coord(60, 3750));
+            expect(feat[1].connectionType).toBe(Validation.DEFAULT_CON_TYPE);
+        });
+    });
+
+    test('multiple connections', () => {
+        let pp = new ParchmintParser();
+        let conn;
+        pp.parseConnectionFeatures(parseJSONObj(validParchmintMultipleConnectionFeaturesTwoConnections));
+        conn = pp.connFeatures;
+
+        // We've already tested that the values are correct, so let's just make sure that we've got two key-value
+        // pairs and that they're the ones we expect.
+        expect(pp.valid).toBe(true);
+        expect(conn.size).toBe(2);
+        expect(conn.has(connectionID + '-1'));
+        expect(conn.has(connectionID + '-2'));
+    });
+
+    test('duplicate IDs', () => {
+        let pp = new ParchmintParser();
+        let conn;
+        pp.parseConnectionFeatures(parseJSONObj(duplicateIDParchmintConnectionFeatures));
+        conn = pp.connFeatures;
+
+        expect(pp.valid).toBe(false);
+        expect(conn.size).toBe(1);
+        expect(conn.has(connectionID));
+    });
+});
+
 describe('ports', () => {
     describe('parsing', () => {
         test('single', () => {
@@ -470,6 +557,137 @@ const duplicateParchmintComponentFeature = '"features": [\n' +
         '        "x-span": 4000,\n' +
         '        "y-span": 1000,\n' +
         '        "depth": 5\n' +
+        '    }\n' +
+        ']';
+
+const validParchmintConnectionFeatures = '"features": [\n' +
+        '    {\n' +
+        '        "name": "mixer-flow-connection-segment-001",\n' +
+        '        "id": "unique-channel-segment-id",\n' +
+        '        "connection": "unique-mixer-flow-connection-id",\n' +
+        '        "layer": "unique-flow-layer-id-string",\n' +
+        '        "width": 5,\n' +
+        '        "depth": 10,\n' +
+        '        "source": {\n' +
+        '            "x": 500,\n' +
+        '            "y": 2750\n' +
+        '        },\n' +
+        '        "sink": {\n' +
+        '            "x": 50,\n' +
+        '            "y": 2750\n' +
+        '        },\n' +
+        '        "type": "channel"\n' +
+        '    }\n' +
+        ']';
+
+const validParchmintMultipleConnectionFeaturesOneConnection = '"features": [\n' +
+        '    {\n' +
+        '        "name": "mixer-flow-connection-segment-001",\n' +
+        '        "id": "unique-channel-segment-id-1",\n' +
+        '        "connection": "unique-mixer-flow-connection-id",\n' +
+        '        "layer": "unique-flow-layer-id-string",\n' +
+        '        "width": 5,\n' +
+        '        "depth": 10,\n' +
+        '        "source": {\n' +
+        '            "x": 500,\n' +
+        '            "y": 2750\n' +
+        '        },\n' +
+        '        "sink": {\n' +
+        '            "x": 50,\n' +
+        '            "y": 2750\n' +
+        '        },\n' +
+        '        "type": "channel"\n' +
+        '    },\n' +
+        '    {\n' +
+        '        "name": "mixer-flow-connection-segment-002",\n' +
+        '        "id": "unique-channel-segment-id-2",\n' +
+        '        "connection": "unique-mixer-flow-connection-id",\n' +
+        '        "layer": "unique-flow-layer-id-string",\n' +
+        '        "width": 15,\n' +
+        '        "depth": 20,\n' +
+        '        "source": {\n' +
+        '            "x": 50,\n' +
+        '            "y": 2750\n' +
+        '        },\n' +
+        '        "sink": {\n' +
+        '            "x": 60,\n' +
+        '            "y": 3750\n' +
+        '        },\n' +
+        '        "type": "channel"\n' +
+        '    }\n' +
+        ']';
+
+const validParchmintMultipleConnectionFeaturesTwoConnections = '"features": [\n' +
+        '    {\n' +
+        '        "name": "mixer-flow-connection-segment-001",\n' +
+        '        "id": "unique-channel-segment-id-1",\n' +
+        '        "connection": "unique-mixer-flow-connection-id-1",\n' +
+        '        "layer": "unique-flow-layer-id-string",\n' +
+        '        "width": 5,\n' +
+        '        "depth": 10,\n' +
+        '        "source": {\n' +
+        '            "x": 500,\n' +
+        '            "y": 2750\n' +
+        '        },\n' +
+        '        "sink": {\n' +
+        '            "x": 50,\n' +
+        '            "y": 2750\n' +
+        '        },\n' +
+        '        "type": "channel"\n' +
+        '    },\n' +
+        '    {\n' +
+        '        "name": "mixer-flow-connection-segment-002",\n' +
+        '        "id": "unique-channel-segment-id-2",\n' +
+        '        "connection": "unique-mixer-flow-connection-id-2",\n' +
+        '        "layer": "unique-flow-layer-id-string",\n' +
+        '        "width": 15,\n' +
+        '        "depth": 20,\n' +
+        '        "source": {\n' +
+        '            "x": 50,\n' +
+        '            "y": 2750\n' +
+        '        },\n' +
+        '        "sink": {\n' +
+        '            "x": 60,\n' +
+        '            "y": 3750\n' +
+        '        },\n' +
+        '        "type": "channel"\n' +
+        '    }\n' +
+        ']';
+
+const duplicateIDParchmintConnectionFeatures = '"features": [\n' +
+        '    {\n' +
+        '        "name": "mixer-flow-connection-segment-001",\n' +
+        '        "id": "unique-channel-segment-id",\n' +
+        '        "connection": "unique-mixer-flow-connection-id",\n' +
+        '        "layer": "unique-flow-layer-id-string",\n' +
+        '        "width": 5,\n' +
+        '        "depth": 10,\n' +
+        '        "source": {\n' +
+        '            "x": 500,\n' +
+        '            "y": 2750\n' +
+        '        },\n' +
+        '        "sink": {\n' +
+        '            "x": 50,\n' +
+        '            "y": 2750\n' +
+        '        },\n' +
+        '        "type": "channel"\n' +
+        '    },\n' +
+        '    {\n' +
+        '        "name": "mixer-flow-connection-segment-002",\n' +
+        '        "id": "unique-channel-segment-id",\n' +
+        '        "connection": "unique-mixer-flow-connection-id",\n' +
+        '        "layer": "unique-flow-layer-id-string",\n' +
+        '        "width": 15,\n' +
+        '        "depth": 20,\n' +
+        '        "source": {\n' +
+        '            "x": 50,\n' +
+        '            "y": 2750\n' +
+        '        },\n' +
+        '        "sink": {\n' +
+        '            "x": 60,\n' +
+        '            "y": 3750\n' +
+        '        },\n' +
+        '        "type": "channel"\n' +
         '    }\n' +
         ']';
 
