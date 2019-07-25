@@ -109,14 +109,15 @@ class ParchmintParser {
     parseComponentFeatures(jsonObj) {
         jsonObj.features.forEach((value, index) => {
             // Check whether this is a Component feature
-            if (value['x-span'] || value['y-span']) {
-               if (this.compFeatures.has(value.id)) {
+            if (!value['type']) {
+               if (this.compFeatures.has(value['id'])) {
                    this.valid = false;
-                   console.log('Parser: Duplicate IDs (' + value.id + ') exist for the Component Features list.' +
-                           ' Skipping Component Feature with name "' + value.name + '" at index ' + index + '.');
+                   console.log('Parser: Duplicate IDs (' + value['id'] + ') exist for the Component Features list.' +
+                           ' Skipping Component Feature with name "' + value['name'] + '" at index ' + index + '.');
                } else {
-                   this.compFeatures.set(value.id, new ComponentFeature(value.name, value.layer, value['x-span'],
-                           value['y-span'], ParchmintParser.parseCoord(value.location), value.depth));
+                   this.compFeatures.set(value['id'], new ComponentFeature(value['name'], value['layer'],
+                           value['x-span'], value['y-span'], ParchmintParser.parseCoord(value['location']),
+                           value['depth']));
                }
             }
         });
@@ -129,7 +130,7 @@ class ParchmintParser {
      * @returns {Coord} The resulting Coord object.
      */
     static parseCoord(coordObj) {
-        return new Coord(coordObj.x, coordObj.y);
+        return new Coord(coordObj['x'], coordObj['y']);
     }
 
 
