@@ -528,7 +528,7 @@ describe('terminals', () => {
             test('two components', () => {
                 let pp = new ParchmintParser();
                 let parch = validMultipleTerminalsTwoComponents + ', ' + validParchmintMultipleComponents
-                        + ', ' + validParchmintMultipleComponentFeatures;
+                        + ', ' + validParchmintMultipleComponentFeaturesDiffComp;
                 let terms, comps;
 
                 pp.parseComponentFeatures(parseJSONObj(parch));
