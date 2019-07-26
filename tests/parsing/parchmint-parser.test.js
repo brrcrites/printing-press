@@ -1,6 +1,7 @@
 const ParchmintParser = require('../../parsing/parchmint-parser.js');
 const Layer = require('../../model/layer.js');
 const Coord = require('../../model/coord.js');
+const Terminal = require('../../model/terminal.js');
 const Validation = require('../../utils/validation.js');
 
 // Suppress console logs
@@ -8,7 +9,7 @@ console.log = jest.fn();
 
 const flowLayerID = 'unique-flow-layer-id-string';
 const controlLayerID = 'unique-control-layer-id-string';
-const mixerID = 'unique-mixer-id-string';
+const componentID = 'unique-mixer-id-string';
 const connectionID = 'unique-mixer-flow-connection-id';
 const connFeatID = 'unique-channel-segment-id';
 
@@ -82,14 +83,14 @@ describe('components', () => {
 
             // Ensure we got the component features too
             expect(pp.compFeatures.size).toBe(2);
-            expect(pp.compFeatures.has(mixerID + '_' + flowLayerID)).toBe(true);
-            expect(pp.compFeatures.has(mixerID + '_' + controlLayerID)).toBe(true);
+            expect(pp.compFeatures.has(componentID + '_' + flowLayerID)).toBe(true);
+            expect(pp.compFeatures.has(componentID + '_' + controlLayerID)).toBe(true);
 
             // Ensure all values were set correctly
             flow = comps.get(flowLayerID);
             expect(flow.length).toBe(1);
             expect(flow[0].name).toBe('mixer-001');
-            expect(flow[0].id).toBe(mixerID);
+            expect(flow[0].id).toBe(componentID);
             expect(flow[0].xSpan).toBe(4500);
             expect(flow[0].ySpan).toBe(1500);
             expect(flow[0].entity).toBe('rotary-mixer');
@@ -99,7 +100,7 @@ describe('components', () => {
             control = comps.get(controlLayerID);
             expect(control.length).toBe(1);
             expect(control[0].name).toBe('mixer-001');
-            expect(control[0].id).toBe(mixerID);
+            expect(control[0].id).toBe(componentID);
             expect(control[0].xSpan).toBe(4500);
             expect(control[0].ySpan).toBe(1500);
             expect(control[0].entity).toBe('rotary-mixer');
@@ -124,13 +125,13 @@ describe('components', () => {
 
             // Ensure we got no features
             expect(pp.compFeatures.size).toBe(0);
-            expect(pp.compFeatures.has(mixerID + '_' + flowLayerID)).toBe(false);
+            expect(pp.compFeatures.has(componentID + '_' + flowLayerID)).toBe(false);
 
             // Ensure all values were set correctly
             flow = comps.get(flowLayerID);
             expect(flow.length).toBe(1);
             expect(flow[0].name).toBe('mixer-001');
-            expect(flow[0].id).toBe(mixerID);
+            expect(flow[0].id).toBe(componentID);
             expect(flow[0].xSpan).toBe(4500);
             expect(flow[0].ySpan).toBe(1500);
             expect(flow[0].entity).toBe('rotary-mixer');
@@ -140,7 +141,7 @@ describe('components', () => {
             control = comps.get(controlLayerID);
             expect(control.length).toBe(1);
             expect(control[0].name).toBe('mixer-001');
-            expect(control[0].id).toBe(mixerID);
+            expect(control[0].id).toBe(componentID);
             expect(control[0].xSpan).toBe(4500);
             expect(control[0].ySpan).toBe(1500);
             expect(control[0].entity).toBe('rotary-mixer');
@@ -153,45 +154,170 @@ describe('components', () => {
         let pp = new ParchmintParser();
         let comps;
         let parch = validParchmintMultipleComponentFeaturesDiffComp + ', ' + validParchmintMultipleComponents;
-        
+
         pp.parseComponentFeatures(parseJSONObj(parch));
         pp.parseComponents(parseJSONObj(parch));
         comps = pp.components;
-        
+
         // Ensure parsing went the way it should: valid, correct components in correct layers, etc.
         expect(pp.valid).toBe(true);
         expect(comps.size).toBe(2);
         expect(comps.has(flowLayerID)).toBe(true);
         expect(comps.has(controlLayerID)).toBe(true);
-        
+
         // Ensure all comp features are as we expect
         expect(pp.compFeatures.size).toBe(2);
-        expect(pp.compFeatures.has(mixerID + '-1_' + flowLayerID)).toBe(true);
-        expect(pp.compFeatures.has(mixerID + '-2_' + flowLayerID)).toBe(true);
-        
+        expect(pp.compFeatures.has(componentID + '-1_' + flowLayerID)).toBe(true);
+        expect(pp.compFeatures.has(componentID + '-2_' + flowLayerID)).toBe(true);
+
         // Ensure all components are as we expect
         expect(comps.get(flowLayerID).length).toBe(2);
         expect(comps.get(controlLayerID).length).toBe(2);
     });
-    
+
     test('duplicate IDs', () => {
         let pp = new ParchmintParser();
         pp.parseComponents(parseJSONObj(duplicateIDParchmintComponents));
-        
+
         // Ensure our parser is the way we expect it: invalid, no features, etc.
         expect(pp.valid).toBe(false);
         expect(pp.components.size).toBe(2);
         expect(pp.components.has(flowLayerID));
         expect(pp.components.has(controlLayerID));
         expect(pp.compFeatures.size).toBe(0);
-        
+
         // Even though duplicate IDs are invalid, we still parse them just in case, so we need to check whether they
         // were actually added to the arrays.
         expect(pp.components.get(flowLayerID).length).toBe(1);
         expect(pp.components.get(controlLayerID).length).toBe(1);
-        
+
+    });
+});
+
+describe('connections', () => {
+    describe('valid', () => {
+        test('single', () => {
+            let pp = new ParchmintParser();
+            let parch = validParchmintConnections + ', ' + validParchmintComponents + ', ' +
+                    validParchmintConnectionFeatures;
+            let con;
+            pp.parseComponentFeatures(parseJSONObj(parch));
+            pp.parseComponents(parseJSONObj(parch));
+            pp.parseConnectionFeatures(parseJSONObj(parch));
+            pp.parseConnections(parseJSONObj(parch));
+
+            expect(pp.valid).toBe(true);
+            expect(pp.connections.size).toBe(1);
+            expect(pp.connections.has(flowLayerID)).toBe(true);
+            expect(pp.connections.get(flowLayerID).length).toBe(1);
+
+            con = pp.connections.get(flowLayerID)[0];
+
+            expect(con.name).toBe('mixer-flow-connection');
+            expect(con.id).toBe(connectionID);
+            expect(con.source).not.toEqual(new Terminal());
+            expect(con.source.component.id).toBe(componentID);
+            expect(con.source.port.label).toBe('output-port');
+            expect(con.sinks.length).toBe(1);
+            expect(con.sinks[0]).not.toEqual(new Terminal());
+            expect(con.sinks[0].component.id).toBe(componentID);
+            expect(con.sinks[0].port.label).toBe('input-port');
+        });
+
+        describe('multiple', () => {
+            test('same layer', () => {
+                let pp = new ParchmintParser();
+                let parch = validParchmintMultipleConnectionsSameLayer + ', ' + validParchmintMultipleComponents + ', '
+                        + validParchmintConnectionFeatures;
+                let con;
+                pp.parseComponents(parseJSONObj(parch));
+                pp.parseConnectionFeatures(parseJSONObj(parch));
+                pp.parseConnections(parseJSONObj(parch));
+
+                expect(pp.valid).toBe(true);
+                expect(pp.connections.size).toBe(1);
+                expect(pp.connections.has(flowLayerID)).toBe(true);
+                expect(pp.connections.get(flowLayerID).length).toBe(2);
+
+                con = pp.connections.get(flowLayerID);
+
+                expect(con[0].name).toBe('mixer-flow-connection-1');
+                expect(con[0].id).toBe(connectionID + '-1');
+                expect(con[0].source).not.toEqual(new Terminal());
+                expect(con[0].source.component.id).toBe(componentID + '-1');
+                expect(con[0].source.port.label).toBe('output-port');
+                expect(con[0].sinks.length).toBe(1);
+                expect(con[0].sinks[0]).not.toEqual(new Terminal());
+                expect(con[0].sinks[0].component.id).toBe(componentID + '-2');
+                expect(con[0].sinks[0].port.label).toBe('input-port');
+
+                expect(con[1].name).toBe('mixer-flow-connection-2');
+                expect(con[1].id).toBe(connectionID + '-2');
+                expect(con[1].source).not.toEqual(new Terminal());
+                expect(con[1].source.component.id).toBe(componentID + '-2');
+                expect(con[1].source.port.label).toBe('output-port');
+                expect(con[1].sinks.length).toBe(1);
+                expect(con[1].sinks[0]).not.toEqual(new Terminal());
+                expect(con[1].sinks[0].component.id).toBe(componentID + '-1');
+                expect(con[1].sinks[0].port.label).toBe('input-port');
+            });
+        });
+
+        test('different layer', () => {
+            let pp = new ParchmintParser();
+            let parch = validParchmintConnectionFeatures + ', ' + validParchmintMultipleConnectionsDiffLayer + ', ' +
+                    validParchmintMultipleComponents;
+            let con;
+            pp.parseComponents(parseJSONObj(parch));
+            pp.parseConnectionFeatures(parseJSONObj(parch));
+            pp.parseConnections(parseJSONObj(parch));
+
+            expect(pp.valid).toBe(true);
+            expect(pp.connections.size).toBe(2);
+            expect(pp.connections.has(flowLayerID)).toBe(true);
+            expect(pp.connections.has(controlLayerID)).toBe(true);
+
+            con = pp.connections.get(flowLayerID);
+            expect(con.length).toBe(1);
+
+            expect(con[0].name).toBe('mixer-flow-connection-1');
+            expect(con[0].id).toBe(connectionID + '-1');
+            expect(con[0].source).not.toEqual(new Terminal());
+            expect(con[0].source.component.id).toBe(componentID + '-1');
+            expect(con[0].source.port.label).toBe('output-port');
+            expect(con[0].sinks.length).toBe(1);
+            expect(con[0].sinks[0]).not.toEqual(new Terminal());
+            expect(con[0].sinks[0].component.id).toBe(componentID + '-2');
+            expect(con[0].sinks[0].port.label).toBe('input-port');
+
+            con = pp.connections.get(controlLayerID);
+            expect(con.length).toBe(1);
+
+            expect(con[0].name).toBe('mixer-flow-connection-2');
+            expect(con[0].id).toBe(connectionID + '-2');
+            expect(con[0].source).not.toEqual(new Terminal());
+            expect(con[0].source.component.id).toBe(componentID + '-1');
+            expect(con[0].source.port.label).toBe('rotary-control-port');
+            expect(con[0].sinks.length).toBe(1);
+            expect(con[0].sinks[0]).not.toEqual(new Terminal());
+            expect(con[0].sinks[0].component.id).toBe(componentID + '-2');
+            expect(con[0].sinks[0].port.label).toBe('rotary-control-port');
+        });
     });
 
+    test('duplicate IDs', () => {
+        let pp = new ParchmintParser();
+        let parch = duplicateIDParchmintConnections + ', ' + validParchmintMultipleComponents + ', ' +
+                validParchmintConnectionFeatures;
+
+        pp.parseComponents(parseJSONObj(parch));
+        pp.parseConnectionFeatures(parseJSONObj(parch));
+        pp.parseConnections(parseJSONObj(parch));
+
+        expect(pp.valid).toBe(false);
+        expect(pp.connections.has(flowLayerID)).toBe(true);
+        expect(pp.connections.get(flowLayerID).length).toBe(1);
+    });
 });
 
 describe('component features', () => {
@@ -201,7 +327,7 @@ describe('component features', () => {
                 test ('Component Feature', () => {
                     let pp = new ParchmintParser();
                     let cf;
-                    let key = mixerID + '_' + flowLayerID;
+                    let key = componentID + '_' + flowLayerID;
                     pp.parseComponentFeatures(parseJSONObj(validParchmintComponentFeatures));
 
                     expect(pp.compFeatures.size).toBe(1);
@@ -221,7 +347,7 @@ describe('component features', () => {
             test('of each Component Feature and Connection Feature', () => {
                 let pp = new ParchmintParser();
                 let cf;
-                let key = mixerID + '_' + flowLayerID;
+                let key = componentID + '_' + flowLayerID;
                 pp.parseComponentFeatures(parseJSONObj(validParchmintComboFeatures));
 
                 expect(pp.compFeatures.size).toBe(1);
@@ -245,11 +371,11 @@ describe('component features', () => {
                 pp.parseComponentFeatures(parseJSONObj(validParchmintMultipleComponentFeaturesDiffComp));
 
                 expect(pp.compFeatures.size).toBe(2);
-                expect(pp.compFeatures.has(mixerID + '-1_' + flowLayerID)).toBe(true);
-                expect(pp.compFeatures.has(mixerID + '-2_' + flowLayerID)).toBe(true);
+                expect(pp.compFeatures.has(componentID + '-1_' + flowLayerID)).toBe(true);
+                expect(pp.compFeatures.has(componentID + '-2_' + flowLayerID)).toBe(true);
                 expect(pp.valid).toBe(true);
 
-                cf = pp.compFeatures.get(mixerID + '-1_' + flowLayerID);
+                cf = pp.compFeatures.get(componentID + '-1_' + flowLayerID);
                 expect(cf.name).toBe('mixer-001');
                 expect(cf.layer).toBe(flowLayerID);
                 expect(cf.xSpan).toBe(4500);
@@ -257,7 +383,7 @@ describe('component features', () => {
                 expect(cf.location).toEqual(new Coord(500, 2000));
                 expect(cf.depth).toBe(10);
 
-                cf = pp.compFeatures.get(mixerID + '-2_' + flowLayerID);
+                cf = pp.compFeatures.get(componentID + '-2_' + flowLayerID);
                 expect(cf.name).toBe('mixer-002');
                 expect(cf.layer).toBe(flowLayerID);
                 expect(cf.xSpan).toBe(5500);
@@ -272,11 +398,11 @@ describe('component features', () => {
                 pp.parseComponentFeatures(parseJSONObj(validParchmintMultipleComponentFeaturesSameCompDiffLayer));
 
                 expect(pp.compFeatures.size).toBe(2);
-                expect(pp.compFeatures.has('unique-mixer-id-string_unique-flow-layer-id-string')).toBe(true);
-                expect(pp.compFeatures.has('unique-mixer-id-string_unique-control-layer-id-string')).toBe(true);
+                expect(pp.compFeatures.has(componentID + '_' + flowLayerID)).toBe(true);
+                expect(pp.compFeatures.has(componentID + '_' + controlLayerID)).toBe(true);
                 expect(pp.valid).toBe(true);
 
-                cf = pp.compFeatures.get('unique-mixer-id-string_unique-flow-layer-id-string');
+                cf = pp.compFeatures.get(componentID + '_' + flowLayerID);
                 expect(cf.name).toBe('mixer-001');
                 expect(cf.layer).toBe('unique-flow-layer-id-string');
                 expect(cf.xSpan).toBe(4500);
@@ -284,7 +410,7 @@ describe('component features', () => {
                 expect(cf.location).toEqual(new Coord(500, 2000));
                 expect(cf.depth).toBe(10);
 
-                cf = pp.compFeatures.get('unique-mixer-id-string_unique-control-layer-id-string');
+                cf = pp.compFeatures.get(componentID + '_' + controlLayerID);
                 expect(cf.name).toBe('mixer-001');
                 expect(cf.layer).toBe('unique-control-layer-id-string');
                 expect(cf.xSpan).toBe(5500);
@@ -767,6 +893,123 @@ const duplicateIDParchmintComponents = '"components": [\n' +
         '                "layer": "unique-control-layer-id-string",\n' +
         '                "x": 10,\n' +
         '                "y": 2500\n' +
+        '            }\n' +
+        '        ]\n' +
+        '    }\n' +
+        ']';
+
+const validParchmintConnections = '"connections": [\n' +
+        '    {\n' +
+        '        "id": "unique-mixer-flow-connection-id",\n' +
+        '        "name": "mixer-flow-connection",\n' +
+        '        "layer": "unique-flow-layer-id-string",\n' +
+        '        "source": {\n' +
+        '            "component": "unique-mixer-id-string",\n' +
+        '            "port": "output-port"\n' +
+        '        },\n' +
+        '        "sinks": [\n' +
+        '            {\n' +
+        '               "component": "unique-mixer-id-string",\n' +
+        '               "port": "input-port"\n' +
+        '            }\n' +
+        '        ]\n' +
+        '    }\n' +
+        ']';
+
+const validParchmintMultipleConnectionsSameLayer = '"connections": [\n' +
+        '    {\n' +
+        '        "id": "unique-mixer-flow-connection-id-1",\n' +
+        '        "name": "mixer-flow-connection-1",\n' +
+        '        "layer": "unique-flow-layer-id-string",\n' +
+        '        "source": {\n' +
+        '            "component": "unique-mixer-id-string-1",\n' +
+        '            "port": "output-port"\n' +
+        '        },\n' +
+        '        "sinks": [\n' +
+        '            {\n' +
+        '               "component": "unique-mixer-id-string-2",\n' +
+        '               "port": "input-port"\n' +
+        '            }\n' +
+        '        ]\n' +
+        '    },\n' +
+        '    {\n' +
+        '        "id": "unique-mixer-flow-connection-id-2",\n' +
+        '        "name": "mixer-flow-connection-2",\n' +
+        '        "layer": "unique-flow-layer-id-string",\n' +
+        '        "source": {\n' +
+        '            "component": "unique-mixer-id-string-2",\n' +
+        '            "port": "output-port"\n' +
+        '        },\n' +
+        '        "sinks": [\n' +
+        '            {\n' +
+        '                "component": "unique-mixer-id-string-1",\n' +
+        '                "port": "input-port"\n' +
+        '            }\n' +
+        '        ]\n' +
+        '    }\n' +
+        ']';
+
+const validParchmintMultipleConnectionsDiffLayer = '"connections": [\n' +
+        '    {\n' +
+        '        "id": "unique-mixer-flow-connection-id-1",\n' +
+        '        "name": "mixer-flow-connection-1",\n' +
+        '        "layer": "unique-flow-layer-id-string",\n' +
+        '        "source": {\n' +
+        '            "component": "unique-mixer-id-string-1",\n' +
+        '            "port": "output-port"\n' +
+        '        },\n' +
+        '        "sinks": [\n' +
+        '            {\n' +
+        '               "component": "unique-mixer-id-string-2",\n' +
+        '               "port": "input-port"\n' +
+        '            }\n' +
+        '        ]\n' +
+        '    },\n' +
+        '    {\n' +
+        '        "id": "unique-mixer-flow-connection-id-2",\n' +
+        '        "name": "mixer-flow-connection-2",\n' +
+        '        "layer": "unique-control-layer-id-string",\n' +
+        '        "source": {\n' +
+        '            "component": "unique-mixer-id-string-1",\n' +
+        '            "port": "rotary-control-port"\n' +
+        '        },\n' +
+        '        "sinks": [\n' +
+        '            {\n' +
+        '                "component": "unique-mixer-id-string-2",\n' +
+        '                "port": "rotary-control-port"\n' +
+        '            }\n' +
+        '        ]\n' +
+        '    }\n' +
+        ']';
+
+const duplicateIDParchmintConnections = '"connections": [\n' +
+        '    {\n' +
+        '        "id": "unique-mixer-flow-connection-id",\n' +
+        '        "name": "mixer-flow-connection-1",\n' +
+        '        "layer": "unique-flow-layer-id-string",\n' +
+        '        "source": {\n' +
+        '            "component": "unique-mixer-id-string-1",\n' +
+        '            "port": "output-port"\n' +
+        '        },\n' +
+        '        "sinks": [\n' +
+        '            {\n' +
+        '               "component": "unique-mixer-id-string-2",\n' +
+        '               "port": "input-port"\n' +
+        '            }\n' +
+        '        ]\n' +
+        '    },\n' +
+        '    {\n' +
+        '        "id": "unique-mixer-flow-connection-id",\n' +
+        '        "name": "mixer-flow-connection-2",\n' +
+        '        "layer": "unique-flow-layer-id-string",\n' +
+        '        "source": {\n' +
+        '            "component": "unique-mixer-id-string-2",\n' +
+        '            "port": "output-port"\n' +
+        '        },\n' +
+        '        "sinks": [\n' +
+        '            {\n' +
+        '                "component": "unique-mixer-id-string-1",\n' +
+        '                "port": "input-port"\n' +
         '            }\n' +
         '        ]\n' +
         '    }\n' +

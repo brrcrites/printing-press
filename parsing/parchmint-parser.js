@@ -1,6 +1,7 @@
 const Validation = require('../utils/validation.js');
 const Layer = require('../model/layer.js');
 const Component = require('../model/component.js');
+const Connection = require('../model/connection.js');
 const ComponentFeature = require('../model/component-feature.js');
 const ConnectionSegment = require('../model/connection-segment.js');
 const Coord = require('../model/coord.js');
@@ -47,6 +48,32 @@ class ParchmintParser {
     parchmint;
 
     /**
+     * A map containing all of the Components that have been parsed.
+     *
+     * The key is the ID of a Layer, and the value is an array of Components
+     * that exist on that layer.
+     *
+     * @since 1.0.0
+     * @access public
+     *
+     * @type {Map<string, Array>}
+     */
+    components;
+
+    /**
+     * A map containing all of the Connections that have been parsed.
+     *
+     * The key is the ID of a Layer, and the value is an array of Connections
+     * that exist on that layer.
+     *
+     * @since 1.0.0
+     * @access public
+     *
+     * @type {Map<string, Array>}
+     */
+    connections;
+
+    /**
      * A map containing all of the component features that have been parsed.
      *
      * The key is a combination of the IDs of the Component and the Layer it
@@ -73,18 +100,6 @@ class ParchmintParser {
      */
     connFeatures;
 
-    /**
-     * A map containing all of the Components that have been parsed.
-     *
-     * The key is the ID of a Layer, and the value is an array of Components
-     * that exist on that layer.
-     *
-     * @since 1.0.0
-     * @access public
-     *
-     * @type {Map<string, Array>}
-     */
-    components;
 
     /**
      * Construct the ParchmintParser object.
@@ -101,9 +116,10 @@ class ParchmintParser {
         this.valid = true;
         this.idSet = new Set();
 
+        this.components = new Map();
+        this.connections = new Map();
         this.compFeatures = new Map();
         this.connFeatures = new Map();
-        this.components = new Map();
     }
 
     /**
@@ -182,6 +198,45 @@ class ParchmintParser {
                         this.components.set(layerValue, [tempComp]);
                     }
                 });
+            }
+        });
+    }
+
+    /**
+     * Parse a JSON object for the Connections.
+     *
+     * Fills the connections map with Connections where the keys are Layer IDs,
+     * and the values are arrays of Connections that exist on that Layer. Sets
+     * the parser invalid if a duplicate ID is found.
+     *
+     * @since 1.0.0
+     *
+     * @param {object} jsonObj  A parsed JSON object representing the Parchmint
+     *                          file.
+     */
+    parseConnections(jsonObj) {
+        jsonObj.connections.forEach((connValue, index) => {
+            if (!this.isUniqueID(connValue.id)) {
+                this.valid = false;
+                console.log('Parser: Duplicate ID (' + connValue.id + ') found in "connections" key. Skipping' +
+                        ' Connection with name ' + connValue.name + ' at index ' + index + '.');
+            } else {
+                let tempConn = new Connection(connValue['name'], connValue['id'],
+                        this.parseTerminal(connValue['source'], connValue['layer']),
+                        this.parseTerminals(connValue['sinks'], connValue['layer']));
+                let tempFeat = this.connFeatures.get(connValue['layer']);
+
+                // Connection Features are not required, so we only add them to the Connection if we parsed some,
+                // otherwise we'll leave it null.
+                if (tempFeat) {
+                    tempConn.segments = tempFeat;
+                }
+
+                if (this.connections.has(connValue.layer)) {
+                    this.connections.get(connValue.layer).push(tempConn);
+                } else {
+                    this.connections.set(connValue['layer'], [tempConn]);
+                }
             }
         });
     }
@@ -306,6 +361,18 @@ class ParchmintParser {
     }
 
     /**
+     * Parse a single Port object from the given JSON object.
+     *
+     * @since 1.0.0
+     *
+     * @param {object}  portObj A JSON object with fields layer, label, x, and y.
+     * @returns {Port}  The resulting Port object.
+     */
+    static parsePort(portObj) {
+        return new Port(portObj.label, this.parseCoord(portObj));
+    }
+
+    /**
      * Parse a Terminal object from the given JSON object.
      *
      * The component is only searched for on the given layer, so as to get the
@@ -374,18 +441,6 @@ class ParchmintParser {
         });
 
         return terms;
-    }
-
-    /**
-     * Parse a single Port object from the given JSON object.
-     *
-     * @since 1.0.0
-     *
-     * @param {object}  portObj A JSON object with fields layer, label, x, and y.
-     * @returns {Port}  The resulting Port object.
-     */
-    static parsePort(portObj) {
-        return new Port(portObj.label, this.parseCoord(portObj));
     }
 
     /**
