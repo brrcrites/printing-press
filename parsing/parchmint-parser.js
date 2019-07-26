@@ -33,13 +33,14 @@ class ParchmintParser {
     /**
      * A map containing all of the component features that have been parsed.
      *
-     * The key is the ID of the Component, the value is the Component Feature
-     * of that Component.
+     * The key is a combination of the IDs of the Component and the Layer it
+     * exists on in the form [component-id]_[layer-id]. The value is the
+     * Component Feature of that Component.
      *
      * @since 1.0.0
      * @access public
      *
-     * @type {Map}
+     * @type {Map<string, ComponentFeature>}
      */
     compFeatures;
 
@@ -110,15 +111,16 @@ class ParchmintParser {
         jsonObj.features.forEach((value, index) => {
             // Check whether this is a Component feature
             if (!value['type']) {
-               if (this.compFeatures.has(value['id'])) {
-                   this.valid = false;
-                   console.log('Parser: Duplicate IDs (' + value['id'] + ') exist for the Component Features list.' +
-                           ' Skipping Component Feature with name "' + value['name'] + '" at index ' + index + '.');
-               } else {
-                   this.compFeatures.set(value['id'], new ComponentFeature(value['name'], value['layer'],
-                           value['x-span'], value['y-span'], ParchmintParser.parseCoord(value['location']),
-                           value['depth']));
-               }
+                let key = value['id'] + '_' + value['layer'];
+                if (this.compFeatures.has(key)) {
+                    this.valid = false;
+                    console.log('Parser: Duplicate IDs (' + value['id'] + ') exist on the same Layer (' + value['layer']
+                           + ') for the Component Features list. Skipping Component Feature with name "' + value['name']
+                           + '" at index ' + index + '.');
+                } else {
+                    this.compFeatures.set(key, new ComponentFeature(value['name'], value['layer'], value['x-span'],
+                           value['y-span'], ParchmintParser.parseCoord(value['location']), value['depth']));
+                }
             }
         });
     }
