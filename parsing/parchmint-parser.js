@@ -47,13 +47,14 @@ class ParchmintParser {
     /**
      * A map containing all of the component features that have been parsed.
      *
-     * The key is the ID of the Component, the value is the Component Feature
-     * of that Component.
+     * The key is a combination of the IDs of the Component and the Layer it
+     * exists on in the form [component-id]_[layer-id]. The value is the
+     * Component Feature of that Component.
      *
      * @since 1.0.0
      * @access public
      *
-     * @type {Map}
+     * @type {Map<string, ComponentFeature>}
      */
     compFeatures;
 
@@ -153,10 +154,10 @@ class ParchmintParser {
                 compValue.layers.forEach(layerValue => {
                     let tempComp = new Component(compValue.name, compValue.id, compValue['x-span'], compValue['y-span'],
                             compValue.entity, ports.get(layerValue));
-                    let tempFeat = this.compFeatures.get(compValue.id);
+                    let tempFeat = this.compFeatures.get(compValue.id + '_' + layerValue);
 
-                    // Component Features are not required, so only add it if we have one, otherwise leave it as the default
-                    // value
+                    // Component Features are not required, so only add it if we have one, otherwise leave it as the
+                    // default value
                     if (tempFeat) {
                         tempComp.feature = tempFeat;
                     }
@@ -186,15 +187,17 @@ class ParchmintParser {
     parseComponentFeatures(jsonObj) {
         jsonObj.features.forEach((value, index) => {
             // Check whether this is a Component feature
-            if (value['x-span'] || value['y-span']) {
-               if (this.compFeatures.has(value.id)) {
-                   this.valid = false;
-                   console.log('Parser: Duplicate IDs (' + value.id + ') exist for the Component Features list.' +
-                           ' Skipping Component Feature with name "' + value.name + '" at index ' + index + '.');
-               } else {
-                   this.compFeatures.set(value.id, new ComponentFeature(value.name, value.layer, value['x-span'],
-                           value['y-span'], ParchmintParser.parseCoord(value.location), value.depth));
-               }
+            if (!value['type']) {
+                let key = value['id'] + '_' + value['layer'];
+                if (this.compFeatures.has(key)) {
+                    this.valid = false;
+                    console.log('Parser: Duplicate IDs (' + value['id'] + ') exist on the same Layer (' + value['layer']
+                           + ') for the Component Features list. Skipping Component Feature with name "' + value['name']
+                           + '" at index ' + index + '.');
+                } else {
+                    this.compFeatures.set(key, new ComponentFeature(value['name'], value['layer'], value['x-span'],
+                           value['y-span'], ParchmintParser.parseCoord(value['location']), value['depth']));
+                }
             }
         });
     }
@@ -208,7 +211,7 @@ class ParchmintParser {
      * @returns {Coord} The resulting Coord object.
      */
     static parseCoord(coordObj) {
-        return new Coord(coordObj.x, coordObj.y);
+        return new Coord(coordObj['x'], coordObj['y']);
     }
 
     /**

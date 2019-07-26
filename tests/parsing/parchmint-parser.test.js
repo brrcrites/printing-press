@@ -65,7 +65,7 @@ describe('components', () => {
         test('with features', () => {
             let pp = new ParchmintParser();
             let comps, flow, control;
-            let parch = validParchmintComponents + ', ' + validParchmintComponentFeatures;
+            let parch = validParchmintComponents + ', ' + validParchmintMultipleComponentFeaturesSameCompDiffLayer;
 
             pp.parseComponentFeatures(parseJSONObj(parch));
             pp.parseComponents(parseJSONObj(parch));
@@ -78,8 +78,9 @@ describe('components', () => {
             expect(comps.has(controlLayerID)).toBe(true);
 
             // Ensure we got the component features too
-            expect(pp.compFeatures.size).toBe(1);
-            expect(pp.compFeatures.has(mixerID)).toBe(true);
+            expect(pp.compFeatures.size).toBe(2);
+            expect(pp.compFeatures.has(mixerID + '_' + flowLayerID)).toBe(true);
+            expect(pp.compFeatures.has(mixerID + '_' + controlLayerID)).toBe(true);
 
             // Ensure all values were set correctly
             flow = comps.get(flowLayerID);
@@ -120,7 +121,7 @@ describe('components', () => {
 
             // Ensure we got no features
             expect(pp.compFeatures.size).toBe(0);
-            expect(pp.compFeatures.has(mixerID)).toBe(false);
+            expect(pp.compFeatures.has(mixerID + '_' + flowLayerID)).toBe(false);
 
             // Ensure all values were set correctly
             flow = comps.get(flowLayerID);
@@ -148,7 +149,7 @@ describe('components', () => {
     test('multiple', () => {
         let pp = new ParchmintParser();
         let comps;
-        let parch = validParchmintMultipleComponentFeatures + ', ' + validParchmintMultipleComponents;
+        let parch = validParchmintMultipleComponentFeaturesDiffComp + ', ' + validParchmintMultipleComponents;
         
         pp.parseComponentFeatures(parseJSONObj(parch));
         pp.parseComponents(parseJSONObj(parch));
@@ -162,8 +163,8 @@ describe('components', () => {
         
         // Ensure all comp features are as we expect
         expect(pp.compFeatures.size).toBe(2);
-        expect(pp.compFeatures.has(mixerID + '-1')).toBe(true);
-        expect(pp.compFeatures.has(mixerID + '-2')).toBe(true);
+        expect(pp.compFeatures.has(mixerID + '-1_' + flowLayerID)).toBe(true);
+        expect(pp.compFeatures.has(mixerID + '-2_' + flowLayerID)).toBe(true);
         
         // Ensure all components are as we expect
         expect(comps.get(flowLayerID).length).toBe(2);
@@ -197,13 +198,14 @@ describe('component features', () => {
                 test ('Component Feature', () => {
                     let pp = new ParchmintParser();
                     let cf;
+                    let key = mixerID + '_' + flowLayerID;
                     pp.parseComponentFeatures(parseJSONObj(validParchmintComponentFeatures));
 
                     expect(pp.compFeatures.size).toBe(1);
-                    expect(pp.compFeatures.has(mixerID)).toBe(true);
+                    expect(pp.compFeatures.has(key)).toBe(true);
                     expect(pp.valid).toBe(true);
 
-                    cf = pp.compFeatures.get(mixerID);
+                    cf = pp.compFeatures.get(key);
                     expect(cf.name).toBe('mixer-001');
                     expect(cf.layer).toBe(flowLayerID);
                     expect(cf.xSpan).toBe(4500);
@@ -216,13 +218,14 @@ describe('component features', () => {
             test('of each Component Feature and Connection Feature', () => {
                 let pp = new ParchmintParser();
                 let cf;
+                let key = mixerID + '_' + flowLayerID;
                 pp.parseComponentFeatures(parseJSONObj(validParchmintComboFeatures));
 
                 expect(pp.compFeatures.size).toBe(1);
-                expect(pp.compFeatures.has(mixerID)).toBe(true);
+                expect(pp.compFeatures.has(key)).toBe(true);
                 expect(pp.valid).toBe(true);
 
-                cf = pp.compFeatures.get(mixerID);
+                cf = pp.compFeatures.get(key);
                 expect(cf.name).toBe('mixer-001');
                 expect(cf.layer).toBe(flowLayerID);
                 expect(cf.xSpan).toBe(4500);
@@ -233,17 +236,17 @@ describe('component features', () => {
         });
 
         describe('multiple', () => {
-            test('Component Features', () => {
+            test('different components', () => {
                 let pp = new ParchmintParser();
                 let cf;
-                pp.parseComponentFeatures(parseJSONObj(validParchmintMultipleComponentFeatures));
+                pp.parseComponentFeatures(parseJSONObj(validParchmintMultipleComponentFeaturesDiffComp));
 
                 expect(pp.compFeatures.size).toBe(2);
-                expect(pp.compFeatures.has(mixerID + '-1')).toBe(true);
-                expect(pp.compFeatures.has(mixerID + '-2')).toBe(true);
+                expect(pp.compFeatures.has(mixerID + '-1_' + flowLayerID)).toBe(true);
+                expect(pp.compFeatures.has(mixerID + '-2_' + flowLayerID)).toBe(true);
                 expect(pp.valid).toBe(true);
 
-                cf = pp.compFeatures.get(mixerID + '-1');
+                cf = pp.compFeatures.get(mixerID + '-1_' + flowLayerID);
                 expect(cf.name).toBe('mixer-001');
                 expect(cf.layer).toBe(flowLayerID);
                 expect(cf.xSpan).toBe(4500);
@@ -251,9 +254,36 @@ describe('component features', () => {
                 expect(cf.location).toEqual(new Coord(500, 2000));
                 expect(cf.depth).toBe(10);
 
-                cf = pp.compFeatures.get(mixerID + '-2');
+                cf = pp.compFeatures.get(mixerID + '-2_' + flowLayerID);
                 expect(cf.name).toBe('mixer-002');
                 expect(cf.layer).toBe(flowLayerID);
+                expect(cf.xSpan).toBe(5500);
+                expect(cf.ySpan).toBe(2500);
+                expect(cf.location).toEqual(new Coord(600, 3000));
+                expect(cf.depth).toBe(20);
+            });
+
+            test('same component different layers', () => {
+                let pp = new ParchmintParser();
+                let cf;
+                pp.parseComponentFeatures(parseJSONObj(validParchmintMultipleComponentFeaturesSameCompDiffLayer));
+
+                expect(pp.compFeatures.size).toBe(2);
+                expect(pp.compFeatures.has('unique-mixer-id-string_unique-flow-layer-id-string')).toBe(true);
+                expect(pp.compFeatures.has('unique-mixer-id-string_unique-control-layer-id-string')).toBe(true);
+                expect(pp.valid).toBe(true);
+
+                cf = pp.compFeatures.get('unique-mixer-id-string_unique-flow-layer-id-string');
+                expect(cf.name).toBe('mixer-001');
+                expect(cf.layer).toBe('unique-flow-layer-id-string');
+                expect(cf.xSpan).toBe(4500);
+                expect(cf.ySpan).toBe(1500);
+                expect(cf.location).toEqual(new Coord(500, 2000));
+                expect(cf.depth).toBe(10);
+
+                cf = pp.compFeatures.get('unique-mixer-id-string_unique-control-layer-id-string');
+                expect(cf.name).toBe('mixer-001');
+                expect(cf.layer).toBe('unique-control-layer-id-string');
                 expect(cf.xSpan).toBe(5500);
                 expect(cf.ySpan).toBe(2500);
                 expect(cf.location).toEqual(new Coord(600, 3000));
@@ -286,7 +316,7 @@ describe('component features', () => {
 
             test('multiple', () => {
                 let pp = new ParchmintParser();
-                pp.parseComponentFeatures(parseJSONObj(validParchmintMultipleComponentFeatures));
+                pp.parseComponentFeatures(parseJSONObj(validParchmintMultipleComponentFeaturesDiffComp));
 
                 expect(pp.compFeatures.size).toBe(2);
                 for (let value of pp.compFeatures.values()) {
@@ -402,7 +432,7 @@ const validParchmintComponentFeatures = '"features": [\n' +
         '    }\n' +
         ']';
 
-const validParchmintMultipleComponentFeatures = '"features": [\n' +
+const validParchmintMultipleComponentFeaturesDiffComp = '"features": [\n' +
         '    {\n' +
         '        "name": "mixer-001",\n' +
         '        "id": "unique-mixer-id-string-1",\n' +
@@ -419,6 +449,33 @@ const validParchmintMultipleComponentFeatures = '"features": [\n' +
         '        "name": "mixer-002",\n' +
         '        "id": "unique-mixer-id-string-2",\n' +
         '        "layer": "unique-flow-layer-id-string",\n' +
+        '        "location": {\n' +
+        '            "x": 600,\n' +
+        '            "y": 3000\n' +
+        '        },\n' +
+        '        "x-span": 5500,\n' +
+        '        "y-span": 2500,\n' +
+        '        "depth": 20\n' +
+        '    }\n' +
+        ']';
+
+const validParchmintMultipleComponentFeaturesSameCompDiffLayer = '"features": [\n' +
+        '    {\n' +
+        '        "name": "mixer-001",\n' +
+        '        "id": "unique-mixer-id-string",\n' +
+        '        "layer": "unique-flow-layer-id-string",\n' +
+        '        "location": {\n' +
+        '            "x": 500,\n' +
+        '            "y": 2000\n' +
+        '        },\n' +
+        '        "x-span": 4500,\n' +
+        '        "y-span": 1500,\n' +
+        '        "depth": 10\n' +
+        '    },\n' +
+        '    {\n' +
+        '        "name": "mixer-001",\n' +
+        '        "id": "unique-mixer-id-string",\n' +
+        '        "layer": "unique-control-layer-id-string",\n' +
         '        "location": {\n' +
         '            "x": 600,\n' +
         '            "y": 3000\n' +
