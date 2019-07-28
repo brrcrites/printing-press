@@ -118,8 +118,8 @@ class ParchmintParser {
      * @param {object}  jsonObj     The JSON object with which to initialize.
      */
     initParchKey(parchKeyObj, jsonObj) {
-        parchKeyObj.name = jsonObj.name;
-        parchKeyObj.id = jsonObj.id;
+        parchKeyObj.name = jsonObj['name'];
+        parchKeyObj.id = jsonObj['id'];
     }
 
     /**
@@ -133,9 +133,9 @@ class ParchmintParser {
      */
     parseLayersArray(jsonObj) {
         let layers = [];
-        for (let i = 0; i < jsonObj.layers.length; i++) {
+        for (let i = 0; i < jsonObj['layers'].length; i++) {
             let tempLayer = new Layer();
-            this.initParchKey(tempLayer, jsonObj.layers[i]);
+            this.initParchKey(tempLayer, jsonObj['layers'][i]);
             layers.push(tempLayer);
         }
 
@@ -154,21 +154,23 @@ class ParchmintParser {
      * file.
      */
     parseComponents(jsonObj) {
-        jsonObj.components.forEach((compValue, index) => {
+        jsonObj['components'].forEach((compValue, index) => {
             // First get the port list for this Component
-            let ports = this.parsePorts(compValue.ports);
+            let ports = this.parsePorts(compValue['ports']);
 
             // Next check whether this ID of this Component is a duplicate
-            if (!this.isUniqueID(compValue.id)) {
+            if (this.idSet.has(compValue['id'])) {
                 this.valid = false;
-                console.log('Parser: Duplicate ID (' + compValue.id + ') found in "components" key. Skipping' +
-                        ' Component with name ' + compValue.name + ' at index ' + index + '.');
+                console.log('Parser: Duplicate ID (' + compValue['id'] + ') found in "components" key. Skipping' +
+                        ' Component with name ' + compValue['name'] + ' at index ' + index + '.');
             } else {
+                this.idSet.add(compValue['id']);
+
                 // Finally add this component to each Layer it exists on with only the ports on that Layer
-                compValue.layers.forEach(layerValue => {
-                    let tempComp = new Component(compValue.name, compValue.id, compValue['x-span'], compValue['y-span'],
-                            compValue.entity, ports.get(layerValue));
-                    let tempFeat = this.compFeatures.get(compValue.id + '_' + layerValue);
+                compValue['layers'].forEach(layerValue => {
+                    let tempComp = new Component(compValue['name'], compValue['id'], compValue['x-span'], compValue['y-span'],
+                            compValue['entity'], ports.get(layerValue));
+                    let tempFeat = this.compFeatures.get(compValue['id'] + '_' + layerValue);
 
                     // Component Features are not required, so only add it if we have one, otherwise leave it as the
                     // default value
@@ -199,7 +201,7 @@ class ParchmintParser {
      *                          file.
      */
     parseComponentFeatures(jsonObj) {
-        jsonObj.features.forEach((value, index) => {
+        jsonObj['features'].forEach((value, index) => {
             // Check whether this is a Component feature
             if (!value['type']) {
                 let key = value['id'] + '_' + value['layer'];
@@ -287,18 +289,18 @@ class ParchmintParser {
 
         portsArr.forEach(value => {
             // Check label uniqueness
-            if (idSet.has(value.label)) {
+            if (idSet.has(value['label'])) {
                 this.valid = false;
                 console.log('Parser: Duplicate labels (' + value.id + ') exist in the Port list.')
             } else {
-                idSet.add(value.label);
+                idSet.add(value['label']);
             }
 
             // Parse port
-            if (!portMap.has(value.layer)) {
-                portMap.set(value.layer, [ParchmintParser.parsePort(value)]);
+            if (!portMap.has(value['layer'])) {
+                portMap.set(value['layer'], [ParchmintParser.parsePort(value)]);
             } else {
-                portMap.get(value.layer).push(ParchmintParser.parsePort(value));
+                portMap.get(value['layer']).push(ParchmintParser.parsePort(value));
             }
         });
 
@@ -385,7 +387,7 @@ class ParchmintParser {
      * @returns {Port}  The resulting Port object.
      */
     static parsePort(portObj) {
-        return new Port(portObj.label, this.parseCoord(portObj));
+        return new Port(portObj['label'], this.parseCoord(portObj));
     }
 
     /**
