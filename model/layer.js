@@ -92,7 +92,6 @@ class Layer extends ParchKey {
 
             if (conValue.source) {
                 // Check that the Connection's source reference a Component on this Layer
-                console.log('HERE TOO: (' + conValue.id + '): ' + conValue.source);
                 if (this.components.indexOf(conValue.source.component) === -1) {
                     valid = false;
                     console.log('Layer (' + this.id + '): Field "connections" contains a Connection object (' + conValue.id +

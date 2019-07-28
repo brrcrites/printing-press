@@ -5,14 +5,58 @@ const Validation = require('../utils/validation.js');
 class ComponentFeature {
 
     /**
+     * The name of the Component of which this is a feature.
+     *
+     * The name should match the Component's name exactly.
+     *
+     * @since 1.0.0
+     * @access public
+     *
+     * @type {string}
+     */
+    name;
+
+    /**
+     * The layer of this Component Feature.
+     *
+     *
+     * @since 1.0.0
+     * @access public
+     *
+     * @type {string}
+     */
+    layer;
+
+    /**
+     * The size of the component in the x-direction
+     *
+     * @since 1.0.0
+     * @access public
+     *
+     * @type {number}
+     */
+    xSpan;
+
+    /**
+     * The size of the component in the y-direction
+     *
+     * @since 1.0.0
+     * @access public
+     *
+     * @type {number}
+     */
+    ySpan;
+
+    /**
      * The location at which the Component will be placed.
      *
      * The location represents the upper left corner of the bounding box of the
      * component.
      *
      * @since 1.0.0
+     * @access public
      *
-     * @type{object}
+     * @type {object}
      */
     location;
 
@@ -20,13 +64,20 @@ class ComponentFeature {
      * How deep the component should be.
      *
      * @since 1.0.0
+     * @access public
      *
      * @type {number}
      */
     depth;
 
 
-    constructor(location = null, depth = Validation.DEFAULT_DIM_VALUE) {
+    constructor(name = Validation.DEFAULT_STR_VALUE, layer = Validation.DEFAULT_STR_VALUE,
+                xSpan = Validation.DEFAULT_SPAN_VALUE, ySpan = Validation.DEFAULT_SPAN_VALUE, location = null,
+                depth = Validation.DEFAULT_DIM_VALUE) {
+        this.name = name;
+        this.layer = layer;
+        this.xSpan = xSpan;
+        this.ySpan = ySpan;
         this.location = location;
         this.depth = depth;
     }
@@ -44,7 +95,11 @@ class ComponentFeature {
      * @returns {boolean}
      */
     validate() {
-        let valid = true;
+        let valid = Validation.testStringValue(this.name, 'name', 'Component Feature');
+
+        valid = Validation.testStringValue(this.layer, 'layer', 'Component Feature') ? valid : false;
+        valid = Validation.testSpanValue(this.xSpan, 'x', 'Component Feature') ? valid : false;
+        valid = Validation.testSpanValue(this.ySpan, 'y', 'Component Feature') ? valid : false;
 
         if (!this.location || !this.location.validate()) {
             valid = false;

@@ -17,8 +17,8 @@ var port0_5 = new Port('port-0_5-label', new Coord(0, 5));
 var port5_0 = new Port('port-5_0-label', new Coord(5, 0));
 var port10_0 = new Port('port-10_0-label', new Coord(10, 0));
 
-var compFeat0_5 = new ComponentFeature(new Coord(0, 5), 10);
-var compFeat90_96 = new ComponentFeature(new Coord(90, 96), 2);
+var compFeat0_5 = new ComponentFeature('comp-1-name', 'layer', 20, 25, new Coord(0, 5), 10);
+var compFeat90_96 = new ComponentFeature('comp-2-name', 'layer', 30, 35, new Coord(90, 96), 2);
 
 var component1 = new Component('comp-1-name', 'unique-id-comp-1', 20, 25, 'entity-1',
         [port0_0, port0_5], compFeat0_5);
