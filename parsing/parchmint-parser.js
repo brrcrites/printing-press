@@ -264,7 +264,6 @@ class ParchmintParser {
     static parsePort(portObj) {
         return new Port(portObj.label, this.parseCoord(portObj));
     }
-
 }
 
 module.exports = ParchmintParser;
