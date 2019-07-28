@@ -217,11 +217,11 @@ class ParchmintParser {
      *                          file.
      */
     parseConnections(jsonObj) {
-        jsonObj.connections.forEach((connValue, index) => {
-            if (!this.isUniqueID(connValue.id)) {
+        jsonObj['connections'].forEach((connValue, index) => {
+            if (!this.isUniqueID(connValue['id'])) {
                 this.valid = false;
-                console.log('Parser: Duplicate ID (' + connValue.id + ') found in "connections" key. Skipping' +
-                        ' Connection with name ' + connValue.name + ' at index ' + index + '.');
+                console.log('Parser: Duplicate ID (' + connValue['id'] + ') found in "connections" key. Skipping' +
+                        ' Connection with name ' + connValue['name'] + ' at index ' + index + '.');
             } else {
                 let tempConn = new Connection(connValue['name'], connValue['id'],
                         this.parseTerminal(connValue['source'], connValue['layer']),
@@ -234,8 +234,8 @@ class ParchmintParser {
                     tempConn.segments = tempFeat;
                 }
 
-                if (this.connections.has(connValue.layer)) {
-                    this.connections.get(connValue.layer).push(tempConn);
+                if (this.connections.has(connValue['layer'])) {
+                    this.connections.get(connValue['layer']).push(tempConn);
                 } else {
                     this.connections.set(connValue['layer'], [tempConn]);
                 }
@@ -444,18 +444,6 @@ class ParchmintParser {
         });
 
         return terms;
-    }
-
-    /**
-     * Parse a single Port object from the given JSON object.
-     *
-     * @since 1.0.0
-     *
-     * @param {object}  portObj A JSON object with fields layer, label, x, and y.
-     * @returns {Port}  The resulting Port object.
-     */
-    static parsePort(portObj) {
-        return new Port(portObj['label'], this.parseCoord(portObj));
     }
 
     /**
