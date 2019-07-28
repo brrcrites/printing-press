@@ -234,23 +234,23 @@ class ParchmintParser {
      *                          file.
      */
     parseConnectionFeatures(jsonObj) {
-        jsonObj.features.forEach((value, index) => {
+        jsonObj['features'].forEach((value, index) => {
             // First check whether this is a Connection Feature
-            if (value.type) {
+            if (value['type']) {
                 // Next check that the ID of this segment is unique
-                if (this.isUniqueID(value.id)) {
+                if (this.isUniqueID(value['id'])) {
                     // Finally add the Connection Feature to the map
-                    let tempFeat = new ConnectionSegment(value.name, value.id, value.width, value.depth,
-                            ParchmintParser.parseCoord(value.source), ParchmintParser.parseCoord(value.sink));
-                    if (this.connFeatures.has(value.connection)) {
-                        this.connFeatures.get(value.connection).push(tempFeat);
+                    let tempFeat = new ConnectionSegment(value['name'], value['id'], value['width'], value['depth'],
+                            ParchmintParser.parseCoord(value['source']), ParchmintParser.parseCoord(value['sink']));
+                    if (this.connFeatures.has(value['connection'])) {
+                        this.connFeatures.get(value['connection']).push(tempFeat);
                     } else {
-                        this.connFeatures.set(value.connection, [tempFeat]);
+                        this.connFeatures.set(value['connection'], [tempFeat]);
                     }
                 } else {
                     this.valid = false;
-                    console.log('Parser: Duplicate IDs (' + value.id + ') exist for the Connection Features list.' +
-                            ' Skipping Connection Feature with name "' + value.name + '" at index ' + index + '.');
+                    console.log('Parser: Duplicate IDs (' + value['id'] + ') exist for the Connection Features list.' +
+                            ' Skipping Connection Feature with name "' + value['name'] + '" at index ' + index + '.');
                 }
             }
         });
@@ -291,7 +291,7 @@ class ParchmintParser {
             // Check label uniqueness
             if (idSet.has(value['label'])) {
                 this.valid = false;
-                console.log('Parser: Duplicate labels (' + value.id + ') exist in the Port list.')
+                console.log('Parser: Duplicate labels (' + value['id'] + ') exist in the Port list.')
             } else {
                 idSet.add(value['label']);
             }
@@ -328,7 +328,7 @@ class ParchmintParser {
 
         // First let's find the Component we need
         this.components.get(layer).forEach(value => {
-            if (value.id === termObj.component) {
+            if (value.id === termObj['component']) {
                 comp = value;
             }
         });
@@ -336,21 +336,22 @@ class ParchmintParser {
         if (comp) {
             // If we found a component lets get the Port we need from it
             for (let value of comp.ports) {
-                if (value.label === termObj.port) {
+                if (value.label === termObj['port']) {
                     return new Terminal(comp, value);
                 }
             }
         } else {
             // We didn't find a component which means the Parchmint is invalid
             this.valid = false;
-            console.log('Parser: Unable to find Component with ID "' + termObj.component + '" on Layer with ID "' +
+            console.log('Parser: Unable to find Component with ID "' + termObj['component'] + '" on Layer with ID "' +
                     layer + '". Parsing will continue, using a default Terminal object.');
             return new Terminal();
         }
 
+        // We didn't find the a Port so the Parchmint is invalid, but at the very least we can put the Component in.
         this.valid = false;
-        console.log('Parser: Unable to find Port with label "' + termObj.port + '" on Component with ID "' +
-                termObj.component + '". Parsing will continue using a Terminal object with a null Port.');
+        console.log('Parser: Unable to find Port with label "' + termObj['port'] + '" on Component with ID "' +
+                termObj['component'] + '". Parsing will continue using a Terminal object with a null Port.');
         return new Terminal(comp);
     }
 
