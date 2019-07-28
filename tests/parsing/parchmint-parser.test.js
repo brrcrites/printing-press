@@ -13,6 +13,7 @@ const componentID = 'unique-mixer-id-string';
 const connectionID = 'unique-mixer-flow-connection-id';
 const connFeatID = 'unique-channel-segment-id';
 
+
 function parseJSONObj(str) {
     return JSON.parse('{' + str + '}');
 }
