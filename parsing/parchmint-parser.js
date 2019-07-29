@@ -182,11 +182,30 @@ class ParchmintParser {
             } else {
                 this.idSet.add(compValue['id']);
 
+                // Now compare the port map layers to the component's layers
+                for (let layer of ports.keys()) {
+                    if (compValue['layers'].indexOf(layer) === -1) {
+                        console.log('Parser (WARNING): The Component with ID "' + compValue['id'] + '" and name "'
+                                + compValue['name'] + '" contains a Port with a Layer ID (' + layer + ') that does' +
+                                ' not exist in the Component\'s Layer list.');
+                    }
+                }
+
                 // Finally add this component to each Layer it exists on with only the ports on that Layer
                 compValue['layers'].forEach(layerValue => {
                     let tempComp = new Component(compValue['name'], compValue['id'], compValue['x-span'], compValue['y-span'],
-                            compValue['entity'], ports.get(layerValue));
+                            compValue['entity']);
+                    let tempPorts = ports.get(layerValue);
                     let tempFeat = this.compFeatures.get(compValue['id'] + '_' + layerValue);
+
+                    // There might not be any ports on the layer, so only add it if we have one, otherwise leave it
+                    // as the deafault value
+                    if (tempPorts) {
+                        tempComp.ports = tempPorts;
+                        console.log('Parser (WARNING): The Component with ID "' + compValue['id'] + '" and name "'
+                                + compValue['name'] + '" exists on a Layer  (' + layerValue + '), but has no Ports' +
+                                ' on that layer.');
+                    }
 
                     // Component Features are not required, so only add it if we have one, otherwise leave it as the
                     // default value
@@ -378,7 +397,8 @@ class ParchmintParser {
      * Parse a Terminal object from the given JSON object.
      *
      * The component is only searched for on the given layer, so as to get the
-     * correct Port object.
+     * correct Port object. If no component exists on the given layer, the
+     * parser is set invalid.
      *
      * @since 1.0.0
      *
@@ -387,13 +407,20 @@ class ParchmintParser {
      * @param {string}  layer   The ID of the Layer on which to search for the
      *                          Component.
      * @returns {Terminal}  A Terminal object with the Component and Port if
-     *                      they could both be found, or a default Terminal
-     *                      object otherwise.
+     *                      they could both be found, a Terminal object with
+     *                      only a Component if only the Component was found,
+     *                      or a default Terminal object otherwise.
      */
     parseTerminal(termObj, layer) {
         let comp = null;
 
-        // First let's find the Component we need
+        // First let's see if the given layer is valid
+        if (!this.components.has(layer)) {
+            this.valid = false;
+            return new Terminal();
+        }
+
+        // Next let's find the Component we need
         this.components.get(layer).forEach(value => {
             if (value.id === termObj['component']) {
                 comp = value;

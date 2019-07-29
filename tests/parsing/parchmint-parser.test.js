@@ -9,6 +9,8 @@ console.log = jest.fn();
 
 const flowLayerID = 'unique-flow-layer-id-string';
 const controlLayerID = 'unique-control-layer-id-string';
+const invalidLayerID = 'non-existent-layer-id-string';
+
 const componentID = 'unique-mixer-id-string';
 const connectionID = 'unique-mixer-flow-connection-id';
 const connFeatID = 'unique-channel-segment-id';
@@ -192,6 +194,27 @@ describe('components', () => {
         expect(pp.components.get(flowLayerID).length).toBe(1);
         expect(pp.components.get(controlLayerID).length).toBe(1);
 
+    });
+
+    describe('non-matching layers', () => {
+        test('port', () => { // The port has layers that do not exist in the component's layer list
+            let pp = new ParchmintParser();
+            pp.parseComponents(parseJSONObj(nonMatchingPortLayerParchmintComponents));
+
+            expect(pp.valid).toBe(true);
+            expect(pp.components.size).toBe(1);
+            expect(pp.components.has(flowLayerID)).toBe(true);
+        });
+
+        test('component', () => { // The component has layers that do not exist in the port list
+            let pp = new ParchmintParser();
+            pp.parseComponents(parseJSONObj(extraLayerParchmintComponents));
+
+            expect(pp.valid).toBe(true);
+            expect(pp.components.size).toBe(2);
+            expect(pp.components.has(flowLayerID)).toBe(true);
+            expect(pp.components.has(controlLayerID)).toBe(true);
+        });
     });
 });
 
@@ -709,6 +732,19 @@ describe('terminals', () => {
             expect(term.component).toBeTruthy();
             expect(term.port).toBeFalsy();
         });
+
+        test('layer', () => {
+            let pp = new ParchmintParser();
+            let parch = validSingleTerminal + ', ' + validParchmintComponents;
+            let term;
+
+            pp.parseComponents(parseJSONObj(parch));
+            term = pp.parseTerminal(parseJSONObj(parch), invalidLayerID);
+
+            expect(pp.valid).toBe(false);
+            expect(term.component).toBeFalsy();
+            expect(term.port).toBeFalsy();
+        });
     });
 });
 
@@ -894,6 +930,61 @@ const duplicateIDParchmintComponents = '"components": [\n' +
         '                "layer": "unique-control-layer-id-string",\n' +
         '                "x": 10,\n' +
         '                "y": 2500\n' +
+        '            }\n' +
+        '        ]\n' +
+        '    }\n' +
+        ']';
+
+const nonMatchingPortLayerParchmintComponents = '"components": [\n' +
+        '    {\n' +
+        '        "id": "unique-mixer-id-string",\n' +
+        '        "name": "mixer-001",\n' +
+        '        "layers": [\n' +
+        '            "unique-flow-layer-id-string"\n' +
+        '        ],\n' +
+        '        "x-span": 4500,\n' +
+        '        "y-span": 1500,\n' +
+        '        "entity": "rotary-mixer",\n' +
+        '        "ports": [\n' +
+        '            {\n' +
+        '                "label": "input-port",\n' +
+        '                "layer": "non-existent-layer-id-string",\n' +
+        '                "x": 0,\n' +
+        '                "y": 750\n' +
+        '            },\n' +
+        '            {\n' +
+        '                "label": "output-port",\n' +
+        '                "layer": "unique-flow-layer-id-string",\n' +
+        '                "x": 4500,\n' +
+        '                "y": 750\n' +
+        '            }\n' +
+        '        ]\n' +
+        '    }\n' +
+        ']';
+
+const extraLayerParchmintComponents = '"components": [\n' +
+        '    {\n' +
+        '        "id": "unique-mixer-id-string",\n' +
+        '        "name": "mixer-001",\n' +
+        '        "layers": [\n' +
+        '            "unique-flow-layer-id-string",\n' +
+        '            "unique-control-layer-id-string"\n' +
+        '        ],\n' +
+        '        "x-span": 4500,\n' +
+        '        "y-span": 1500,\n' +
+        '        "entity": "rotary-mixer",\n' +
+        '        "ports": [\n' +
+        '            {\n' +
+        '                "label": "input-port",\n' +
+        '                "layer": "non-existent-layer-id-string",\n' +
+        '                "x": 0,\n' +
+        '                "y": 750\n' +
+        '            },\n' +
+        '            {\n' +
+        '                "label": "output-port",\n' +
+        '                "layer": "unique-flow-layer-id-string",\n' +
+        '                "x": 4500,\n' +
+        '                "y": 750\n' +
         '            }\n' +
         '        ]\n' +
         '    }\n' +
