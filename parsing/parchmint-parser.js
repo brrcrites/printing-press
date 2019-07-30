@@ -48,6 +48,16 @@ class ParchmintParser {
     parchmint;
 
     /**
+     * An array containing all of the Layers that have been parsed.
+     *
+     * @since 1.0.0
+     * @access public
+     *
+     * @type {Array}
+     */
+    layers;
+
+    /**
      * A map containing all of the Components that have been parsed.
      *
      * The key is the ID of a Layer, and the value is an array of Components
@@ -116,46 +126,83 @@ class ParchmintParser {
         this.valid = true;
         this.idSet = new Set();
 
+        this.layers = [];
         this.components = new Map();
         this.connections = new Map();
         this.compFeatures = new Map();
         this.connFeatures = new Map();
     }
 
-    /**
-     * Initialize the name and id fields of a ParchKey object from a JSON
-     * object.
-     *
-     * This method is intended for use on any subclass of ParchKey.
-     *
-     * @since 1.0.0
-     *
-     * @param {object}  parchKeyObj The ParchKey object to initialize.
-     * @param {object}  jsonObj     The JSON object with which to initialize.
-     */
-    initParchKey(parchKeyObj, jsonObj) {
-        parchKeyObj.name = jsonObj['name'];
-        parchKeyObj.id = jsonObj['id'];
-    }
 
     /**
      * Parse a JSON object for the layers key.
      *
+     * Fills the layers array with Layer objects. If Components or Connections
+     * exist in their respective maps, under Layer IDs that do not exist in the
+     * "layers" key in the Parchmint, then the parser is set invalid.
+     *
      * @since 1.0.0
      *
-     * @param {object} jsonObj  A parsed JSON object representing the Parchmint file.
-     *
-     * @returns {Array} An array of Layer object containing the data from the layers key in the Parchmint file.
+     * @param {object} jsonObj  A parsed JSON object representing the Parchmint
+     *                          file.
      */
-    parseLayersArray(jsonObj) {
-        let layers = [];
-        for (let i = 0; i < jsonObj['layers'].length; i++) {
-            let tempLayer = new Layer();
-            this.initParchKey(tempLayer, jsonObj['layers'][i]);
-            layers.push(tempLayer);
+    parseLayers(jsonObj) {
+        // First make sure that neither components nor connections has extra/invalid layers
+        for (let layerID of this.components.keys()) {
+            let found = false;
+            for (let l of jsonObj['layers']) {
+                if (l.id === layerID) {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                this.valid = false;
+                console.log('Parser: The Components list contains an invalid Layer (' + layerID + ').');
+            }
         }
 
-        return layers;
+        for (let layerID of this.connections.keys()) {
+            let found = false;
+            for (let l of jsonObj['layers']) {
+                if (l.id === layerID) {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                this.valid = false;
+                console.log('Parser: The Connections list contains an invalid Layer (' + layerID + ').');
+            }
+        }
+
+        // Now we can move on to the actual parsing.
+        jsonObj['layers'].forEach((value, index) => {
+            let layerID = value['id'];
+            if (this.isUniqueID(layerID)) {
+                let tempLayer = new Layer(value['name'], layerID);
+                let tempComps = this.components.get(layerID);
+                let tempConns = this.connections.get(layerID);
+
+                // If a Layer does not have Components or Connections we want to leave their value as the default
+                // empty array.
+                if (tempComps) {
+                    tempLayer.components = tempComps;
+                }
+
+                if (tempConns) {
+                    tempLayer.connections = tempConns;
+                }
+
+                this.layers.push(tempLayer);
+            } else {
+                this.valid = false;
+                console.log('Parser: Duplicate IDs (' + layerID + ') found in the "layers" key. Skipping Layer' +
+                        ' with name "' + value['name'] + '" at index ' + index + '.');
+            }
+        });
     }
 
     /**
@@ -199,9 +246,10 @@ class ParchmintParser {
                     let tempFeat = this.compFeatures.get(compValue['id'] + '_' + layerValue);
 
                     // There might not be any ports on the layer, so only add it if we have one, otherwise leave it
-                    // as the deafault value
+                    // as the default value
                     if (tempPorts) {
                         tempComp.ports = tempPorts;
+                    } else {
                         console.log('Parser (WARNING): The Component with ID "' + compValue['id'] + '" and name "'
                                 + compValue['name'] + '" exists on a Layer  (' + layerValue + '), but has no Ports' +
                                 ' on that layer.');

@@ -1,5 +1,4 @@
 const ParchmintParser = require('../../parsing/parchmint-parser.js');
-const Layer = require('../../model/layer.js');
 const Coord = require('../../model/coord.js');
 const Terminal = require('../../model/terminal.js');
 const Validation = require('../../utils/validation.js');
@@ -21,48 +20,85 @@ function parseJSONObj(str) {
 }
 
 describe('layers', () => {
-    test('initialize with initParchKey', () => {
-        let pp = new ParchmintParser();
-        let l = new Layer();
-        let layers = parseJSONObj(validParchmintLayers).layers;
-
-        expect(layers.length).toBe(2);
-
-        pp.initParchKey(l, layers[0]);
-
-        expect(l.name).toBe('flow-layer');
-        expect(l.id).toBe(flowLayerID);
-    });
-
-    test('valid JSON array obj', () => {
-        let pp = new ParchmintParser();
-        let l = pp.parseLayersArray(parseJSONObj(validParchmintLayers));
-
-        expect(l.length).toBe(2);
-
-        expect(l[0].name).toBe('flow-layer');
-        expect(l[0].id).toBe(flowLayerID);
-        expect(l[1].name).toBe('control-layer');
-        expect(l[1].id).toBe(controlLayerID);
-    });
-
-    describe('validation', () => {
-        test('invalid name', () => {
+    describe('valid', () => {
+        test('no components/features', () => {
             let pp = new ParchmintParser();
-            let l = pp.parseLayersArray(parseJSONObj(invalidParchmintLayers));
+            let layer;
 
-            expect(l.length).toBe(2);
+            pp.parseComponents(parseJSONObj(validParchmintLayersNoCompConn));
+            pp.parseConnections(parseJSONObj(validParchmintLayersNoCompConn));
+            pp.parseLayers(parseJSONObj(validParchmintLayersNoCompConn));
 
-            expect(l[0].validate()).toBe(false);
+            expect(pp.valid).toBe(true);
+            expect(pp.layers.length).toBe(2);
+            expect(pp.components.size).toBe(0);
+            expect(pp.connections.size).toBe(0);
+
+            layer = pp.layers[0];
+            expect(layer.name).toBe('flow-layer');
+            expect(layer.connections).toEqual([]);
+
+            layer = pp.layers[1];
+            expect(layer.name).toBe('control-layer');
+            expect(layer.connections).toEqual([]);
+        });
+    });
+    test('planar_synthetic_1', () => {
+        let pp = new ParchmintParser();
+        let layer;
+
+        pp.parseComponents(JSON.parse(planar_synthetic_1));
+        pp.parseConnections(JSON.parse(planar_synthetic_1));
+        pp.parseLayers(JSON.parse(planar_synthetic_1));
+
+        expect(pp.valid).toBe(true);
+        expect(pp.layers.length).toBe(1);
+        expect(pp.components.has('8a5a3c06-dff7-48fc-8242-0f8dcf35885e')).toBe(true);
+        expect(pp.components.size).toBe(1);
+
+        layer = pp.layers[0];
+        expect(layer.components.length).toBe(21);
+        expect(layer.connections.length).toBe(21);
+    });
+
+    describe('invalid', () => {
+        test('components', () => {
+            let pp = new ParchmintParser();
+            let layer;
+
+            pp.parseComponents(parseJSONObj(invalidParchmintLayersBadComponentLayer));
+            pp.parseConnections(parseJSONObj(invalidParchmintLayersBadComponentLayer));
+            pp.parseLayers(parseJSONObj(invalidParchmintLayersBadComponentLayer));
+
+            expect(pp.valid).toBe(false);
+            expect(pp.layers.length).toBe(1);
+            expect(pp.components.size).toBe(2);
+            expect(pp.components.has(flowLayerID)).toBe(true);
+            expect(pp.components.has(invalidLayerID)).toBe(true);
+            expect(pp.connections.size).toBe(0);
+
+            layer = pp.layers[0];
+            expect(layer.components.length).toBe(1);
+            expect(layer.connections).toEqual([]);
         });
 
-        test('invalid id', () => {
+        test('connections', () => {
             let pp = new ParchmintParser();
-            let l = pp.parseLayersArray(parseJSONObj(invalidParchmintLayers));
+            let layer;
 
-            expect(l.length).toBe(2);
+            pp.parseComponents(parseJSONObj(invalidParchmintLayersBadConnectionLayer));
+            pp.parseConnections(parseJSONObj(invalidParchmintLayersBadConnectionLayer));
+            pp.parseLayers(parseJSONObj(invalidParchmintLayersBadConnectionLayer));
 
-            expect(l[1].validate()).toBe(false);
+            expect(pp.valid).toBe(false);
+            expect(pp.layers.length).toBe(1);
+            expect(pp.components.size).toBe(0);
+            expect(pp.connections.size).toBe(1);
+            expect(pp.connections.has(invalidLayerID)).toBe(true);
+
+            layer = pp.layers[0];
+            expect(layer.components).toEqual([]);
+            expect(layer.connections.length).toBe(0);
         });
     });
 });
@@ -749,7 +785,7 @@ describe('terminals', () => {
 });
 
 //-- Begin Parchmint JSON strings --\\
-const validParchmintLayers = '"layers": [\n' +
+const validParchmintLayersNoCompConn = '"layers": [\n' +
         '    {\n' +
         '        "id": "unique-flow-layer-id-string",\n' +
         '        "name": "flow-layer"\n' +
@@ -758,16 +794,73 @@ const validParchmintLayers = '"layers": [\n' +
         '        "id": "unique-control-layer-id-string",\n' +
         '        "name": "control-layer"\n' +
         '    }\n' +
-        ']';
+        '],\n' +
+        '"components": [],\n' +
+        '"connections": []';
 
-const invalidParchmintLayers = '"layers": [\n' +
+const invalidParchmintLayersBadComponentLayer = '"layers": [\n' +
         '    {\n' +
         '        "id": "unique-flow-layer-id-string",\n' +
-        '        "name": ""\n' +
-        '    },\n' +
+        '        "name": "flow-layer"\n' +
+        '    }\n' +
+        '],\n' +
+        '"components": [' +
         '    {\n' +
-        '        "id": "",\n' +
-        '        "name": "control-layer"\n' +
+        '        "id": "unique-mixer-id-string",\n' +
+        '        "name": "mixer-001",\n' +
+        '        "layers": [\n' +
+        '            "non-existent-layer-id-string",\n' +
+        '            "unique-flow-layer-id-string"\n' +
+        '        ],\n' +
+        '        "x-span": 4500,\n' +
+        '        "y-span": 1500,\n' +
+        '        "entity": "rotary-mixer",\n' +
+        '        "ports": [\n' +
+        '            {\n' +
+        '                "label": "input-port",\n' +
+        '                "layer": "unique-flow-layer-id-string",\n' +
+        '                "x": 0,\n' +
+        '                "y": 750\n' +
+        '            },\n' +
+        '            {\n' +
+        '                "label": "output-port",\n' +
+        '                "layer": "unique-flow-layer-id-string",\n' +
+        '                "x": 4500,\n' +
+        '                "y": 750\n' +
+        '            },\n' +
+        '            {\n' +
+        '                "label": "rotary-control-port",\n' +
+        '                "layer": "unique-control-layer-id-string",\n' +
+        '                "x": 2250,\n' +
+        '                "y": 0\n' +
+        '            }\n' +
+        '        ]\n' +
+        '    }\n' +
+        '],\n' +
+        '"connections": []';
+
+const invalidParchmintLayersBadConnectionLayer = '"layers": [\n' +
+        '    {\n' +
+        '        "id": "unique-flow-layer-id-string",\n' +
+        '        "name": "flow-layer"\n' +
+        '    }\n' +
+        '],\n' +
+        '"components": [],\n' +
+        '"connections": [\n' +
+        '    {\n' +
+        '        "id": "unique-mixer-flow-connection-id",\n' +
+        '        "name": "mixer-flow-connection",\n' +
+        '        "layer": "non-existent-layer-id-string",\n' +
+        '        "source": {\n' +
+        '            "component": "unique-mixer-id-string",\n' +
+        '            "port": "output-port"\n' +
+        '        },\n' +
+        '        "sinks": [\n' +
+        '            {\n' +
+        '               "component": "unique-mixer-id-string",\n' +
+        '               "port": "input-port"\n' +
+        '            }\n' +
+        '        ]\n' +
         '    }\n' +
         ']';
 
@@ -1470,3 +1563,913 @@ const invalidPortTerminal = '"terminal": {\n' +
         '                "port": "io-port"\n' +
         '            }';
 
+const planar_synthetic_1 = '{\n' +
+        '    "components": [\n' +
+        '        {\n' +
+        '            "entity": "Input", \n' +
+        '            "id": "d64e9260-f42f-4b1c-886f-41828f4899af", \n' +
+        '            "layers": [\n' +
+        '                "8a5a3c06-dff7-48fc-8242-0f8dcf35885e"\n' +
+        '            ], \n' +
+        '            "name": "Source1", \n' +
+        '            "ports": [\n' +
+        '                {\n' +
+        '                    "label": "port0", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 10, \n' +
+        '                    "y": 20\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "x-span": 20, \n' +
+        '            "y-span": 20\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "entity": "Input", \n' +
+        '            "id": "174b0fe7-f44d-4fc5-a657-b1cacffa98af", \n' +
+        '            "layers": [\n' +
+        '                "8a5a3c06-dff7-48fc-8242-0f8dcf35885e"\n' +
+        '            ], \n' +
+        '            "name": "Source2", \n' +
+        '            "ports": [\n' +
+        '                {\n' +
+        '                    "label": "port0", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 10, \n' +
+        '                    "y": 20\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "x-span": 20, \n' +
+        '            "y-span": 20\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "entity": "Output", \n' +
+        '            "id": "1fd596b1-a033-455a-a384-bf0fa1eda437", \n' +
+        '            "layers": [\n' +
+        '                "8a5a3c06-dff7-48fc-8242-0f8dcf35885e"\n' +
+        '            ], \n' +
+        '            "name": "Out1", \n' +
+        '            "ports": [\n' +
+        '                {\n' +
+        '                    "label": "port0", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 10, \n' +
+        '                    "y": 0\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "x-span": 20, \n' +
+        '            "y-span": 20\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "entity": "Mixer", \n' +
+        '            "id": "605959bc-808a-46db-a838-0e3d77868fab", \n' +
+        '            "layers": [\n' +
+        '                "8a5a3c06-dff7-48fc-8242-0f8dcf35885e"\n' +
+        '            ], \n' +
+        '            "name": "Mixer1", \n' +
+        '            "ports": [\n' +
+        '                {\n' +
+        '                    "label": "port0", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 200, \n' +
+        '                    "y": 100\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port1", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 0, \n' +
+        '                    "y": 100\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "x-span": 200, \n' +
+        '            "y-span": 200\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "entity": "Mixer", \n' +
+        '            "id": "9397efb3-2884-4ce6-a1df-096811c23390", \n' +
+        '            "layers": [\n' +
+        '                "8a5a3c06-dff7-48fc-8242-0f8dcf35885e"\n' +
+        '            ], \n' +
+        '            "name": "Mixer2", \n' +
+        '            "ports": [\n' +
+        '                {\n' +
+        '                    "label": "port0", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 200, \n' +
+        '                    "y": 100\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port1", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 0, \n' +
+        '                    "y": 100\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "x-span": 200, \n' +
+        '            "y-span": 200\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "entity": "Mixer", \n' +
+        '            "id": "5e0121f2-a861-48fa-bd1b-9841fe23e0f2", \n' +
+        '            "layers": [\n' +
+        '                "8a5a3c06-dff7-48fc-8242-0f8dcf35885e"\n' +
+        '            ], \n' +
+        '            "name": "Mixer3", \n' +
+        '            "ports": [\n' +
+        '                {\n' +
+        '                    "label": "port0", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 200, \n' +
+        '                    "y": 100\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port1", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 0, \n' +
+        '                    "y": 100\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "x-span": 200, \n' +
+        '            "y-span": 200\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "entity": "Mixer", \n' +
+        '            "id": "10d216d9-1564-47d1-bf13-c98dc9b5e65e", \n' +
+        '            "layers": [\n' +
+        '                "8a5a3c06-dff7-48fc-8242-0f8dcf35885e"\n' +
+        '            ], \n' +
+        '            "name": "Mixer4", \n' +
+        '            "ports": [\n' +
+        '                {\n' +
+        '                    "label": "port0", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 200, \n' +
+        '                    "y": 100\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port1", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 0, \n' +
+        '                    "y": 100\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "x-span": 200, \n' +
+        '            "y-span": 200\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "entity": "Heater", \n' +
+        '            "id": "ba3435cd-1c9b-42b1-ae49-0cd09fbeaa44", \n' +
+        '            "layers": [\n' +
+        '                "8a5a3c06-dff7-48fc-8242-0f8dcf35885e"\n' +
+        '            ], \n' +
+        '            "name": "Heater1", \n' +
+        '            "ports": [\n' +
+        '                {\n' +
+        '                    "label": "port0", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 0, \n' +
+        '                    "y": 25\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port1", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 100, \n' +
+        '                    "y": 25\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "x-span": 100, \n' +
+        '            "y-span": 50\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "entity": "Heater", \n' +
+        '            "id": "df5f5be1-ae6d-4650-8e7a-47929867b17e", \n' +
+        '            "layers": [\n' +
+        '                "8a5a3c06-dff7-48fc-8242-0f8dcf35885e"\n' +
+        '            ], \n' +
+        '            "name": "Heater2", \n' +
+        '            "ports": [\n' +
+        '                {\n' +
+        '                    "label": "port0", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 0, \n' +
+        '                    "y": 25\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port1", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 100, \n' +
+        '                    "y": 25\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "x-span": 100, \n' +
+        '            "y-span": 50\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "entity": "Heater", \n' +
+        '            "id": "9053a293-8ab2-4a75-ab9d-5c95a7a91980", \n' +
+        '            "layers": [\n' +
+        '                "8a5a3c06-dff7-48fc-8242-0f8dcf35885e"\n' +
+        '            ], \n' +
+        '            "name": "Heater3", \n' +
+        '            "ports": [\n' +
+        '                {\n' +
+        '                    "label": "port0", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 0, \n' +
+        '                    "y": 25\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port1", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 100, \n' +
+        '                    "y": 25\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "x-span": 100, \n' +
+        '            "y-span": 50\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "entity": "Heater", \n' +
+        '            "id": "f6d95479-3122-4909-a056-33cc2601a45c", \n' +
+        '            "layers": [\n' +
+        '                "8a5a3c06-dff7-48fc-8242-0f8dcf35885e"\n' +
+        '            ], \n' +
+        '            "name": "Heater4", \n' +
+        '            "ports": [\n' +
+        '                {\n' +
+        '                    "label": "port0", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 0, \n' +
+        '                    "y": 25\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port1", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 100, \n' +
+        '                    "y": 25\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "x-span": 100, \n' +
+        '            "y-span": 50\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "entity": "Filter", \n' +
+        '            "id": "43f9c20d-a2e2-4eb1-a6b3-fe34de4e58e0", \n' +
+        '            "layers": [\n' +
+        '                "8a5a3c06-dff7-48fc-8242-0f8dcf35885e"\n' +
+        '            ], \n' +
+        '            "name": "Filter1", \n' +
+        '            "ports": [\n' +
+        '                {\n' +
+        '                    "label": "port0", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 25, \n' +
+        '                    "y": 0\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port1", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 25, \n' +
+        '                    "y": 50\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "x-span": 50, \n' +
+        '            "y-span": 50\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "entity": "Filter", \n' +
+        '            "id": "d98ba8c0-e9e9-4265-b0d9-def5ca90e6d1", \n' +
+        '            "layers": [\n' +
+        '                "8a5a3c06-dff7-48fc-8242-0f8dcf35885e"\n' +
+        '            ], \n' +
+        '            "name": "Filter2", \n' +
+        '            "ports": [\n' +
+        '                {\n' +
+        '                    "label": "port0", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 25, \n' +
+        '                    "y": 0\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port1", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 25, \n' +
+        '                    "y": 50\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "x-span": 50, \n' +
+        '            "y-span": 50\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "entity": "Switch", \n' +
+        '            "id": "df104300-c745-4b92-8d6a-d18c84ab66d7", \n' +
+        '            "layers": [\n' +
+        '                "8a5a3c06-dff7-48fc-8242-0f8dcf35885e"\n' +
+        '            ], \n' +
+        '            "name": "flow_switch3_0", \n' +
+        '            "ports": [\n' +
+        '                {\n' +
+        '                    "label": "port0", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 5, \n' +
+        '                    "y": 0\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port1", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 5, \n' +
+        '                    "y": 10\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port2", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 0, \n' +
+        '                    "y": 5\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port3", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 10, \n' +
+        '                    "y": 5\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "x-span": 10, \n' +
+        '            "y-span": 10\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "entity": "Switch", \n' +
+        '            "id": "755fbbc3-d01f-4092-812b-400b2308cbfe", \n' +
+        '            "layers": [\n' +
+        '                "8a5a3c06-dff7-48fc-8242-0f8dcf35885e"\n' +
+        '            ], \n' +
+        '            "name": "flow_switch4_1", \n' +
+        '            "ports": [\n' +
+        '                {\n' +
+        '                    "label": "port0", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 5, \n' +
+        '                    "y": 0\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port1", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 5, \n' +
+        '                    "y": 10\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port2", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 0, \n' +
+        '                    "y": 5\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port3", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 10, \n' +
+        '                    "y": 5\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "x-span": 10, \n' +
+        '            "y-span": 10\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "entity": "Switch", \n' +
+        '            "id": "3d1b7f34-be57-4c5c-b902-cd6411f67879", \n' +
+        '            "layers": [\n' +
+        '                "8a5a3c06-dff7-48fc-8242-0f8dcf35885e"\n' +
+        '            ], \n' +
+        '            "name": "flow_switch4_2", \n' +
+        '            "ports": [\n' +
+        '                {\n' +
+        '                    "label": "port0", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 5, \n' +
+        '                    "y": 0\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port1", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 5, \n' +
+        '                    "y": 10\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port2", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 0, \n' +
+        '                    "y": 5\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port3", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 10, \n' +
+        '                    "y": 5\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "x-span": 10, \n' +
+        '            "y-span": 10\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "entity": "Switch", \n' +
+        '            "id": "27dc1d70-8aab-4c71-bb3a-895aed1e89cc", \n' +
+        '            "layers": [\n' +
+        '                "8a5a3c06-dff7-48fc-8242-0f8dcf35885e"\n' +
+        '            ], \n' +
+        '            "name": "flow_switch4_4", \n' +
+        '            "ports": [\n' +
+        '                {\n' +
+        '                    "label": "port0", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 5, \n' +
+        '                    "y": 0\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port1", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 5, \n' +
+        '                    "y": 10\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port2", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 0, \n' +
+        '                    "y": 5\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port3", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 10, \n' +
+        '                    "y": 5\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "x-span": 10, \n' +
+        '            "y-span": 10\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "entity": "Switch", \n' +
+        '            "id": "7750e447-f6d7-47bd-b635-0c9abfe671e8", \n' +
+        '            "layers": [\n' +
+        '                "8a5a3c06-dff7-48fc-8242-0f8dcf35885e"\n' +
+        '            ], \n' +
+        '            "name": "flow_switch4_5", \n' +
+        '            "ports": [\n' +
+        '                {\n' +
+        '                    "label": "port0", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 5, \n' +
+        '                    "y": 0\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port1", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 5, \n' +
+        '                    "y": 10\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port2", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 0, \n' +
+        '                    "y": 5\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port3", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 10, \n' +
+        '                    "y": 5\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "x-span": 10, \n' +
+        '            "y-span": 10\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "entity": "Switch", \n' +
+        '            "id": "ba1ab8a2-ad85-48ac-bfb2-b0c1ab53b97a", \n' +
+        '            "layers": [\n' +
+        '                "8a5a3c06-dff7-48fc-8242-0f8dcf35885e"\n' +
+        '            ], \n' +
+        '            "name": "flow_switch4_7", \n' +
+        '            "ports": [\n' +
+        '                {\n' +
+        '                    "label": "port0", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 5, \n' +
+        '                    "y": 0\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port1", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 5, \n' +
+        '                    "y": 10\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port2", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 0, \n' +
+        '                    "y": 5\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port3", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 10, \n' +
+        '                    "y": 5\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "x-span": 10, \n' +
+        '            "y-span": 10\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "entity": "Switch", \n' +
+        '            "id": "5cbccf62-0509-47f3-b11e-cda4be7c275a", \n' +
+        '            "layers": [\n' +
+        '                "8a5a3c06-dff7-48fc-8242-0f8dcf35885e"\n' +
+        '            ], \n' +
+        '            "name": "flow_switch4_8", \n' +
+        '            "ports": [\n' +
+        '                {\n' +
+        '                    "label": "port0", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 5, \n' +
+        '                    "y": 0\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port1", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 5, \n' +
+        '                    "y": 10\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port2", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 0, \n' +
+        '                    "y": 5\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port3", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 10, \n' +
+        '                    "y": 5\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "x-span": 10, \n' +
+        '            "y-span": 10\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "entity": "Switch", \n' +
+        '            "id": "18470007-8678-4bab-8bcd-850871c71542", \n' +
+        '            "layers": [\n' +
+        '                "8a5a3c06-dff7-48fc-8242-0f8dcf35885e"\n' +
+        '            ], \n' +
+        '            "name": "flow_switch4_9", \n' +
+        '            "ports": [\n' +
+        '                {\n' +
+        '                    "label": "port0", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 5, \n' +
+        '                    "y": 0\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port1", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 5, \n' +
+        '                    "y": 10\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port2", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 0, \n' +
+        '                    "y": 5\n' +
+        '                }, \n' +
+        '                {\n' +
+        '                    "label": "port3", \n' +
+        '                    "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '                    "x": 10, \n' +
+        '                    "y": 5\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "x-span": 10, \n' +
+        '            "y-span": 10\n' +
+        '        }\n' +
+        '    ], \n' +
+        '    "connections": [\n' +
+        '        {\n' +
+        '            "id": "273a695d-7503-4052-8435-1753a2fc751d", \n' +
+        '            "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '            "name": "flow_switch3_0-Source1", \n' +
+        '            "sinks": [\n' +
+        '                {\n' +
+        '                    "component": "d64e9260-f42f-4b1c-886f-41828f4899af", \n' +
+        '                    "port": "port0"\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "source": {\n' +
+        '                "component": "df104300-c745-4b92-8d6a-d18c84ab66d7", \n' +
+        '                "port": "port2"\n' +
+        '            }\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "id": "9c2b1d52-fdeb-462e-8aed-336b0cbf54e9", \n' +
+        '            "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '            "name": "flow_switch3_0-Source2", \n' +
+        '            "sinks": [\n' +
+        '                {\n' +
+        '                    "component": "174b0fe7-f44d-4fc5-a657-b1cacffa98af", \n' +
+        '                    "port": "port0"\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "source": {\n' +
+        '                "component": "df104300-c745-4b92-8d6a-d18c84ab66d7", \n' +
+        '                "port": "port1"\n' +
+        '            }\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "id": "35e9ee35-80f2-4c93-9ad7-35e680f8f3a5", \n' +
+        '            "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '            "name": "flow_switch3_0-flow_switch4_1", \n' +
+        '            "sinks": [\n' +
+        '                {\n' +
+        '                    "component": "755fbbc3-d01f-4092-812b-400b2308cbfe", \n' +
+        '                    "port": "port2"\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "source": {\n' +
+        '                "component": "df104300-c745-4b92-8d6a-d18c84ab66d7", \n' +
+        '                "port": "port3"\n' +
+        '            }\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "id": "cc292d91-5918-497b-ae7b-044748d85208", \n' +
+        '            "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '            "name": "flow_switch4_1-flow_switch4_2", \n' +
+        '            "sinks": [\n' +
+        '                {\n' +
+        '                    "component": "3d1b7f34-be57-4c5c-b902-cd6411f67879", \n' +
+        '                    "port": "port2"\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "source": {\n' +
+        '                "component": "755fbbc3-d01f-4092-812b-400b2308cbfe", \n' +
+        '                "port": "port1"\n' +
+        '            }\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "id": "f619a6d5-4cca-4965-b751-bd70aeefe56c", \n' +
+        '            "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '            "name": "flow_switch4_1-flow_switch4_4", \n' +
+        '            "sinks": [\n' +
+        '                {\n' +
+        '                    "component": "27dc1d70-8aab-4c71-bb3a-895aed1e89cc", \n' +
+        '                    "port": "port1"\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "source": {\n' +
+        '                "component": "755fbbc3-d01f-4092-812b-400b2308cbfe", \n' +
+        '                "port": "port0"\n' +
+        '            }\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "id": "b3781a75-0dcb-4aec-a007-5e1074f61e1d", \n' +
+        '            "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '            "name": "flow_switch4_2-flow_switch4_5", \n' +
+        '            "sinks": [\n' +
+        '                {\n' +
+        '                    "component": "7750e447-f6d7-47bd-b635-0c9abfe671e8", \n' +
+        '                    "port": "port1"\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "source": {\n' +
+        '                "component": "3d1b7f34-be57-4c5c-b902-cd6411f67879", \n' +
+        '                "port": "port1"\n' +
+        '            }\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "id": "d600c466-91a5-4d53-900a-d9acdd43baf4", \n' +
+        '            "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '            "name": "flow_switch4_2-Mixer1", \n' +
+        '            "sinks": [\n' +
+        '                {\n' +
+        '                    "component": "605959bc-808a-46db-a838-0e3d77868fab", \n' +
+        '                    "port": "port1"\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "source": {\n' +
+        '                "component": "3d1b7f34-be57-4c5c-b902-cd6411f67879", \n' +
+        '                "port": "port3"\n' +
+        '            }\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "id": "c6d59b97-3404-4587-9370-bd36ccc3b680", \n' +
+        '            "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '            "name": "flow_switch4_2-Mixer2", \n' +
+        '            "sinks": [\n' +
+        '                {\n' +
+        '                    "component": "9397efb3-2884-4ce6-a1df-096811c23390", \n' +
+        '                    "port": "port1"\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "source": {\n' +
+        '                "component": "3d1b7f34-be57-4c5c-b902-cd6411f67879", \n' +
+        '                "port": "port0"\n' +
+        '            }\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "id": "f17688bc-1660-4c9f-9da6-6f22dd1c5985", \n' +
+        '            "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '            "name": "flow_switch4_4-flow_switch4_7", \n' +
+        '            "sinks": [\n' +
+        '                {\n' +
+        '                    "component": "ba1ab8a2-ad85-48ac-bfb2-b0c1ab53b97a", \n' +
+        '                    "port": "port2"\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "source": {\n' +
+        '                "component": "27dc1d70-8aab-4c71-bb3a-895aed1e89cc", \n' +
+        '                "port": "port0"\n' +
+        '            }\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "id": "998bf0cb-14ef-4a00-bb89-5fbaba3afffe", \n' +
+        '            "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '            "name": "flow_switch4_4-Mixer3", \n' +
+        '            "sinks": [\n' +
+        '                {\n' +
+        '                    "component": "5e0121f2-a861-48fa-bd1b-9841fe23e0f2", \n' +
+        '                    "port": "port0"\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "source": {\n' +
+        '                "component": "27dc1d70-8aab-4c71-bb3a-895aed1e89cc", \n' +
+        '                "port": "port2"\n' +
+        '            }\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "id": "4f11f993-c241-435d-9160-7b7235ba880b", \n' +
+        '            "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '            "name": "flow_switch4_4-Mixer4", \n' +
+        '            "sinks": [\n' +
+        '                {\n' +
+        '                    "component": "10d216d9-1564-47d1-bf13-c98dc9b5e65e", \n' +
+        '                    "port": "port1"\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "source": {\n' +
+        '                "component": "27dc1d70-8aab-4c71-bb3a-895aed1e89cc", \n' +
+        '                "port": "port3"\n' +
+        '            }\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "id": "b52feb9d-881f-4f02-8a13-beae560dfe41", \n' +
+        '            "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '            "name": "flow_switch4_5-flow_switch4_8", \n' +
+        '            "sinks": [\n' +
+        '                {\n' +
+        '                    "component": "5cbccf62-0509-47f3-b11e-cda4be7c275a", \n' +
+        '                    "port": "port3"\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "source": {\n' +
+        '                "component": "7750e447-f6d7-47bd-b635-0c9abfe671e8", \n' +
+        '                "port": "port2"\n' +
+        '            }\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "id": "29b37e16-0c83-406e-8fbf-1bca0f150bf6", \n' +
+        '            "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '            "name": "flow_switch4_5-Heater1", \n' +
+        '            "sinks": [\n' +
+        '                {\n' +
+        '                    "component": "ba3435cd-1c9b-42b1-ae49-0cd09fbeaa44", \n' +
+        '                    "port": "port0"\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "source": {\n' +
+        '                "component": "7750e447-f6d7-47bd-b635-0c9abfe671e8", \n' +
+        '                "port": "port3"\n' +
+        '            }\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "id": "feebd246-58eb-4afe-b142-aa1b68a49d07", \n' +
+        '            "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '            "name": "flow_switch4_5-Heater2", \n' +
+        '            "sinks": [\n' +
+        '                {\n' +
+        '                    "component": "df5f5be1-ae6d-4650-8e7a-47929867b17e", \n' +
+        '                    "port": "port0"\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "source": {\n' +
+        '                "component": "7750e447-f6d7-47bd-b635-0c9abfe671e8", \n' +
+        '                "port": "port0"\n' +
+        '            }\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "id": "746c88b3-5640-401d-96b4-f84fb9769524", \n' +
+        '            "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '            "name": "flow_switch4_7-flow_switch4_8", \n' +
+        '            "sinks": [\n' +
+        '                {\n' +
+        '                    "component": "5cbccf62-0509-47f3-b11e-cda4be7c275a", \n' +
+        '                    "port": "port2"\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "source": {\n' +
+        '                "component": "ba1ab8a2-ad85-48ac-bfb2-b0c1ab53b97a", \n' +
+        '                "port": "port1"\n' +
+        '            }\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "id": "547b0e65-5752-43a3-b7ee-86c5697d5c84", \n' +
+        '            "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '            "name": "flow_switch4_7-Heater3", \n' +
+        '            "sinks": [\n' +
+        '                {\n' +
+        '                    "component": "9053a293-8ab2-4a75-ab9d-5c95a7a91980", \n' +
+        '                    "port": "port0"\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "source": {\n' +
+        '                "component": "ba1ab8a2-ad85-48ac-bfb2-b0c1ab53b97a", \n' +
+        '                "port": "port3"\n' +
+        '            }\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "id": "8e53fe73-00d1-4dda-9cd8-3ee5b0e9fc8c", \n' +
+        '            "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '            "name": "flow_switch4_7-Heater4", \n' +
+        '            "sinks": [\n' +
+        '                {\n' +
+        '                    "component": "f6d95479-3122-4909-a056-33cc2601a45c", \n' +
+        '                    "port": "port0"\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "source": {\n' +
+        '                "component": "ba1ab8a2-ad85-48ac-bfb2-b0c1ab53b97a", \n' +
+        '                "port": "port0"\n' +
+        '            }\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "id": "f101048d-bc89-45e1-b1d2-3d652d1c0cd9", \n' +
+        '            "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '            "name": "flow_switch4_8-flow_switch4_9", \n' +
+        '            "sinks": [\n' +
+        '                {\n' +
+        '                    "component": "18470007-8678-4bab-8bcd-850871c71542", \n' +
+        '                    "port": "port1"\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "source": {\n' +
+        '                "component": "5cbccf62-0509-47f3-b11e-cda4be7c275a", \n' +
+        '                "port": "port0"\n' +
+        '            }\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "id": "38593bf0-034c-46ad-b601-e4b2e918858e", \n' +
+        '            "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '            "name": "flow_switch4_9-Filter1", \n' +
+        '            "sinks": [\n' +
+        '                {\n' +
+        '                    "component": "43f9c20d-a2e2-4eb1-a6b3-fe34de4e58e0", \n' +
+        '                    "port": "port1"\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "source": {\n' +
+        '                "component": "18470007-8678-4bab-8bcd-850871c71542", \n' +
+        '                "port": "port3"\n' +
+        '            }\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "id": "5a9bf474-d0b0-496a-965e-7758339d96b6", \n' +
+        '            "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '            "name": "flow_switch4_9-Filter2", \n' +
+        '            "sinks": [\n' +
+        '                {\n' +
+        '                    "component": "d98ba8c0-e9e9-4265-b0d9-def5ca90e6d1", \n' +
+        '                    "port": "port1"\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "source": {\n' +
+        '                "component": "18470007-8678-4bab-8bcd-850871c71542", \n' +
+        '                "port": "port0"\n' +
+        '            }\n' +
+        '        }, \n' +
+        '        {\n' +
+        '            "id": "68663961-3315-4915-8b13-e148d7210c8f", \n' +
+        '            "layer": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '            "name": "flow_switch4_9-Out1", \n' +
+        '            "sinks": [\n' +
+        '                {\n' +
+        '                    "component": "1fd596b1-a033-455a-a384-bf0fa1eda437", \n' +
+        '                    "port": "port0"\n' +
+        '                }\n' +
+        '            ], \n' +
+        '            "source": {\n' +
+        '                "component": "18470007-8678-4bab-8bcd-850871c71542", \n' +
+        '                "port": "port2"\n' +
+        '            }\n' +
+        '        }\n' +
+        '    ], \n' +
+        '    "layers": [\n' +
+        '        {\n' +
+        '            "id": "8a5a3c06-dff7-48fc-8242-0f8dcf35885e", \n' +
+        '            "name": "flow"\n' +
+        '        }\n' +
+        '    ], \n' +
+        '    "name": "Planar_Synthetic_1"\n' +
+        '}';
