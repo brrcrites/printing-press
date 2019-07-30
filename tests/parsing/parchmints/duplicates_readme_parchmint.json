@@ -1,0 +1,214 @@
+{
+    "name": "duplicates_readme_parchmint",
+    "layers": [
+        {
+            "id": "unique-flow-layer-id-string",
+            "name": "flow-layer"
+        },
+        {
+            "id": "unique-control-layer-id-string",
+            "name": "control-layer"
+        },
+        {
+            "id": "unique-flow-layer-id-string",
+            "name": "flow-layer"
+        }
+    ],
+    "components": [
+        {
+            "id": "unique-mixer-id-string",
+            "name": "mixer-001",
+            "layers": [
+                "unique-flow-layer-id-string",
+                "unique-control-layer-id-string"
+            ],
+            "x-span": 4500,
+            "y-span": 1500,
+            "entity": "rotary-mixer",
+            "ports": [
+                {
+                    "label": "input-port",
+                    "layer": "unique-flow-layer-id-string",
+                    "x": 0,
+                    "y": 750
+                },
+                {
+                    "label": "output-port",
+                    "layer": "unique-flow-layer-id-string",
+                    "x": 4500,
+                    "y": 750
+                },
+                {
+                    "label": "rotary-control-port",
+                    "layer": "unique-control-layer-id-string",
+                    "x": 2250,
+                    "y": 0
+                }
+            ]
+        },        {
+            "id": "unique-mixer-id-string",
+            "name": "mixer-001",
+            "layers": [
+                "unique-flow-layer-id-string",
+                "unique-control-layer-id-string"
+            ],
+            "x-span": 4500,
+            "y-span": 1500,
+            "entity": "rotary-mixer",
+            "ports": [
+                {
+                    "label": "input-port",
+                    "layer": "unique-flow-layer-id-string",
+                    "x": 0,
+                    "y": 750
+                },
+                {
+                    "label": "output-port",
+                    "layer": "unique-flow-layer-id-string",
+                    "x": 4500,
+                    "y": 750
+                },
+                {
+                    "label": "rotary-control-port",
+                    "layer": "unique-control-layer-id-string",
+                    "x": 2250,
+                    "y": 0
+                }
+            ]
+        },
+        {
+            "id": "unique-output-id-string",
+            "name": "output",
+            "layers": [
+                "unique-flow-layer-id-string"
+            ],
+            "x-span": 200,
+            "y-span": 200,
+            "entity": "output-component",
+            "ports": [
+                {
+                    "label": "io-port",
+                    "layer": "unique-flow-layer-id-string",
+                    "x": 0,
+                    "y": 100
+                }
+            ]
+        }
+    ],
+    "connections": [
+        {
+            "id": "unique-mixer-flow-connection-id",
+            "name": "mixer-flow-connection",
+            "layer": "unique-flow-layer-id-string",
+            "source": {
+                "component": "unique-mixer-id-string",
+                "port": "input-port"
+            },
+            "sinks": [
+                {
+                    "component": "unique-output-id-string",
+                    "port": "io-port"
+                }
+            ]
+        },
+        {
+            "id": "unique-mixer-flow-connection-id",
+            "name": "mixer-flow-connection",
+            "layer": "unique-flow-layer-id-string",
+            "source": {
+                "component": "unique-mixer-id-string",
+                "port": "input-port"
+            },
+            "sinks": [
+                {
+                    "component": "unique-output-id-string",
+                    "port": "io-port"
+                }
+            ]
+        }
+    ],
+    "features": [
+        {
+            "name": "mixer-001",
+            "id": "unique-mixer-id-string",
+            "layer": "unique-flow-layer-id-string",
+            "location": {
+                "x": 500,
+                "y": 2000
+            },
+            "x-span": 4500,
+            "y-span": 1500,
+            "depth": 10
+        },
+        {
+            "name": "output",
+            "id": "unique-output-id-string",
+            "layer": "unique-flow-layer-id-string",
+            "location": {
+                "x": 0,
+                "y": 0
+            },
+            "x-span": 200,
+            "y-span": 200,
+            "depth": 15
+        },
+        {
+            "name": "mixer-001",
+            "id": "unique-mixer-id-string",
+            "layer": "unique-flow-layer-id-string",
+            "location": {
+                "x": 500,
+                "y": 2000
+            },
+            "x-span": 4500,
+            "y-span": 1500,
+            "depth": 10
+        },
+        {
+            "name": "output",
+            "id": "unique-output-id-string",
+            "layer": "unique-flow-layer-id-string",
+            "location": {
+                "x": 0,
+                "y": 0
+            },
+            "x-span": 200,
+            "y-span": 200,
+            "depth": 15
+        },
+        {
+            "name": "mixer-flow-connection-segment-001",
+            "id": "unique-channel-segment-id",
+            "connection": "unique-mixer-flow-connection-id",
+            "layer": "unique-flow-layer-id-string",
+            "width": 5,
+            "depth": 10,
+            "source": {
+                "x": 500,
+                "y": 2750
+            },
+            "sink": {
+                "x": 50,
+                "y": 2750
+            },
+            "type": "channel"
+        },
+        {
+            "name": "mixer-flow-connection-segment-001",
+            "id": "unique-channel-segment-id",
+            "connection": "unique-mixer-flow-connection-id",
+            "layer": "unique-flow-layer-id-string",
+            "width": 5,
+            "depth": 10,
+            "source": {
+                "x": 500,
+                "y": 2750
+            },
+            "sink": {
+                "x": 50,
+                "y": 2750
+            },
+            "type": "channel"
+        }
+    ]
+}
