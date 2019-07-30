@@ -19,6 +19,37 @@ function parseJSONObj(str) {
     return JSON.parse('{' + str + '}');
 }
 
+describe('architecture', () => {
+    test('planar_synthetic_1', () => {
+        let pp = new ParchmintParser();
+        let arch = pp.parse(planar_synthetic_1);
+
+        expect(pp.valid).toBe(true);
+        expect(arch.name).toBe('Planar_Synthetic_1');
+        expect(arch.layers.length).toBe(1);
+    });
+
+    describe('set Parchmint text', () => {
+        test('constructor argument', () => {
+            let pp = new ParchmintParser(validParchmintArchBareBones);
+            let arch = pp.parse();
+
+            expect(pp.valid).toBe(true);
+            expect(arch.name).toBe('bare-bones-architecture-name');
+            expect(arch.layers).toEqual([]);
+        });
+
+        test('method argument', () => {
+            let pp = new ParchmintParser();
+            let arch = pp.parse(validParchmintArchBareBones);
+
+            expect(pp.valid).toBe(true);
+            expect(arch.name).toBe('bare-bones-architecture-name');
+            expect(arch.layers).toEqual([]);
+        });
+    });
+});
+
 describe('layers', () => {
     describe('valid', () => {
         test('no components/features', () => {
@@ -785,6 +816,11 @@ describe('terminals', () => {
 });
 
 //-- Begin Parchmint JSON strings --\\
+const validParchmintArchBareBones = '{' +
+        '"name": "bare-bones-architecture-name",' +
+        '"layers": []' +
+        '}';
+
 const validParchmintLayersNoCompConn = '"layers": [\n' +
         '    {\n' +
         '        "id": "unique-flow-layer-id-string",\n' +

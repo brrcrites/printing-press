@@ -1,4 +1,6 @@
+const Ajv = require('ajv');
 const Validation = require('../utils/validation.js');
+const Architecture = require('../model/architecture.js');
 const Layer = require('../model/layer.js');
 const Component = require('../model/component.js');
 const Connection = require('../model/connection.js');
@@ -7,6 +9,8 @@ const ConnectionSegment = require('../model/connection-segment.js');
 const Coord = require('../model/coord.js');
 const Port = require('../model/port.js');
 const Terminal = require('../model/terminal.js');
+
+const schema = require('./schema.json');
 
 
 class ParchmintParser {
@@ -46,6 +50,16 @@ class ParchmintParser {
      * @type {string}
      */
     parchmint;
+
+    /**
+     * The Architecture defined by the given Parchmint file.
+     *
+     * @since 1.0.0
+     * @access public
+     *
+     * @type {object}
+     */
+    architecture;
 
     /**
      * An array containing all of the Layers that have been parsed.
@@ -133,6 +147,49 @@ class ParchmintParser {
         this.connFeatures = new Map();
     }
 
+    /**
+     * Parses, builds, and validates the Architecture from the given Parchmint.
+     *
+     * Sets the parser invalid if the Architecture is invalid.
+     *
+     * @since 1.0.0
+     *
+     * @param {string}  parchmint   The text from a Parchmint file. If this
+     *                              parameter is left as its default, the
+     *                              parser's parchmint field will be used.
+     * @returns {Object}    An Architecture object representing this Parchmint
+     *                      file regardless of whether it is valid.
+     */
+    parse(parchmint=null) {
+        let jsonText = parchmint ? parchmint : this.parchmint;
+
+        // Schema validation will need to go in here somewhere.
+
+        let obj = JSON.parse(jsonText);
+
+        // The only required keys are "layers" and "name", so we need to check whether these keys exist before
+        // trying to parse them.
+        if (obj['features']) {
+            this.parseComponentFeatures(obj);
+        }
+        if (obj['components']) {
+            this.parseComponents(obj);
+        }
+        if (obj['features']) {
+            this.parseConnectionFeatures(obj);
+        }
+        if (obj['connections']) {
+            this.parseConnections(obj);
+        }
+
+        // We are guaranteed to always have a "layers" key
+        this.parseLayers(obj);
+
+        this.architecture = new Architecture(obj['name'], this.layers);
+        this.valid = this.architecture.validate() ? this.valid : false;
+
+        return this.architecture;
+    }
 
     /**
      * Parse a JSON object for the layers key.
@@ -199,7 +256,7 @@ class ParchmintParser {
                 this.layers.push(tempLayer);
             } else {
                 this.valid = false;
-                console.log('Parser: Duplicate IDs (' + layerID + ') found in the "layers" key. Skipping Layer' +
+                console.log('Parser: Duplicate IDs (' + layerID + ') found in the "layers" key. Skithising Layer' +
                         ' with name "' + value['name'] + '" at index ' + index + '.');
             }
         });
@@ -263,7 +320,7 @@ class ParchmintParser {
                 });
             } else {
                 this.valid = false;
-                console.log('Parser: Duplicate ID (' + compValue['id'] + ') found in "components" key. Skipping' +
+                console.log('Parser: Duplicate ID (' + compValue['id'] + ') found in "components" key. Skithising' +
                         ' Component with name ' + compValue['name'] + ' at index ' + index + '.');
             }
         });
@@ -285,7 +342,7 @@ class ParchmintParser {
         jsonObj['connections'].forEach((connValue, index) => {
             if (!this.isUniqueID(connValue['id'])) {
                 this.valid = false;
-                console.log('Parser: Duplicate ID (' + connValue['id'] + ') found in "connections" key. Skipping' +
+                console.log('Parser: Duplicate ID (' + connValue['id'] + ') found in "connections" key. Skithising' +
                         ' Connection with name ' + connValue['name'] + ' at index ' + index + '.');
             } else {
                 let tempConn = new Connection(connValue['name'], connValue['id'],
@@ -328,7 +385,7 @@ class ParchmintParser {
                 if (this.compFeatures.has(key)) {
                     this.valid = false;
                     console.log('Parser: Duplicate IDs (' + value['id'] + ') exist on the same Layer (' + value['layer']
-                           + ') for the Component Features list. Skipping Component Feature with name "' + value['name']
+                           + ') for the Component Features list. Skithising Component Feature with name "' + value['name']
                            + '" at index ' + index + '.');
                 } else {
                     this.compFeatures.set(key, new ComponentFeature(value['name'], value['layer'], value['x-span'],
@@ -370,7 +427,7 @@ class ParchmintParser {
                 } else {
                     this.valid = false;
                     console.log('Parser: Duplicate IDs (' + value['id'] + ') exist for the Connection Features list.' +
-                            ' Skipping Connection Feature with name "' + value['name'] + '" at index ' + index + '.');
+                            ' Skithising Connection Feature with name "' + value['name'] + '" at index ' + index + '.');
                 }
             }
         });
