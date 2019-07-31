@@ -1,4 +1,3 @@
-const Ajv = require('ajv');
 const Validation = require('../utils/validation.js');
 const Architecture = require('../model/architecture.js');
 const Layer = require('../model/layer.js');
@@ -10,10 +9,24 @@ const Coord = require('../model/coord.js');
 const Port = require('../model/port.js');
 const Terminal = require('../model/terminal.js');
 
+const Ajv = require('ajv');
 const schema = require('./schema.json');
+var ajv = new Ajv({allErrors: true});
 
 
 class ParchmintParser {
+
+    /**
+     * The compiled JSON schema validator.
+     *
+     * @see Ajv
+     *
+     * @since 1.0.0
+     * @access public
+     *
+     * type {object}
+     */
+    schemaValidator;
 
     /**
      * Whether the Parchmint was valid.
@@ -42,12 +55,14 @@ class ParchmintParser {
     idSet;
 
     /**
-     * The ParchMint file text.
+     * The ParchMint file.
+     *
+     * The file can be represented by either a string of JSON text or an object.
      *
      * @since 1.0.0
      * @access public
      *
-     * @type {string}
+     * @type {string|object}
      */
     parchmint;
 
@@ -132,7 +147,10 @@ class ParchmintParser {
      *
      * @since 1.0.0
      *
-     * @param {string} parchmint
+     * @param {string|object}   parchmint   A Parchmint file. If the parameter
+     *                                      is of type string, it will be parsed
+     *                                      by {@link JSON.parse} before
+     *                                      continuing.
      */
     constructor(parchmint = Validation.DEFAULT_STR_VALUE) {
         this.parchmint = parchmint;
@@ -140,11 +158,14 @@ class ParchmintParser {
         this.valid = true;
         this.idSet = new Set();
 
+        this.architecture = null;
         this.layers = [];
         this.components = new Map();
         this.connections = new Map();
         this.compFeatures = new Map();
         this.connFeatures = new Map();
+
+        this.schemaValidator = ajv.compile(schema);
     }
 
     /**
@@ -154,18 +175,35 @@ class ParchmintParser {
      *
      * @since 1.0.0
      *
-     * @param {string}  parchmint   The text from a Parchmint file. If this
-     *                              parameter is left as its default, the
-     *                              parser's parchmint field will be used.
+     * @param {string|object}   parchmint   A Parchmint file. If the parameter
+     *                                      is of type string, it will be parsed
+     *                                      by {@link JSON.parse} before
+     *                                      continuing. If this parameter if
+     *                                      left as its default, the parser's
+     *                                      parchmint field will be used.
      * @returns {Object}    An Architecture object representing this Parchmint
-     *                      file regardless of whether it is valid.
+     *                      file, or null if the Parchmint itself is invalid.
      */
     parse(parchmint=null) {
-        let jsonText = parchmint ? parchmint : this.parchmint;
+        let file = parchmint ? parchmint : this.parchmint;
+        let obj;
 
-        // Schema validation will need to go in here somewhere.
+        if (typeof file === 'string') {
+            obj = JSON.parse(file);
+        } else if (typeof file === 'object') {
+            obj = file;
+        } else {
+            this.valid = false;
+            console.log('Parser (FATAL ERROR): Parchmint file was not represented as a string, nor an' +
+                    ' object.\nAborting.');
+            return null;
+        }
 
-        let obj = JSON.parse(jsonText);
+        if (!this.schemaValidator(obj)) {
+            this.valid = false;
+            console.log('Parser (FATAL ERROR): ' + ajv.errorsText(this.schemaValidator.errors) + '\nAborting.');
+            return null;
+        }
 
         // The only required keys are "layers" and "name", so we need to check whether these keys exist before
         // trying to parse them.
@@ -256,7 +294,7 @@ class ParchmintParser {
                 this.layers.push(tempLayer);
             } else {
                 this.valid = false;
-                console.log('Parser: Duplicate IDs (' + layerID + ') found in the "layers" key. Skithising Layer' +
+                console.log('Parser: Duplicate IDs (' + layerID + ') found in the "layers" key. Skipping Layer' +
                         ' with name "' + value['name'] + '" at index ' + index + '.');
             }
         });
@@ -320,7 +358,7 @@ class ParchmintParser {
                 });
             } else {
                 this.valid = false;
-                console.log('Parser: Duplicate ID (' + compValue['id'] + ') found in "components" key. Skithising' +
+                console.log('Parser: Duplicate ID (' + compValue['id'] + ') found in "components" key. Skipping' +
                         ' Component with name ' + compValue['name'] + ' at index ' + index + '.');
             }
         });
@@ -342,7 +380,7 @@ class ParchmintParser {
         jsonObj['connections'].forEach((connValue, index) => {
             if (!this.isUniqueID(connValue['id'])) {
                 this.valid = false;
-                console.log('Parser: Duplicate ID (' + connValue['id'] + ') found in "connections" key. Skithising' +
+                console.log('Parser: Duplicate ID (' + connValue['id'] + ') found in "connections" key. Skipping' +
                         ' Connection with name ' + connValue['name'] + ' at index ' + index + '.');
             } else {
                 let tempConn = new Connection(connValue['name'], connValue['id'],
@@ -385,7 +423,7 @@ class ParchmintParser {
                 if (this.compFeatures.has(key)) {
                     this.valid = false;
                     console.log('Parser: Duplicate IDs (' + value['id'] + ') exist on the same Layer (' + value['layer']
-                           + ') for the Component Features list. Skithising Component Feature with name "' + value['name']
+                           + ') for the Component Features list. Skipping Component Feature with name "' + value['name']
                            + '" at index ' + index + '.');
                 } else {
                     this.compFeatures.set(key, new ComponentFeature(value['name'], value['layer'], value['x-span'],
@@ -427,7 +465,7 @@ class ParchmintParser {
                 } else {
                     this.valid = false;
                     console.log('Parser: Duplicate IDs (' + value['id'] + ') exist for the Connection Features list.' +
-                            ' Skithising Connection Feature with name "' + value['name'] + '" at index ' + index + '.');
+                            ' Skipping Connection Feature with name "' + value['name'] + '" at index ' + index + '.');
                 }
             }
         });
@@ -594,6 +632,28 @@ class ParchmintParser {
 
         this.idSet.add(id);
         return true;
+    }
+
+    /**
+     * Clear all data from the parser.
+     *
+     * Reset the parser to its beginning state. This method does not reallocate
+     * anything except the layers array.
+     *
+     * @since 1.0.0
+     */
+    clear() {
+        this.parchmint = Validation.DEFAULT_STR_VALUE;
+
+        this.valid = true;
+        this.idSet.clear();
+
+        this.architecture = null;
+        this.layers = [];
+        this.components.clear();
+        this.connections.clear();
+        this.compFeatures.clear();
+        this.connFeatures.clear();
     }
 }
 

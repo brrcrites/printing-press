@@ -19,24 +19,15 @@ function parseJSONObj(str) {
     return JSON.parse('{' + str + '}');
 }
 
-describe('architecture', () => {
-    test('planar_synthetic_1', () => {
-        let pp = new ParchmintParser();
-        let arch = pp.parse(planar_synthetic_1);
-
-        expect(pp.valid).toBe(true);
-        expect(arch.name).toBe('Planar_Synthetic_1');
-        expect(arch.layers.length).toBe(1);
-    });
-
+describe('initialization', () => {
     describe('set Parchmint text', () => {
-        test('constructor argument', () => {
+        test('constructor', () => {
             let pp = new ParchmintParser(validParchmintArchBareBones);
             let arch = pp.parse();
 
             expect(pp.valid).toBe(true);
             expect(arch.name).toBe('bare-bones-architecture-name');
-            expect(arch.layers).toEqual([]);
+            expect(arch.layers.length).toBe(1);
         });
 
         test('method argument', () => {
@@ -45,7 +36,106 @@ describe('architecture', () => {
 
             expect(pp.valid).toBe(true);
             expect(arch.name).toBe('bare-bones-architecture-name');
-            expect(arch.layers).toEqual([]);
+            expect(arch.layers.length).toBe(1);
+        });
+    });
+});
+
+describe('field access', () => {
+    test('architecture', () => {
+        let pp = new ParchmintParser(readme_parchmint);
+        pp.parse();
+
+        expect(pp.valid).toBe(true);
+        expect(pp.architecture).toBeTruthy();
+        expect(pp.architecture.layers.length).toBe(2);
+    });
+
+    test('valid', () => {
+        let pp = new ParchmintParser(readme_parchmint);
+        pp.parse();
+
+        expect(pp.valid).toBe(true);
+    });
+
+    test('parchmint', () => {
+        let pp = new ParchmintParser(readme_parchmint);
+
+        expect(pp.parchmint).toEqual(readme_parchmint);
+    });
+});
+
+describe('clear method', () => {
+    test('fields', () => {
+        let pp = new ParchmintParser(readme_parchmint);
+        pp.parse();
+
+        // We have to set valid false directly because I was silly and chose to use a valid parchmint
+        pp.valid = false;
+
+        // Let's first just verify that we have data in all the fields
+        expect(pp.parchmint).not.toBe(Validation.DEFAULT_STR_VALUE);
+        expect(pp.architecture).toBeTruthy();
+        expect(pp.layers.length).toBeGreaterThan(0);
+        expect(pp.components.size).toBeGreaterThan(0);
+        expect(pp.connections.size).toBeGreaterThan(0);
+        expect(pp.compFeatures.size).toBeGreaterThan(0);
+        expect(pp.connFeatures.size).toBeGreaterThan(0);
+        expect(pp.idSet.size).toBeGreaterThan(0);
+        expect(pp.valid).toBe(false);
+
+        // Because we aren't changing schemas, this should always be truthy, even after clearing.
+        expect(pp.schemaValidator).toBeTruthy();
+
+        pp.clear();
+
+        // Now lets verify that all that data is gone
+        expect(pp.parchmint).toBe(Validation.DEFAULT_STR_VALUE);
+        expect(pp.architecture).toBeFalsy();
+        expect(pp.layers.length).toBe(0);
+        expect(pp.components.size).toBe(0);
+        expect(pp.connections.size).toBe(0);
+        expect(pp.compFeatures.size).toBe(0);
+        expect(pp.connFeatures.size).toBe(0);
+        expect(pp.idSet.size).toBe(0);
+        expect(pp.valid).toBe(true);
+
+        expect(pp.schemaValidator).toBeTruthy();
+    });
+
+    test('parse a different Parchmint', () => {
+        let pp = new ParchmintParser(duplicates_readme_parchmint);
+        pp.parse();
+
+        expect(pp.valid).toBe(false);
+
+        pp.clear();
+        pp.parse(readme_parchmint);
+
+        expect(pp.valid).toBe(true);
+    });
+});
+
+describe('architecture', () => {
+    describe('benchmarks', () => {
+        test('planar synthetic 1', () => {
+            let pp = new ParchmintParser();
+            let arch = pp.parse(planar_synthetic_1);
+
+            expect(pp.valid).toBe(true);
+            expect(arch.name).toBe('Planar_Synthetic_1');
+            expect(arch.layers.length).toBe(1);
+        });
+
+        test('readme parchmint', () => {
+            let pp = new ParchmintParser(readme_parchmint);
+            let arch = pp.parse();
+
+            expect(pp.valid).toBe(true);
+            expect(arch.name).toBe('readme_parchmint');
+            expect(arch.layers.length).toBe(2);
+            expect(arch.layers[0].id).toBe(flowLayerID);
+            expect(arch.layers[1].id).toBe(controlLayerID);
         });
     });
 });
@@ -815,11 +905,133 @@ describe('terminals', () => {
     });
 });
 
+describe('schema validation', () => {
+    describe('valid', () => {
+        test('required keys (name, layers)', () => {
+            let pp = new ParchmintParser(validParchmintArchBareBones);
+            pp.parse();
+
+            expect(pp.valid).toBe(true);
+        });
+
+        describe('required and', () => {
+            test('components', () => {
+                let pp = new ParchmintParser(validParchmintArchWithComponents);
+                pp.parse();
+
+                expect(pp.valid).toBe(true);
+            });
+
+            test('connections', () => {
+                let pp = new ParchmintParser();
+                let valid = pp.schemaValidator(JSON.parse(validParchmintArchWithConnections));
+
+                // The schema can validate and say this is fine
+                expect(valid).toBe(true);
+
+                pp.parse(validParchmintArchWithConnections);
+                // But actually parsing only connections causes problems
+                expect(pp.valid).toBe(false);
+            });
+
+            test('all keys', () => {
+                let pp = new ParchmintParser(readme_parchmint);
+                pp.parse();
+
+                expect(pp.valid).toBe(true);
+            });
+        });
+    });
+});
+
 //-- Begin Parchmint JSON strings --\\
+const readme_parchmint = require('./parchmints/readme_parchmint.json');
+const duplicates_readme_parchmint = require('./parchmints/duplicates_readme_parchmint.json');
+
 const validParchmintArchBareBones = '{' +
-        '"name": "bare-bones-architecture-name",' +
-        '"layers": []' +
+        '"name": "bare-bones-architecture-name",\n' +
+        '"layers": [{\n' +
+        '   "name": "layer",\n' +
+        '   "id":   "layer-id"\n' +
+        '}]\n' +
         '}';
+
+const validParchmintArchWithComponents = '{\n' +
+        '"name": "bare-bones-architecture-name",\n' +
+        '"layers": [\n' +
+        '   {\n' +
+        '       "name": "flow-layer",\n' +
+        '       "id":   "unique-flow-layer-id-string"\n' +
+        '   },\n' +
+        '   {\n' +
+        '       "name": "control-layer",\n' +
+        '       "id":   "unique-control-layer-id-string"\n' +
+        '   }\n' +
+        '],\n' +
+        '"components": [\n' +
+        '    {\n' +
+        '        "id": "unique-mixer-id-string",\n' +
+        '        "name": "mixer-001",\n' +
+        '        "layers": [\n' +
+        '            "unique-flow-layer-id-string",\n' +
+        '            "unique-control-layer-id-string"\n' +
+        '        ],\n' +
+        '        "x-span": 4500,\n' +
+        '        "y-span": 1500,\n' +
+        '        "entity": "rotary-mixer",\n' +
+        '        "ports": [\n' +
+        '            {\n' +
+        '                "label": "input-port",\n' +
+        '                "layer": "unique-flow-layer-id-string",\n' +
+        '                "x": 0,\n' +
+        '                "y": 750\n' +
+        '            },\n' +
+        '            {\n' +
+        '                "label": "output-port",\n' +
+        '                "layer": "unique-flow-layer-id-string",\n' +
+        '                "x": 4500,\n' +
+        '                "y": 750\n' +
+        '            },\n' +
+        '            {\n' +
+        '                "label": "rotary-control-port",\n' +
+        '                "layer": "unique-control-layer-id-string",\n' +
+        '                "x": 2250,\n' +
+        '                "y": 0\n' +
+        '            }\n' +
+        '        ]\n' +
+        '    }\n' +
+        ']\n' +
+        '}';
+
+const validParchmintArchWithConnections = '{\n' +
+        '"name": "bare-bones-architecture-name",\n' +
+        '"layers": [\n' +
+        '   {\n' +
+        '       "name": "flow-layer",\n' +
+        '       "id":   "unique-flow-layer-id-string"\n' +
+        '   },\n' +
+        '   {\n' +
+        '       "name": "control-layer",\n' +
+        '       "id":   "unique-control-layer-id-string"\n' +
+        '   }\n' +
+        '],\n' +
+        '"connections": [\n' +
+        '    {\n' +
+        '        "id": "unique-mixer-flow-connection-id",\n' +
+        '        "name": "mixer-flow-connection",\n' +
+        '        "layer": "unique-flow-layer-id-string",\n' +
+        '        "source": {\n' +
+        '            "component": "unique-mixer-id-string",\n' +
+        '            "port": "output-port"\n' +
+        '        },\n' +
+        '        "sinks": [\n' +
+        '            {\n' +
+        '               "component": "unique-mixer-id-string",\n' +
+        '               "port": "input-port"\n' +
+        '            }\n' +
+        '        ]\n' +
+        '    }\n' +
+        ']}';
 
 const validParchmintLayersNoCompConn = '"layers": [\n' +
         '    {\n' +
@@ -1599,6 +1811,7 @@ const invalidPortTerminal = '"terminal": {\n' +
         '                "port": "io-port"\n' +
         '            }';
 
+//-- Complete Parchmints --\\
 const planar_synthetic_1 = '{\n' +
         '    "components": [\n' +
         '        {\n' +
