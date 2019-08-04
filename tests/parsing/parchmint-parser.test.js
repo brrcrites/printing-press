@@ -1378,4 +1378,3 @@ const invalidPortTerminal = '"terminal": {\n' +
         '                "component": "unique-mixer-id-string",\n' +
         '                "port": "io-port"\n' +
         '            }';
-
