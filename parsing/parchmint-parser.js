@@ -484,6 +484,18 @@ class ParchmintParser {
     }
 
     /**
+     * Parse a single Port object from the given JSON object.
+     *
+     * @since 1.0.0
+     *
+     * @param {object}  portObj A JSON object with fields layer, label, x, and y.
+     * @returns {Port}  The resulting Port object.
+     */
+    static parsePort(portObj) {
+        return new Port(portObj['label'], this.parseCoord(portObj));
+    }
+
+    /**
      * Parse Ports from the given JSON array.
      *
      * Checks uniqueness of labels within the given port array and sets the
