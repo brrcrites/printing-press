@@ -3,24 +3,25 @@
 
 <head>
     <link rel="stylesheet" href="styles.css">
+    <body>
+        <center>
+        <div id="drop_zone">
+            <p>Drag one or more files to this Drop Zone ...</p>
+        </div>
+        </center>
+    </body>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="load.js"></script>
-    <script src="parse.js"></script>
+    <script src="bundle.js"></script>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-130188221-1"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'UA-130188221-1');
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-130188221-1');
     </script>
 </head>
 
-<center>
-<div id="drop_zone" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
-    <p>Drag one or more files to this Drop Zone ...</p>
-</div>
-</center>
 
 <center>
     <div id="svg_image"></div>
