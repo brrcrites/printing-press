@@ -428,7 +428,7 @@ describe('connection-features', () => {
 describe('ports', () => {
     describe('parsing', () => {
         test('single', () => {
-            let p = ParchmintParser.parsePort(parseJSONObj(validSinglePort).port);
+            let p = ParchmintParser.getParsedPort(parseJSONObj(validSinglePort).port);
 
             expect(p.label).toBe('input-port');
             expect(p.pos).toEqual(new Coord(0, 750));
@@ -436,7 +436,7 @@ describe('ports', () => {
 
         test('array', () => {
             let pp = new ParchmintParser();
-            let ports = pp.parsePorts(parseJSONObj(validPorts).ports);
+            let ports = pp.getParsedPorts(parseJSONObj(validPorts).ports);
             let flow, control;
 
             expect(pp.valid).toBe(true);
@@ -459,7 +459,7 @@ describe('ports', () => {
 
         test('duplicate labels', () => {
             let pp = new ParchmintParser();
-            let ports = pp.parsePorts(parseJSONObj(duplicateLabelPorts).ports);
+            let ports = pp.getParsedPorts(parseJSONObj(duplicateLabelPorts).ports);
             let flow, control;
 
             expect(pp.valid).toBe(false);
@@ -491,7 +491,7 @@ describe('terminals', () => {
 
             pp.parseComponentFeatures(parseJSONObj(parch));
             pp.parseComponents(parseJSONObj(parch));
-            term = pp.parseTerminal(parseJSONObj(parch).terminal, flowLayerID);
+            term = pp.getParsedTerminal(parseJSONObj(parch).terminal, flowLayerID);
             comp = pp.components.get(flowLayerID)[0];
 
             expect(pp.valid).toBe(true);
@@ -509,7 +509,7 @@ describe('terminals', () => {
                 let terms, comp;
                 pp.parseComponentFeatures(parseJSONObj(parch));
                 pp.parseComponents(parseJSONObj(parch));
-                terms = pp.parseTerminals(parseJSONObj(parch).terminals, flowLayerID);
+                terms = pp.getParsedTerminals(parseJSONObj(parch).terminals, flowLayerID);
                 comp = pp.components.get(flowLayerID)[0];
 
                 expect(pp.valid).toBe(true);
@@ -534,7 +534,7 @@ describe('terminals', () => {
 
                 pp.parseComponentFeatures(parseJSONObj(parch));
                 pp.parseComponents(parseJSONObj(parch));
-                terms = pp.parseTerminals(parseJSONObj(parch).terminals, flowLayerID);
+                terms = pp.getParsedTerminals(parseJSONObj(parch).terminals, flowLayerID);
                 comps = pp.components.get(flowLayerID);
 
                 expect(pp.valid).toBe(true);
@@ -562,7 +562,7 @@ describe('terminals', () => {
 
             pp.parseComponentFeatures(parseJSONObj(parch));
             pp.parseComponents(parseJSONObj(parch));
-            term = pp.parseTerminal(parseJSONObj(parch).terminal, flowLayerID);
+            term = pp.getParsedTerminal(parseJSONObj(parch).terminal, flowLayerID);
 
             expect(pp.valid).toBe(false);
             expect(term.component).toBeFalsy();
@@ -577,7 +577,7 @@ describe('terminals', () => {
 
             pp.parseComponentFeatures(parseJSONObj(parch));
             pp.parseComponents(parseJSONObj(parch));
-            term = pp.parseTerminal(parseJSONObj(parch).terminal, flowLayerID);
+            term = pp.getParsedTerminal(parseJSONObj(parch).terminal, flowLayerID);
 
             expect(pp.valid).toBe(false);
             expect(term.component).toBeTruthy();

@@ -156,7 +156,7 @@ class ParchmintParser {
     parseComponents(jsonObj) {
         jsonObj['components'].forEach((compValue, index) => {
             // First get the port list for this Component
-            let ports = this.parsePorts(compValue['ports']);
+            let ports = this.getParsedPorts(compValue['ports']);
 
             // Next check whether this ID of this Component is a duplicate
             if (this.idSet.has(compValue['id'])) {
@@ -168,8 +168,7 @@ class ParchmintParser {
 
                 // Finally add this component to each Layer it exists on with only the ports on that Layer
                 compValue['layers'].forEach(layerValue => {
-                    let tempComp = new Component(compValue['name'], compValue['id'], compValue['x-span'], compValue['y-span'],
-                            compValue['entity'], ports.get(layerValue));
+                    let tempComp = ParchmintParser.getParsedComponent(compValue, ports.get(layerValue));
                     let tempFeat = this.compFeatures.get(compValue['id'] + '_' + layerValue);
 
                     // Component Features are not required, so only add it if we have one, otherwise leave it as the
@@ -186,6 +185,23 @@ class ParchmintParser {
                 });
             }
         });
+    }
+
+    /**
+     * Parse a Component from the given JSON object.
+     *
+     * No error checking is done to verify whether the fields exist in the
+     * compFeatObj.
+     *
+     * @param {object}  compObj     An object with the fields name, id,
+     *                              x-span, y-span, and entity.
+     * @param {Array}   ports       The list of ports this Component
+     *                              references in the form of a map.
+     * @returns {Component} The resulting Component object.
+     */
+    static getParsedComponent(compObj, ports) {
+        return new Component(compObj['name'], compObj['id'], compObj['x-span'], compObj['y-span'],
+                compObj['entity'], ports);
     }
 
     /**
@@ -211,11 +227,25 @@ class ParchmintParser {
                            + ') for the Component Features list. Skipping Component Feature with name "' + value['name']
                            + '" at index ' + index + '.');
                 } else {
-                    this.compFeatures.set(key, new ComponentFeature(value['name'], value['layer'], value['x-span'],
-                           value['y-span'], ParchmintParser.parseCoord(value['location']), value['depth']));
+                    this.compFeatures.set(key, ParchmintParser.getParsedComponentFeature(value));
                 }
             }
         });
+    }
+
+    /**
+     * Parse a Component Feature from the given JSON object.
+     *
+     * No error checking is done to verify whether the fields exist in the
+     * compFeatObj.
+     *
+     * @param {object}  compFeatObj An object with the fields name, layer,
+     *                              x-span, y-span, location, and depth.
+     * @returns {ComponentFeature}  The resulting ComponentFeature object.
+     */
+    static getParsedComponentFeature(compFeatObj) {
+        return new ComponentFeature(compFeatObj['name'], compFeatObj['layer'], compFeatObj['x-span'],
+                compFeatObj['y-span'], ParchmintParser.getParsedCoord(compFeatObj['location']), compFeatObj['depth']);
     }
 
     /**
@@ -240,8 +270,7 @@ class ParchmintParser {
                 // Next check that the ID of this segment is unique
                 if (this.isUniqueID(value['id'])) {
                     // Finally add the Connection Feature to the map
-                    let tempFeat = new ConnectionSegment(value['name'], value['id'], value['width'], value['depth'],
-                            ParchmintParser.parseCoord(value['source']), ParchmintParser.parseCoord(value['sink']));
+                    let tempFeat = ParchmintParser.getParsedConnectionFeature(value);
                     if (this.connFeatures.has(value['connection'])) {
                         this.connFeatures.get(value['connection']).push(tempFeat);
                     } else {
@@ -257,6 +286,23 @@ class ParchmintParser {
     }
 
     /**
+     * Parse a Connection Feature from the given JSON object.
+     *
+     * No error checking is done to verify whether the fields exist in the
+     * connFeatObj.
+     *
+     * @param {object}  connFeatObj An object with fields name, id, width, depth
+     *                              source, and sink.
+     *
+     * @returns {ConnectionSegment} The resulting ConnectionSegment object.
+     */
+    static getParsedConnectionFeature(connFeatObj) {
+        return new ConnectionSegment(connFeatObj['name'], connFeatObj['id'], connFeatObj['width'], connFeatObj['depth'],
+                ParchmintParser.getParsedCoord(connFeatObj['source']),
+                ParchmintParser.getParsedCoord(connFeatObj['sink']));
+    }
+
+    /**
      * Parse a Coord object from the given JSON object.
      *
      * @since 1.0.0
@@ -264,7 +310,7 @@ class ParchmintParser {
      * @param {object}  coordObj    A JSON object with field x and y.
      * @returns {Coord} The resulting Coord object.
      */
-    static parseCoord(coordObj) {
+    static getParsedCoord(coordObj) {
         return new Coord(coordObj['x'], coordObj['y']);
     }
 
@@ -276,8 +322,8 @@ class ParchmintParser {
      * @param {object}  portObj A JSON object with fields layer, label, x, and y.
      * @returns {Port}  The resulting Port object.
      */
-    static parsePort(portObj) {
-        return new Port(portObj['label'], this.parseCoord(portObj));
+    static getParsedPort(portObj) {
+        return new Port(portObj['label'], this.getParsedCoord(portObj));
     }
 
     /**
@@ -288,14 +334,14 @@ class ParchmintParser {
      *
      * @since 1.0.0
      *
-     * @see parsePort
+     * @see getParsedPort
      *
      * @param {Array}  portsArr    A JSON array with Port fields.
      * @returns {Map<string, Array>} A map containing all ports that have been
      * parsed. The key is the ID of the layer on which the Port exists. The
      * value is an Array of Port objects that exist on that layer.
      */
-    parsePorts(portsArr) {
+    getParsedPorts(portsArr) {
         let portMap = new Map();
         let idSet = new Set();
 
@@ -310,9 +356,9 @@ class ParchmintParser {
 
             // Parse port
             if (!portMap.has(value['layer'])) {
-                portMap.set(value['layer'], [ParchmintParser.parsePort(value)]);
+                portMap.set(value['layer'], [ParchmintParser.getParsedPort(value)]);
             } else {
-                portMap.get(value['layer']).push(ParchmintParser.parsePort(value));
+                portMap.get(value['layer']).push(ParchmintParser.getParsedPort(value));
             }
         });
 
@@ -335,7 +381,7 @@ class ParchmintParser {
      *                      they could both be found, or a default Terminal
      *                      object otherwise.
      */
-    parseTerminal(termObj, layer) {
+    getParsedTerminal(termObj, layer) {
         let comp = null;
 
         // First let's find the Component we need
@@ -372,7 +418,7 @@ class ParchmintParser {
      *
      * @since 1.0.0
      *
-     * @see parseTerminal
+     * @see getParsedTerminal
      *
      * @param {Array}   termArr An array of JSON objects with the fields
      *                          "component" and "port".
@@ -381,11 +427,11 @@ class ParchmintParser {
      * @returns {Array} An array of Terminal objects as parsed by the
      *                  parseTerminal method.
      */
-    parseTerminals(termArr, layer) {
+    getParsedTerminals(termArr, layer) {
         let terms = [];
 
         termArr.forEach(value => {
-            terms.push(this.parseTerminal(value, layer));
+            terms.push(this.getParsedTerminal(value, layer));
         });
 
         return terms;
