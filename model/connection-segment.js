@@ -76,6 +76,9 @@ class ConnectionSegment extends ParchKey {
      *
      * @since 1.0.0
      *
+     * @param {string}  name        A human readable name of this channel
+     *                              segment.
+     * @param {string}  id          A unique ID string.
      * @param {number}  width       The width of the channel tangentially to
      *                              its direction of travel.
      * @param {number}  depth       The depth of the channel.
