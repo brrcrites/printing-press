@@ -239,16 +239,7 @@ class ParchmintParser {
                 console.log('Parser: Duplicate ID (' + connValue['id'] + ') found in "connections" key. Skipping' +
                         ' Connection with name ' + connValue['name'] + ' at index ' + index + '.');
             } else {
-                let tempConn = new Connection(connValue['name'], connValue['id'],
-                        this.getParsedTerminal(connValue['source'], connValue['layer']),
-                        this.getParsedTerminals(connValue['sinks'], connValue['layer']));
-                let tempFeat = this.connFeatures.get(connValue['layer']);
-
-                // Connection Features are not required, so we only add them to the Connection if we parsed some,
-                // otherwise we'll leave it null.
-                if (tempFeat) {
-                    tempConn.segments = tempFeat;
-                }
+                let tempConn = this.getParsedConnection(connValue);
 
                 if (this.connections.has(connValue['layer'])) {
                     this.connections.get(connValue['layer']).push(tempConn);
@@ -257,6 +248,30 @@ class ParchmintParser {
                 }
             }
         });
+    }
+
+    /**
+     * Parse a Connection from the given JSON object.
+     *
+     * No error checking is  done to verify whether the fields exist in the
+     * connObj.
+     *
+     * @param {object}  connObj An object with the fields name, id, source,
+     *                          layer, and sinks.
+     * @returns {Connection}    The resulting Connection object.
+     */
+    getParsedConnection(connObj) {
+        let ret = new Connection(connObj['name'], connObj['id'], this.getParsedTerminal(connObj['source'],
+                connObj['layer']), this.getParsedTerminals(connObj['sinks'], connObj['layer']));
+        let feature = this.connFeatures.get(connObj['layer']);
+
+        // Connection Features are not required, so we only add them to the Connection if we parsed some,
+        // otherwise we'll leave it null.
+        if (feature) {
+            ret.segments = feature;
+        }
+
+        return ret;
     }
 
     /**
