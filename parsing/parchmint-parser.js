@@ -341,6 +341,7 @@ class ParchmintParser {
     }
 
     /**
+>>>>>>> master
      * Parse a Connection Feature from the given JSON object.
      *
      * No error checking is done to verify whether the fields exist in the
@@ -418,18 +419,6 @@ class ParchmintParser {
         });
 
         return portMap;
-    }
-
-    /**
-     * Parse a single Port object from the given JSON object.
-     *
-     * @since 1.0.0
-     *
-     * @param {object}  portObj A JSON object with fields layer, label, x, and y.
-     * @returns {Port}  The resulting Port object.
-     */
-    static parsePort(portObj) {
-        return new Port(portObj.label, this.parseCoord(portObj));
     }
 
     /**
