@@ -177,7 +177,7 @@ class ParchmintParser {
             // Next check whether this ID of this Component is a duplicate
             if (this.idSet.has(compValue['id'])) {
                 this.valid = false;
-                console.log('Parser: Duplicate ID (' + compValue['id'] + ') found in "components" key. Skipping' +
+                console.log('Parser: Duplicate ID (' + compValue['id'] + ') found in Components array. Skipping' +
                         ' Component with name ' + compValue['name'] + ' at index ' + index + '.');
             } else {
                 this.idSet.add(compValue['id']);
@@ -193,11 +193,7 @@ class ParchmintParser {
                         tempComp.feature = tempFeat;
                     }
 
-                    if (this.components.has(layerValue)) {
-                        this.components.get(layerValue).push(tempComp);
-                    } else {
-                        this.components.set(layerValue, [tempComp]);
-                    }
+                    ParchmintParser.addToMap(this.components, layerValue, tempComp);
                 });
             }
         });
@@ -236,16 +232,10 @@ class ParchmintParser {
         jsonObj['connections'].forEach((connValue, index) => {
             if (!this.isUniqueID(connValue['id'])) {
                 this.valid = false;
-                console.log('Parser: Duplicate ID (' + connValue['id'] + ') found in "connections" key. Skipping' +
+                console.log('Parser: Duplicate ID (' + connValue['id'] + ') found in Connections array. Skipping' +
                         ' Connection with name ' + connValue['name'] + ' at index ' + index + '.');
             } else {
-                let tempConn = this.getParsedConnection(connValue);
-
-                if (this.connections.has(connValue['layer'])) {
-                    this.connections.get(connValue['layer']).push(tempConn);
-                } else {
-                    this.connections.set(connValue['layer'], [tempConn]);
-                }
+                ParchmintParser.addToMap(this.connections, connValue['layer'], this.getParsedConnection(connValue));
             }
         });
     }
@@ -340,13 +330,9 @@ class ParchmintParser {
                 // Next check that the ID of this segment is unique
                 if (this.isUniqueID(value['id'])) {
                     // Finally add the Connection Feature to the map
-                    let tempFeat = ParchmintParser.getParsedConnectionFeature(value);
-                    if (this.connFeatures.has(value['connection'])) {
-                        this.connFeatures.get(value['connection']).push(tempFeat);
-                    } else {
-                        this.connFeatures.set(value['connection'], [tempFeat]);
-                    }
-                } else {
+                    ParchmintParser.addToMap(this.connFeatures, value['connection'],
+                            ParchmintParser.getParsedConnectionFeature(value));
+               } else {
                     this.valid = false;
                     console.log('Parser: Duplicate IDs (' + value['id'] + ') exist for the Connection Features list.' +
                             ' Skipping Connection Feature with name "' + value['name'] + '" at index ' + index + '.');
@@ -356,7 +342,6 @@ class ParchmintParser {
     }
 
     /**
->>>>>>> master
      * Parse a Connection Feature from the given JSON object.
      *
      * No error checking is done to verify whether the fields exist in the
@@ -424,13 +409,7 @@ class ParchmintParser {
             } else {
                 idSet.add(value['label']);
             }
-
-            // Parse port
-            if (!portMap.has(value['layer'])) {
-                portMap.set(value['layer'], [ParchmintParser.getParsedPort(value)]);
-            } else {
-                portMap.get(value['layer']).push(ParchmintParser.getParsedPort(value));
-            }
+            ParchmintParser.addToMap(portMap, value['layer'], ParchmintParser.getParsedPort(value));
         });
 
         return portMap;
@@ -526,6 +505,22 @@ class ParchmintParser {
 
         this.idSet.add(id);
         return true;
+    }
+
+    /**
+     * Put a value into a Map at the specified key.
+     *
+     * @param {Map<string, Array>}  map     The map must have a value with a
+     *                                      push function.
+     * @param {string}              key     The key at which to put the value.
+     * @param {object}              value   The value to put in the map.
+     */
+    static addToMap(map, key, value) {
+        if (map.has(key)) {
+            map.get(key).push(value);
+        } else {
+            map.set(key, [value]);
+        }
     }
 }
 
