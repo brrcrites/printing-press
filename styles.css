@@ -1,5 +1,75 @@
+.centered_container {
+    text-align: center;
+}
+
+#file_instructions {
+    display: inline-block;
+}
+
+#file_text_container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    /*border: 5px solid black;*/
+}
+
+#file_button_container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.file_row {
+    display: flex;
+}
+
+.file_col {
+    flex: 50%;
+    width: 50vh;
+    padding: 5px;
+}
+
 #drop_zone {
     border: 5px solid powderblue;
     width: 90vw;
-    height: 50vh;
+    height: 25vh;
+    display: inline-block;
+}
+
+#parse_button_container {
+    padding-top: 1%;
+}
+
+#console_container {
+    border: 5px solid gray;
+}
+
+#svg_image {
+    border: 5px solid gray;
+}
+
+.output_row {
+    display: flex;
+    padding-top: 1%;
+}
+
+.output_col {
+    flex: 50%;
+    height: 45vh;
+    overflow: scroll;
+}
+
+p.console_title {
+    font-weight: bold;
+    font-size: larger;
+}
+
+p.console_messages {
+    text-align: left;
+    padding-left: 10%;
+    padding-right: 10%;
+}
+
+p.title_text {
+    font-size: xx-large;
 }

@@ -2,13 +2,40 @@
 <html>
 
 <head>
+    <title>Printing Press</title>
     <link rel="stylesheet" href="styles.css">
     <body>
-        <center>
-        <div id="drop_zone">
-            <p>Drag one or more files to this Drop Zone ...</p>
+        <div class="centered_container">
+            <p class="title_text">Printing Press</p>
         </div>
-        </center>
+        <div class="centered_container">
+            <div id="file_instructions">
+                <div class="file_row">
+                    <div class="file_col" id="file_text_container">
+                        <p>Drag one or more files to the Drop Zone or</p>
+                    </div>
+                    <div class="file_col" id="file_button_container">
+                        <button id="file_button" type="button">choose file</button>
+                    </div>
+                    <input id="file_input" type="file" name="Parchmint File" style="display: none;" />
+                </div>
+            </div>
+            <div id="drop_zone">
+                <p class="drop_text">Drop Zone</p>
+            </div>
+            <div id="parse_button_container">
+                <button id="parse_button" type="button">parse</button>
+            </div>
+            <div class="output_row">
+                <div class="output_col" id="console_container">
+                    <p class="console_title">Error Log:</p>
+                    <p class="console_messages">No errors at this time.</p>
+                </div>
+                <div class="output_col" id="svg_image">
+                    <p>The SVG will go right here.</p>
+                </div>
+            </div>
+        </div>
     </body>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="bundle.js"></script>
@@ -22,9 +49,5 @@
     </script>
 </head>
 
-
-<center>
-    <div id="svg_image"></div>
-</center>
 
 </html>

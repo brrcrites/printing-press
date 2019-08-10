@@ -4,13 +4,25 @@
 var ParchmintParser = require('./parsing/parchmint-parser.js');
 
 var pp = new ParchmintParser();
-$('#drop_zone').on('dragover', dragOverHandler).on('drop', dropHandler); // Prevent default drop behavior
+var parchFile;
+var nightMode = false;
+$('.title_text').on('click', switchMode);
+$('#file_button').on('click', fileButtonClickHandler);
+$('#file_input').on('change', fileInputHandler);
+$('#drop_zone').on('dragover', dragOverHandler).on('drop', dropHandler).on('dragleave', dragLeaveHandler);
+$('#parse_button').on('click', parseButtonClickHandler); // Prevent default drop behavior
 
 function dragOverHandler(ev) {
   // Commented out because this function is called over and over as long as a file is dragged over the drop zone
   // console.log('File(s) in drop zone');
   // Prevent default behavior (Prevent file from being opened)
   ev.preventDefault();
+  $(ev.target).css('background-color', 'powderblue');
+}
+
+function dragLeaveHandler(ev) {
+  ev.preventDefault();
+  $(ev.target).removeAttr('style');
 } // Clean up data after being processed
 
 
@@ -26,6 +38,8 @@ function removeDragData(ev) {
     // Use DataTransfer interface to remove the drag data
     dataTransfer.clearData();
   }
+
+  $(ev.target).removeAttr('style');
 } // Print files being dropped into the dropzone
 
 
@@ -50,21 +64,33 @@ function dropHandler(ev) {
     for (var _i = 0; _i < dataTransfer.files.length; _i++) {
       console.log('... file[' + _i + '].name = ' + ev.dataTransfer.files[_i].name);
     }
-  } // Read the file contents and then update the text through a callback
+  } // Save the dropped file until the user is ready to parse
 
 
-  readFileContents(dataTransfer.items[0].getAsFile(), function (result) {
-    $('#drop_zone').text(JSON.parse(result)['name']); //parseParchMintJson(JSON.parse(result));
-
-    pp.clear();
-    pp.parse(result);
-
-    if (pp.valid) {
-      console.log('Success! The Parchmint file is valid.');
-    }
-  }); // Pass event to removeDragData for cleanup
+  $('p.drop_text').text(dataTransfer.items[0].getAsFile().name);
+  parchFile = dataTransfer.items[0].getAsFile(); // Pass event to removeDragData for cleanup
 
   removeDragData(ev);
+}
+
+function fileButtonClickHandler() {
+  $('#file_input').trigger('click');
+}
+
+function fileInputHandler(ev) {
+  if (ev.target.files.length > 0) {
+    $('p.drop_text').text(ev.target.files[0].name);
+    parchFile = ev.target.files[0];
+  } else {
+    alert('No file selected!');
+  }
+}
+
+function parseButtonClickHandler() {
+  // Read the file contents and then update the text through a callback
+  readFileContents(parchFile, function (result) {
+    parseParchmint(result);
+  });
 } // Function for reading and returning the contents of a file
 
 
@@ -76,6 +102,37 @@ function readFileContents(raw_file, callback) {
   };
 
   reader.readAsText(raw_file);
+}
+
+function parseParchmint(result) {
+  $('p.drop_text').text('Architecture: ' + JSON.parse(result)['name']); //parseParchMintJson(JSON.parse(result));
+
+  pp.clear();
+  pp.parse(result);
+
+  if (pp.valid) {
+    console.log('Success! The Parchmint file is valid.');
+  }
+}
+
+function switchMode() {
+  if (nightMode) {
+    $('body').css({
+      'background-color': 'white'
+    });
+    $('p').css({
+      'color': 'black'
+    });
+  } else {
+    $('body').css({
+      'background-color': '#3A3938'
+    });
+    $('p').css({
+      'color': 'white'
+    });
+  }
+
+  nightMode = !nightMode;
 }
 
 },{"./parsing/parchmint-parser.js":58}],2:[function(require,module,exports){
@@ -9361,7 +9418,7 @@ function () {
 
       jsonObj['components'].forEach(function (compValue, index) {
         // First get the port list for this Component
-        var ports = _this2.parsePorts(compValue['ports']); // Next check whether this ID of this Component is a duplicate
+        var ports = _this2.getParsedPorts(compValue['ports']); // Next check whether this ID of this Component is a duplicate
 
 
         if (_this2.isUniqueID(compValue['id'])) {
@@ -9395,16 +9452,12 @@ function () {
           }
 
           compValue['layers'].forEach(function (layerValue) {
-            var tempComp = new Component(compValue['name'], compValue['id'], compValue['x-span'], compValue['y-span'], compValue['entity']);
             var tempPorts = ports.get(layerValue);
+            var tempComp = ParchmintParser.getParsedComponent(compValue, tempPorts);
 
-            var tempFeat = _this2.compFeatures.get(compValue['id'] + '_' + layerValue); // There might not be any ports on the layer, so only add it if we have one, otherwise leave it
-            // as the default value
+            var tempFeat = _this2.compFeatures.get(compValue['id'] + '_' + layerValue);
 
-
-            if (tempPorts) {
-              tempComp.ports = tempPorts;
-            } else {
+            if (!tempPorts) {
               console.log('Parser (WARNING): The Component with ID "' + compValue['id'] + '" and name "' + compValue['name'] + '" exists on a Layer  (' + layerValue + '), but has no Ports' + ' on that layer.');
             } // Component Features are not required, so only add it if we have one, otherwise leave it as the
             // default value
@@ -9414,18 +9467,34 @@ function () {
               tempComp.feature = tempFeat;
             }
 
-            if (_this2.components.has(layerValue)) {
-              _this2.components.get(layerValue).push(tempComp);
-            } else {
-              _this2.components.set(layerValue, [tempComp]);
-            }
+            ParchmintParser.addToMap(_this2.components, layerValue, tempComp);
           });
         } else {
           _this2.valid = false;
-          console.log('Parser: Duplicate ID (' + compValue['id'] + ') found in "components" key. Skipping' + ' Component with name ' + compValue['name'] + ' at index ' + index + '.');
+          console.log('Parser: Duplicate ID (' + compValue['id'] + ') found in Components array. Skipping' + ' Component with name ' + compValue['name'] + ' at index ' + index + '.');
         }
       });
     }
+    /**
+     * Parse a Component from the given JSON object.
+     *
+     * No error checking is done to verify whether the fields exist in the
+     * compFeatObj.
+     *
+     * @param {object}  compObj     An object with the fields name, id,
+     *                              x-span, y-span, and entity.
+     * @param {Array}   ports       The list of ports this Component
+     *                              references in the form of a map. This
+     *                              parameter can be left empty. If this
+     *                              parameter evaluates to falsy it will not be
+     *                              added to the Component.
+     *
+     * @returns {Component} The resulting Component object.
+     */
+
+  }, {
+    key: "parseConnections",
+
     /**
      * Parse a JSON object for the Connections.
      *
@@ -9438,34 +9507,41 @@ function () {
      * @param {object} jsonObj  A parsed JSON object representing the Parchmint
      *                          file.
      */
-
-  }, {
-    key: "parseConnections",
     value: function parseConnections(jsonObj) {
       var _this3 = this;
 
       jsonObj['connections'].forEach(function (connValue, index) {
         if (!_this3.isUniqueID(connValue['id'])) {
           _this3.valid = false;
-          console.log('Parser: Duplicate ID (' + connValue['id'] + ') found in "connections" key. Skipping' + ' Connection with name ' + connValue['name'] + ' at index ' + index + '.');
+          console.log('Parser: Duplicate ID (' + connValue['id'] + ') found in Connections array. Skipping' + ' Connection with name ' + connValue['name'] + ' at index ' + index + '.');
         } else {
-          var tempConn = new Connection(connValue['name'], connValue['id'], _this3.parseTerminal(connValue['source'], connValue['layer']), _this3.parseTerminals(connValue['sinks'], connValue['layer']));
-
-          var tempFeat = _this3.connFeatures.get(connValue['layer']); // Connection Features are not required, so we only add them to the Connection if we parsed some,
-          // otherwise we'll leave it null.
-
-
-          if (tempFeat) {
-            tempConn.segments = tempFeat;
-          }
-
-          if (_this3.connections.has(connValue['layer'])) {
-            _this3.connections.get(connValue['layer']).push(tempConn);
-          } else {
-            _this3.connections.set(connValue['layer'], [tempConn]);
-          }
+          ParchmintParser.addToMap(_this3.connections, connValue['layer'], _this3.getParsedConnection(connValue));
         }
       });
+    }
+    /**
+     * Parse a Connection from the given JSON object.
+     *
+     * No error checking is  done to verify whether the fields exist in the
+     * connObj.
+     *
+     * @param {object}  connObj An object with the fields name, id, source,
+     *                          layer, and sinks.
+     * @returns {Connection}    The resulting Connection object.
+     */
+
+  }, {
+    key: "getParsedConnection",
+    value: function getParsedConnection(connObj) {
+      var ret = new Connection(connObj['name'], connObj['id'], this.getParsedTerminal(connObj['source'], connObj['layer']), this.getParsedTerminals(connObj['sinks'], connObj['layer']));
+      var feature = this.connFeatures.get(connObj['layer']); // Connection Features are not required, so we only add them to the Connection if we parsed some,
+      // otherwise we'll leave it null.
+
+      if (feature) {
+        ret.segments = feature;
+      }
+
+      return ret;
     }
     /**
      * Parse a JSON object for the Component Features map.
@@ -9494,11 +9570,25 @@ function () {
             _this4.valid = false;
             console.log('Parser: Duplicate IDs (' + value['id'] + ') exist on the same Layer (' + value['layer'] + ') for the Component Features list. Skipping Component Feature with name "' + value['name'] + '" at index ' + index + '.');
           } else {
-            _this4.compFeatures.set(key, new ComponentFeature(value['name'], value['layer'], value['x-span'], value['y-span'], ParchmintParser.parseCoord(value['location']), value['depth']));
+            _this4.compFeatures.set(key, ParchmintParser.getParsedComponentFeature(value));
           }
         }
       });
     }
+    /**
+     * Parse a Component Feature from the given JSON object.
+     *
+     * No error checking is done to verify whether the fields exist in the
+     * compFeatObj.
+     *
+     * @param {object}  compFeatObj An object with the fields name, layer,
+     *                              x-span, y-span, location, and depth.
+     * @returns {ComponentFeature}  The resulting ComponentFeature object.
+     */
+
+  }, {
+    key: "parseConnectionFeatures",
+
     /**
      * Parse a JSON object for the Connection Features.
      *
@@ -9514,9 +9604,6 @@ function () {
      * @param {object}  jsonObj A parsed JSON object representing the Parchmint
      *                          file.
      */
-
-  }, {
-    key: "parseConnectionFeatures",
     value: function parseConnectionFeatures(jsonObj) {
       var _this5 = this;
 
@@ -9526,13 +9613,7 @@ function () {
           // Next check that the ID of this segment is unique
           if (_this5.isUniqueID(value['id'])) {
             // Finally add the Connection Feature to the map
-            var tempFeat = new ConnectionSegment(value['name'], value['id'], value['width'], value['depth'], ParchmintParser.parseCoord(value['source']), ParchmintParser.parseCoord(value['sink']));
-
-            if (_this5.connFeatures.has(value['connection'])) {
-              _this5.connFeatures.get(value['connection']).push(tempFeat);
-            } else {
-              _this5.connFeatures.set(value['connection'], [tempFeat]);
-            }
+            ParchmintParser.addToMap(_this5.connFeatures, value['connection'], ParchmintParser.getParsedConnectionFeature(value));
           } else {
             _this5.valid = false;
             console.log('Parser: Duplicate IDs (' + value['id'] + ') exist for the Connection Features list.' + ' Skipping Connection Feature with name "' + value['name'] + '" at index ' + index + '.');
@@ -9541,16 +9622,19 @@ function () {
       });
     }
     /**
-     * Parse a Coord object from the given JSON object.
+     * Parse a Connection Feature from the given JSON object.
      *
-     * @since 1.0.0
+     * No error checking is done to verify whether the fields exist in the
+     * connFeatObj.
      *
-     * @param {object}  coordObj    A JSON object with field x and y.
-     * @returns {Coord} The resulting Coord object.
+     * @param {object}  connFeatObj An object with fields name, id, width, depth
+     *                              source, and sink.
+     *
+     * @returns {ConnectionSegment} The resulting ConnectionSegment object.
      */
 
   }, {
-    key: "parsePorts",
+    key: "getParsedPorts",
 
     /**
      * Parse Ports from the given JSON array.
@@ -9560,14 +9644,14 @@ function () {
      *
      * @since 1.0.0
      *
-     * @see parsePort
+     * @see getParsedPort
      *
      * @param {Array}  portsArr    A JSON array with Port fields.
      * @returns {Map<string, Array>} A map containing all ports that have been
      * parsed. The key is the ID of the layer on which the Port exists. The
      * value is an Array of Port objects that exist on that layer.
      */
-    value: function parsePorts(portsArr) {
+    value: function getParsedPorts(portsArr) {
       var _this6 = this;
 
       var portMap = new Map();
@@ -9579,29 +9663,12 @@ function () {
           console.log('Parser: Duplicate labels (' + value['id'] + ') exist in the Port list.');
         } else {
           idSet.add(value['label']);
-        } // Parse port
-
-
-        if (!portMap.has(value['layer'])) {
-          portMap.set(value['layer'], [ParchmintParser.parsePort(value)]);
-        } else {
-          portMap.get(value['layer']).push(ParchmintParser.parsePort(value));
         }
+
+        ParchmintParser.addToMap(portMap, value['layer'], ParchmintParser.getParsedPort(value));
       });
       return portMap;
     }
-    /**
-     * Parse a single Port object from the given JSON object.
-     *
-     * @since 1.0.0
-     *
-     * @param {object}  portObj A JSON object with fields layer, label, x, and y.
-     * @returns {Port}  The resulting Port object.
-     */
-
-  }, {
-    key: "parseTerminal",
-
     /**
      * Parse a Terminal object from the given JSON object.
      *
@@ -9620,7 +9687,10 @@ function () {
      *                      only a Component if only the Component was found,
      *                      or a default Terminal object otherwise.
      */
-    value: function parseTerminal(termObj, layer) {
+
+  }, {
+    key: "getParsedTerminal",
+    value: function getParsedTerminal(termObj, layer) {
       var comp = null; // First let's see if the given layer is valid
 
       if (!this.components.has(layer)) {
@@ -9680,24 +9750,24 @@ function () {
      *
      * @since 1.0.0
      *
-     * @see parseTerminal
+     * @see getParsedTerminal
      *
      * @param {Array}   termArr An array of JSON objects with the fields
      *                          "component" and "port".
      * @param {string}  layer   The ID of the Layer on which to search for the
      *                          Component;
      * @returns {Array} An array of Terminal objects as parsed by the
-     *                  parseTerminal method.
+     *                  getParsedTerminal method.
      */
 
   }, {
-    key: "parseTerminals",
-    value: function parseTerminals(termArr, layer) {
+    key: "getParsedTerminals",
+    value: function getParsedTerminals(termArr, layer) {
       var _this7 = this;
 
       var terms = [];
       termArr.forEach(function (value) {
-        terms.push(_this7.parseTerminal(value, layer));
+        terms.push(_this7.getParsedTerminal(value, layer));
       });
       return terms;
     }
@@ -9745,9 +9815,50 @@ function () {
       this.compFeatures.clear();
       this.connFeatures.clear();
     }
+    /**
+     * Put a value into a Map at the specified key.
+     *
+     * @param {Map<string, Array>}  map     The map must have a value with a
+     *                                      push function.
+     * @param {string}              key     The key at which to put the value.
+     * @param {object}              value   The value to put in the map.
+     */
+
   }], [{
-    key: "parseCoord",
-    value: function parseCoord(coordObj) {
+    key: "getParsedComponent",
+    value: function getParsedComponent(compObj) {
+      var ports = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      var ret = new Component(compObj['name'], compObj['id'], compObj['x-span'], compObj['y-span'], compObj['entity']); // There might not be any ports on the layer, so only add it if we have one, otherwise leave it
+      // as the default value
+
+      if (ports) {
+        ret.ports = ports;
+      }
+
+      return ret;
+    }
+  }, {
+    key: "getParsedComponentFeature",
+    value: function getParsedComponentFeature(compFeatObj) {
+      return new ComponentFeature(compFeatObj['name'], compFeatObj['layer'], compFeatObj['x-span'], compFeatObj['y-span'], ParchmintParser.getParsedCoord(compFeatObj['location']), compFeatObj['depth']);
+    }
+  }, {
+    key: "getParsedConnectionFeature",
+    value: function getParsedConnectionFeature(connFeatObj) {
+      return new ConnectionSegment(connFeatObj['name'], connFeatObj['id'], connFeatObj['width'], connFeatObj['depth'], ParchmintParser.getParsedCoord(connFeatObj['source']), ParchmintParser.getParsedCoord(connFeatObj['sink']));
+    }
+    /**
+     * Parse a Coord object from the given JSON object.
+     *
+     * @since 1.0.0
+     *
+     * @param {object}  coordObj    A JSON object with field x and y.
+     * @returns {Coord} The resulting Coord object.
+     */
+
+  }, {
+    key: "getParsedCoord",
+    value: function getParsedCoord(coordObj) {
       return new Coord(coordObj['x'], coordObj['y']);
     }
     /**
@@ -9760,14 +9871,18 @@ function () {
      */
 
   }, {
-    key: "parsePort",
-    value: function parsePort(portObj) {
-      return new Port(portObj['label'], this.parseCoord(portObj));
+    key: "getParsedPort",
+    value: function getParsedPort(portObj) {
+      return new Port(portObj['label'], this.getParsedCoord(portObj));
     }
   }, {
-    key: "parsePort",
-    value: function parsePort(portObj) {
-      return new Port(portObj.label, this.parseCoord(portObj));
+    key: "addToMap",
+    value: function addToMap(map, key, value) {
+      if (map.has(key)) {
+        map.get(key).push(value);
+      } else {
+        map.set(key, [value]);
+      }
     }
   }]);
 
