@@ -229,7 +229,6 @@ describe('components', () => {
         // were actually added to the arrays.
         expect(pp.components.get(flowLayerID).length).toBe(1);
         expect(pp.components.get(controlLayerID).length).toBe(1);
-
     });
 
     describe('non-matching layers', () => {
