@@ -180,29 +180,33 @@ class ParchmintParser {
 
         // Now we can move on to the actual parsing.
         jsonObj['layers'].forEach((value, index) => {
-            let layerID = value['id'];
-            if (this.isUniqueID(layerID)) {
-                let tempLayer = new Layer(value['name'], layerID);
-                let tempComps = this.components.get(layerID);
-                let tempConns = this.connections.get(layerID);
-
-                // If a Layer does not have Components or Connections we want to leave their value as the default
-                // empty array.
-                if (tempComps) {
-                    tempLayer.components = tempComps;
-                }
-
-                if (tempConns) {
-                    tempLayer.connections = tempConns;
-                }
-
-                this.layers.push(tempLayer);
+            if (this.isUniqueID(value['id'])) {
+                this.layers.push(this.getParsedLayer(value));
             } else {
                 this.valid = false;
                 console.log('Parser: Duplicate IDs (' + layerID + ') found in the "layers" key. Skipping Layer' +
                         ' with name "' + value['name'] + '" at index ' + index + '.');
             }
         });
+    }
+
+    getParsedLayer(layerObj) {
+        let layerID = layerObj['id'];
+        let tempLayer = new Layer(layerObj['name'], layerID);
+        let tempComps = this.components.get(layerID);
+        let tempConns = this.connections.get(layerID);
+
+        // If a Layer does not have Components or Connections we want to leave their value as the default
+        // empty array.
+        if (tempComps) {
+            tempLayer.components = tempComps;
+        }
+
+        if (tempConns) {
+            tempLayer.connections = tempConns;
+        }
+
+        return tempLayer;
     }
 
     /**
