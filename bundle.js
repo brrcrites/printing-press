@@ -9373,31 +9373,32 @@ function () {
       }
 
       jsonObj['layers'].forEach(function (value, index) {
-        var layerID = value['id'];
-
-        if (_this.isUniqueID(layerID)) {
-          var tempLayer = new Layer(value['name'], layerID);
-
-          var tempComps = _this.components.get(layerID);
-
-          var tempConns = _this.connections.get(layerID); // If a Layer does not have Components or Connections we want to leave their value as the default
-          // empty array.
-
-
-          if (tempComps) {
-            tempLayer.components = tempComps;
-          }
-
-          if (tempConns) {
-            tempLayer.connections = tempConns;
-          }
-
-          _this.layers.push(tempLayer);
+        if (_this.isUniqueID(value['id'])) {
+          _this.layers.push(_this.getParsedLayer(value));
         } else {
           _this.valid = false;
-          console.log('Parser: Duplicate IDs (' + layerID + ') found in the "layers" key. Skipping Layer' + ' with name "' + value['name'] + '" at index ' + index + '.');
+          console.log('Parser: Duplicate IDs (' + value['id'] + ') found in the "layers" key. Skipping Layer' + ' with name "' + value['name'] + '" at index ' + index + '.');
         }
       });
+    }
+  }, {
+    key: "getParsedLayer",
+    value: function getParsedLayer(layerObj) {
+      var layerID = layerObj['id'];
+      var tempLayer = new Layer(layerObj['name'], layerID);
+      var tempComps = this.components.get(layerID);
+      var tempConns = this.connections.get(layerID); // If a Layer does not have Components or Connections we want to leave their value as the default
+      // empty array.
+
+      if (tempComps) {
+        tempLayer.components = tempComps;
+      }
+
+      if (tempConns) {
+        tempLayer.connections = tempConns;
+      }
+
+      return tempLayer;
     }
     /**
      * Parse a JSON object for the Components.
