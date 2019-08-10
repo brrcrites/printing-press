@@ -279,7 +279,7 @@ class ParchmintParser {
                 this.layers.push(this.getParsedLayer(value));
             } else {
                 this.valid = false;
-                console.log('Parser: Duplicate IDs (' + layerID + ') found in the "layers" key. Skipping Layer' +
+                console.log('Parser: Duplicate IDs (' + value['id'] + ') found in the "layers" key. Skipping Layer' +
                         ' with name "' + value['name'] + '" at index ' + index + '.');
             }
         });
