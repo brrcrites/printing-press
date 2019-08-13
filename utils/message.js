@@ -79,7 +79,7 @@ class Message {
      *                                  message.
      * @param {string}  msgTypeText     Alternate message type used only if the
      *                                  message type is other.
-     * @param {Array}   additionalInfo  Any additional information to append to
+     * @param {$Rest}   additionalInfo  Any additional information to append to
      *                                  the message.
      */
     constructor(msgType, text = Validation.DEFAULT_STR_VALUE, tabs = Validation.DEFAULT_LOG_TABS,
