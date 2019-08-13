@@ -68,6 +68,7 @@ p.console_messages {
     text-align: left;
     padding-left: 10%;
     padding-right: 10%;
+    white-space: pre;
 }
 
 p.title_text {
