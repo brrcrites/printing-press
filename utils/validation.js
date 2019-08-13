@@ -61,6 +61,18 @@ class Validation {
     }
 
     /**
+     * The default number of tabs for a Message.
+     *
+     * @see Message.tabs
+     * @since 1.0.0
+     *
+     * @returns {number}
+     */
+    static get DEFAULT_LOG_TABS() {
+        return 0;
+    }
+
+    /**
      * Test a string value against the ParchKey name/id rules.
      *
      * Strings cannot be empty. Must be a string. Must not evaluate to falsey.

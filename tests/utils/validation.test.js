@@ -114,3 +114,7 @@ describe('depth values', () => {
 test('channel value', () => {
     expect(Validation.DEFAULT_CON_TYPE).toBe('channel');
 });
+
+test('log tabs', () => {
+    expect(Validation.DEFAULT_LOG_TABS).toBe(0);
+});
