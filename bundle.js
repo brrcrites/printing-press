@@ -10416,6 +10416,20 @@ function () {
     get: function get() {
       return 'channel';
     }
+    /**
+     * The default number of tabs for a Message.
+     *
+     * @see Message.tabs
+     * @since 1.0.0
+     *
+     * @returns {number}
+     */
+
+  }, {
+    key: "DEFAULT_LOG_TABS",
+    get: function get() {
+      return 0;
+    }
   }]);
 
   return Validation;
