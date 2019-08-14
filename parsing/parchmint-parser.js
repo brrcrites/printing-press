@@ -1,6 +1,7 @@
 const Validation = require('../utils/validation.js');
 const Layer = require('../model/layer.js');
 const Component = require('../model/component.js');
+const Connection = require('../model/connection.js');
 const ComponentFeature = require('../model/component-feature.js');
 const ConnectionSegment = require('../model/connection-segment.js');
 const Coord = require('../model/coord.js');
@@ -47,6 +48,32 @@ class ParchmintParser {
     parchmint;
 
     /**
+     * A map containing all of the Components that have been parsed.
+     *
+     * The key is the ID of a Layer, and the value is an array of Components
+     * that exist on that layer.
+     *
+     * @since 1.0.0
+     * @access public
+     *
+     * @type {Map<string, Array>}
+     */
+    components;
+
+    /**
+     * A map containing all of the Connections that have been parsed.
+     *
+     * The key is the ID of a Layer, and the value is an array of Connections
+     * that exist on that layer.
+     *
+     * @since 1.0.0
+     * @access public
+     *
+     * @type {Map<string, Array>}
+     */
+    connections;
+
+    /**
      * A map containing all of the component features that have been parsed.
      *
      * The key is a combination of the IDs of the Component and the Layer it
@@ -73,18 +100,6 @@ class ParchmintParser {
      */
     connFeatures;
 
-    /**
-     * A map containing all of the Components that have been parsed.
-     *
-     * The key is the ID of a Layer, and the value is an array of Components
-     * that exist on that layer.
-     *
-     * @since 1.0.0
-     * @access public
-     *
-     * @type {Map<string, Array>}
-     */
-    components;
 
     /**
      * Construct the ParchmintParser object.
@@ -101,9 +116,10 @@ class ParchmintParser {
         this.valid = true;
         this.idSet = new Set();
 
+        this.components = new Map();
+        this.connections = new Map();
         this.compFeatures = new Map();
         this.connFeatures = new Map();
-        this.components = new Map();
     }
 
     /**
@@ -161,7 +177,7 @@ class ParchmintParser {
             // Next check whether this ID of this Component is a duplicate
             if (this.idSet.has(compValue['id'])) {
                 this.valid = false;
-                console.log('Parser: Duplicate ID (' + compValue['id'] + ') found in "components" key. Skipping' +
+                console.log('Parser: Duplicate ID (' + compValue['id'] + ') found in Components array. Skipping' +
                         ' Component with name ' + compValue['name'] + ' at index ' + index + '.');
             } else {
                 this.idSet.add(compValue['id']);
@@ -177,11 +193,7 @@ class ParchmintParser {
                         tempComp.feature = tempFeat;
                     }
 
-                    if (this.components.has(layerValue)) {
-                        this.components.get(layerValue).push(tempComp);
-                    } else {
-                        this.components.set(layerValue, [tempComp]);
-                    }
+                    ParchmintParser.addToMap(this.components, layerValue, tempComp);
                 });
             }
         });
@@ -202,6 +214,54 @@ class ParchmintParser {
     static getParsedComponent(compObj, ports) {
         return new Component(compObj['name'], compObj['id'], compObj['x-span'], compObj['y-span'],
                 compObj['entity'], ports);
+    }
+
+    /**
+     * Parse a JSON object for the Connections.
+     *
+     * Fills the connections map with Connections where the keys are Layer IDs,
+     * and the values are arrays of Connections that exist on that Layer. Sets
+     * the parser invalid if a duplicate ID is found.
+     *
+     * @since 1.0.0
+     *
+     * @param {object} jsonObj  A parsed JSON object representing the Parchmint
+     *                          file.
+     */
+    parseConnections(jsonObj) {
+        jsonObj['connections'].forEach((connValue, index) => {
+            if (!this.isUniqueID(connValue['id'])) {
+                this.valid = false;
+                console.log('Parser: Duplicate ID (' + connValue['id'] + ') found in Connections array. Skipping' +
+                        ' Connection with name ' + connValue['name'] + ' at index ' + index + '.');
+            } else {
+                ParchmintParser.addToMap(this.connections, connValue['layer'], this.getParsedConnection(connValue));
+            }
+        });
+    }
+
+    /**
+     * Parse a Connection from the given JSON object.
+     *
+     * No error checking is  done to verify whether the fields exist in the
+     * connObj.
+     *
+     * @param {object}  connObj An object with the fields name, id, source,
+     *                          layer, and sinks.
+     * @returns {Connection}    The resulting Connection object.
+     */
+    getParsedConnection(connObj) {
+        let ret = new Connection(connObj['name'], connObj['id'], this.getParsedTerminal(connObj['source'],
+                connObj['layer']), this.getParsedTerminals(connObj['sinks'], connObj['layer']));
+        let feature = this.connFeatures.get(connObj['layer']);
+
+        // Connection Features are not required, so we only add them to the Connection if we parsed some,
+        // otherwise we'll leave it null.
+        if (feature) {
+            ret.segments = feature;
+        }
+
+        return ret;
     }
 
     /**
@@ -270,13 +330,9 @@ class ParchmintParser {
                 // Next check that the ID of this segment is unique
                 if (this.isUniqueID(value['id'])) {
                     // Finally add the Connection Feature to the map
-                    let tempFeat = ParchmintParser.getParsedConnectionFeature(value);
-                    if (this.connFeatures.has(value['connection'])) {
-                        this.connFeatures.get(value['connection']).push(tempFeat);
-                    } else {
-                        this.connFeatures.set(value['connection'], [tempFeat]);
-                    }
-                } else {
+                    ParchmintParser.addToMap(this.connFeatures, value['connection'],
+                            ParchmintParser.getParsedConnectionFeature(value));
+               } else {
                     this.valid = false;
                     console.log('Parser: Duplicate IDs (' + value['id'] + ') exist for the Connection Features list.' +
                             ' Skipping Connection Feature with name "' + value['name'] + '" at index ' + index + '.');
@@ -353,13 +409,7 @@ class ParchmintParser {
             } else {
                 idSet.add(value['label']);
             }
-
-            // Parse port
-            if (!portMap.has(value['layer'])) {
-                portMap.set(value['layer'], [ParchmintParser.getParsedPort(value)]);
-            } else {
-                portMap.get(value['layer']).push(ParchmintParser.getParsedPort(value));
-            }
+            ParchmintParser.addToMap(portMap, value['layer'], ParchmintParser.getParsedPort(value));
         });
 
         return portMap;
@@ -425,7 +475,7 @@ class ParchmintParser {
      * @param {string}  layer   The ID of the Layer on which to search for the
      *                          Component;
      * @returns {Array} An array of Terminal objects as parsed by the
-     *                  parseTerminal method.
+     *                  getParsedTerminal method.
      */
     getParsedTerminals(termArr, layer) {
         let terms = [];
@@ -455,6 +505,22 @@ class ParchmintParser {
 
         this.idSet.add(id);
         return true;
+    }
+
+    /**
+     * Put a value into a Map at the specified key.
+     *
+     * @param {Map<string, Array>}  map     The map must have a value with a
+     *                                      push function.
+     * @param {string}              key     The key at which to put the value.
+     * @param {object}              value   The value to put in the map.
+     */
+    static addToMap(map, key, value) {
+        if (map.has(key)) {
+            map.get(key).push(value);
+        } else {
+            map.set(key, [value]);
+        }
     }
 }
 
