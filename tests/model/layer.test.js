@@ -53,13 +53,30 @@ describe('initialization', () => {
             expect(layer.connections).toEqual([connection1, connection2]);
         });
 
-        test('default', () => {
-            let l = new Layer();
+        describe('default', () => {
+            test('no parameters', () => {
+                let l = new Layer();
 
-            expect(l.name).toBe(Validation.DEFAULT_STR_VALUE);
-            expect(l.id).toBe(Validation.DEFAULT_STR_VALUE);
-            expect(l.components).toEqual([]);
-            expect(l.connections).toEqual([]);
+                expect(l.name).toBe(Validation.DEFAULT_STR_VALUE);
+                expect(l.id).toBe(Validation.DEFAULT_STR_VALUE);
+                expect(l.components).toEqual([]);
+                expect(l.connections).toEqual([]);
+            });
+
+            describe('undefined parameters', () => {
+                test('connections (last parameter)', () => {
+                    let layer = new Layer('name', 'layer-id', [component1], undefined);
+
+                    expect(layer.connections).toEqual([]);
+                });
+
+                test('components (middle parameter)', () => {
+                    let layer = new Layer('name', 'layer-id', undefined, [connection2]);
+
+                    expect(layer.components).toEqual([]);
+                    expect(layer.connections).toEqual([connection2]);
+                });
+            });
         });
     });
 
