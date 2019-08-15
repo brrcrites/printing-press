@@ -356,7 +356,6 @@ describe('components', () => {
         test('port', () => { // The port has layers that do not exist in the component's layer list
             let pp = new ParchmintParser();
             pp.parseComponents(parseJSONObj(nonMatchingPortLayerParchmintComponents));
-
             expect(pp.valid).toBe(true);
             expect(pp.components.size).toBe(1);
             expect(pp.components.has(flowLayerID)).toBe(true);

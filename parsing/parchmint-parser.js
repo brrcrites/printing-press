@@ -67,6 +67,7 @@ class ParchmintParser {
     parchmint;
 
     /**
+<<<<<<< HEAD
      * The Architecture defined by the given Parchmint file.
      *
      * @since 1.0.0
@@ -77,6 +78,8 @@ class ParchmintParser {
     architecture;
 
     /**
+=======
+>>>>>>> master
      * An array containing all of the Layers that have been parsed.
      *
      * @since 1.0.0
@@ -159,6 +162,7 @@ class ParchmintParser {
         this.idSet = new Set();
 
         this.architecture = null;
+
         this.layers = [];
         this.components = new Map();
         this.connections = new Map();
@@ -244,30 +248,14 @@ class ParchmintParser {
     parseLayers(jsonObj) {
         // First make sure that neither components nor connections has extra/invalid layers
         for (let layerID of this.components.keys()) {
-            let found = false;
-            for (let l of jsonObj['layers']) {
-                if (l.id === layerID) {
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) {
+            if (!jsonObj['layers'].map(x => x.id).includes(layerID)) {
                 this.valid = false;
                 console.log('Parser: The Components list contains an invalid Layer (' + layerID + ').');
             }
         }
 
         for (let layerID of this.connections.keys()) {
-            let found = false;
-            for (let l of jsonObj['layers']) {
-                if (l.id === layerID) {
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) {
+            if (!jsonObj['layers'].map(x => x.id).includes(layerID)) {
                 this.valid = false;
                 console.log('Parser: The Connections list contains an invalid Layer (' + layerID + ').');
             }
@@ -287,21 +275,8 @@ class ParchmintParser {
 
     getParsedLayer(layerObj) {
         let layerID = layerObj['id'];
-        let tempLayer = new Layer(layerObj['name'], layerID);
-        let tempComps = this.components.get(layerID);
-        let tempConns = this.connections.get(layerID);
-
-        // If a Layer does not have Components or Connections we want to leave their value as the default
-        // empty array.
-        if (tempComps) {
-            tempLayer.components = tempComps;
-        }
-
-        if (tempConns) {
-            tempLayer.connections = tempConns;
-        }
-
-        return tempLayer;
+        return new Layer(layerObj['name'], layerID, this.components.get(layerID),
+                this.connections.get(layerID));
     }
 
     /**
@@ -322,6 +297,15 @@ class ParchmintParser {
 
             // Next check whether this ID of this Component is a duplicate
             if (this.isUniqueID(compValue['id'])) {
+                // Now compare the port map layers to the component's layers
+                for (let layer of ports.keys()) {
+                    if (compValue['layers'].indexOf(layer) === -1) {
+                        console.log('Parser (WARNING): The Component with ID "' + compValue['id'] + '" and name "'
+                                + compValue['name'] + '" contains a Port with a Layer ID (' + layer + ') that does' +
+                                ' not exist in the Component\'s Layer list.');
+                    }
+                }
+
                 // Now compare the port map layers to the component's layers
                 for (let layer of ports.keys()) {
                     if (compValue['layers'].indexOf(layer) === -1) {
@@ -368,24 +352,13 @@ class ParchmintParser {
      * @param {object}  compObj     An object with the fields name, id,
      *                              x-span, y-span, and entity.
      * @param {Array}   ports       The list of ports this Component
-     *                              references in the form of a map. This
-     *                              parameter can be left empty. If this
-     *                              parameter evaluates to falsy it will not be
-     *                              added to the Component.
+     *                              references in the form of a map.
      *
      * @returns {Component} The resulting Component object.
      */
-    static getParsedComponent(compObj, ports = null) {
-        let ret = new Component(compObj['name'], compObj['id'], compObj['x-span'], compObj['y-span'],
-                compObj['entity']);
-
-        // There might not be any ports on the layer, so only add it if we have one, otherwise leave it
-        // as the default value
-        if (ports) {
-            ret.ports = ports;
-        }
-
-        return ret;
+    static getParsedComponent(compObj, ports) {
+        return new Component(compObj['name'], compObj['id'], compObj['x-span'], compObj['y-span'],
+                compObj['entity'], ports);
     }
 
     /**
@@ -423,17 +396,9 @@ class ParchmintParser {
      * @returns {Connection}    The resulting Connection object.
      */
     getParsedConnection(connObj) {
-        let ret = new Connection(connObj['name'], connObj['id'], this.getParsedTerminal(connObj['source'],
-                connObj['layer']), this.getParsedTerminals(connObj['sinks'], connObj['layer']));
-        let feature = this.connFeatures.get(connObj['layer']);
-
-        // Connection Features are not required, so we only add them to the Connection if we parsed some,
-        // otherwise we'll leave it null.
-        if (feature) {
-            ret.segments = feature;
-        }
-
-        return ret;
+        return new Connection(connObj['name'], connObj['id'], this.getParsedTerminal(connObj['source'],
+                connObj['layer']), this.getParsedTerminals(connObj['sinks'], connObj['layer']),
+                this.connFeatures.get(connObj['layer']));
     }
 
     /**
