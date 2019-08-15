@@ -149,30 +149,14 @@ class ParchmintParser {
     parseLayers(jsonObj) {
         // First make sure that neither components nor connections has extra/invalid layers
         for (let layerID of this.components.keys()) {
-            let found = false;
-            for (let l of jsonObj['layers']) {
-                if (l.id === layerID) {
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) {
+            if (!jsonObj['layers'].map(x => x.id).includes(layerID)) {
                 this.valid = false;
                 console.log('Parser: The Components list contains an invalid Layer (' + layerID + ').');
             }
         }
 
         for (let layerID of this.connections.keys()) {
-            let found = false;
-            for (let l of jsonObj['layers']) {
-                if (l.id === layerID) {
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) {
+            if (!jsonObj['layers'].map(x => x.id).includes(layerID)) {
                 this.valid = false;
                 console.log('Parser: The Connections list contains an invalid Layer (' + layerID + ').');
             }
