@@ -1,4 +1,3 @@
-const Validation = require('../utils/validation.js');
 const Architecture = require('../model/architecture.js');
 const Layer = require('../model/layer.js');
 const Component = require('../model/component.js');
@@ -53,18 +52,6 @@ class ParchmintParser {
      * @type {Set<string>}
      */
     idSet;
-
-    /**
-     * The ParchMint file.
-     *
-     * The file can be represented by either a string of JSON text or an object.
-     *
-     * @since 1.0.0
-     * @access public
-     *
-     * @type {string|object}
-     */
-    parchmint;
 
     /**
      * The Architecture defined by the given Parchmint file.
@@ -146,15 +133,8 @@ class ParchmintParser {
      * @class
      *
      * @since 1.0.0
-     *
-     * @param {string|object}   parchmint   A Parchmint file. If the parameter
-     *                                      is of type string, it will be parsed
-     *                                      by {@link JSON.parse} before
-     *                                      continuing.
      */
-    constructor(parchmint = Validation.DEFAULT_STR_VALUE) {
-        this.parchmint = parchmint;
-
+    constructor() {
         this.valid = true;
         this.idSet = new Set();
 
@@ -185,17 +165,16 @@ class ParchmintParser {
      * @returns {object}    An Architecture object representing this Parchmint
      *                      file, or null if the Parchmint itself is invalid.
      */
-    parse(parchmint=null) {
-        let file = parchmint ? parchmint : this.parchmint;
+    parse(parchmint) {
         let obj;
 
-        if (typeof file === 'string') {
-            obj = JSON.parse(file);
-        } else if (typeof file === 'object') {
-            obj = file;
+        if (typeof parchmint === 'string') {
+            obj = JSON.parse(parchmint);
+        } else if (typeof parchmint === 'object') {
+            obj = parchmint;
         } else {
             this.valid = false;
-            console.log('Parser (FATAL ERROR): Parchmint file was not represented as a string, nor an' +
+            console.error('Parser (FATAL ERROR): Parchmint file was not represented as a string, nor an' +
                     ' object.\nAborting.');
             return null;
         }
@@ -658,8 +637,6 @@ class ParchmintParser {
      * @since 1.0.0
      */
     clear() {
-        this.parchmint = Validation.DEFAULT_STR_VALUE;
-
         this.valid = true;
         this.idSet.clear();
 
