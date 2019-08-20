@@ -67,7 +67,6 @@ class ParchmintParser {
     parchmint;
 
     /**
-<<<<<<< HEAD
      * The Architecture defined by the given Parchmint file.
      *
      * @since 1.0.0
@@ -78,8 +77,6 @@ class ParchmintParser {
     architecture;
 
     /**
-=======
->>>>>>> master
      * An array containing all of the Layers that have been parsed.
      *
      * @since 1.0.0
