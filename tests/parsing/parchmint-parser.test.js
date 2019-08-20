@@ -49,10 +49,7 @@ describe('field access', () => {
 describe('clear method', () => {
     test('fields', () => {
         let pp = new ParchmintParser();
-        pp.parse(readme_parchmint);
-
-        // We have to set valid false directly because I was silly and chose to use a valid parchmint
-        pp.valid = false;
+        pp.parse(duplicates_readme_parchmint);
 
         // Let's first just verify that we have data in all the fields
         expect(pp.architecture).toBeTruthy();
