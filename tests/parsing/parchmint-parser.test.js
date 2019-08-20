@@ -28,22 +28,20 @@ test('initialization', () => {
     expect(arch.layers.length).toBe(1);
 });
 
-describe('field access', () => {
-    test('architecture', () => {
+test('architecture field access', () => {
         let pp = new ParchmintParser();
         pp.parse(readme_parchmint);
 
         expect(pp.valid).toBe(true);
         expect(pp.architecture).toBeTruthy();
         expect(pp.architecture.layers.length).toBe(2);
-    });
+});
 
-    test('valid', () => {
-        let pp = new ParchmintParser();
-        pp.parse(readme_parchmint);
+test('valid parse', () => {
+    let pp = new ParchmintParser();
+    pp.parse(readme_parchmint);
 
-        expect(pp.valid).toBe(true);
-    });
+    expect(pp.valid).toBe(true);
 });
 
 describe('clear method', () => {
@@ -875,45 +873,6 @@ describe('terminals', () => {
             expect(pp.valid).toBe(false);
             expect(term.component).toBeFalsy();
             expect(term.port).toBeFalsy();
-        });
-    });
-});
-
-describe('schema validation', () => {
-    describe('valid', () => {
-        test('required keys (name, layers)', () => {
-            let pp = new ParchmintParser();
-            pp.parse(validParchmintArchBareBones);
-
-            expect(pp.valid).toBe(true);
-        });
-
-        describe('required and', () => {
-            test('components', () => {
-                let pp = new ParchmintParser();
-                pp.parse(validParchmintArchWithComponents);
-
-                expect(pp.valid).toBe(true);
-            });
-
-            test('connections', () => {
-                let pp = new ParchmintParser();
-                let valid = pp.schemaValidator(JSON.parse(validParchmintArchWithConnections));
-
-                // The schema can validate and say this is fine
-                expect(valid).toBe(true);
-
-                pp.parse(validParchmintArchWithConnections);
-                // But actually parsing only connections causes problems
-                expect(pp.valid).toBe(false);
-            });
-
-            test('all keys', () => {
-                let pp = new ParchmintParser();
-                pp.parse(readme_parchmint);
-
-                expect(pp.valid).toBe(true);
-            });
         });
     });
 });
