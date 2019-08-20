@@ -182,7 +182,7 @@ class ParchmintParser {
      *                                      continuing. If this parameter if
      *                                      left as its default, the parser's
      *                                      parchmint field will be used.
-     * @returns {Object}    An Architecture object representing this Parchmint
+     * @returns {object}    An Architecture object representing this Parchmint
      *                      file, or null if the Parchmint itself is invalid.
      */
     parse(parchmint=null) {
