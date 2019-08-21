@@ -181,7 +181,7 @@ class ParchmintParser {
 
         if (!this.schemaValidator(obj)) {
             this.valid = false;
-            console.log('Parser (FATAL ERROR): ' + ajv.errorsText(this.schemaValidator.errors) + '\nAborting.');
+            console.error('Parser (FATAL ERROR): ' + ajv.errorsText(this.schemaValidator.errors) + '\nAborting.');
             return null;
         }
 
