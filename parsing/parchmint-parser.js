@@ -244,30 +244,14 @@ class ParchmintParser {
     parseLayers(jsonObj) {
         // First make sure that neither components nor connections has extra/invalid layers
         for (let layerID of this.components.keys()) {
-            let found = false;
-            for (let l of jsonObj['layers']) {
-                if (l.id === layerID) {
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) {
+            if (!jsonObj['layers'].map(x => x.id).includes(layerID)) {
                 this.valid = false;
                 console.log('Parser: The Components list contains an invalid Layer (' + layerID + ').');
             }
         }
 
         for (let layerID of this.connections.keys()) {
-            let found = false;
-            for (let l of jsonObj['layers']) {
-                if (l.id === layerID) {
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) {
+            if (!jsonObj['layers'].map(x => x.id).includes(layerID)) {
                 this.valid = false;
                 console.log('Parser: The Connections list contains an invalid Layer (' + layerID + ').');
             }
@@ -275,29 +259,20 @@ class ParchmintParser {
 
         // Now we can move on to the actual parsing.
         jsonObj['layers'].forEach((value, index) => {
-            let layerID = value['id'];
-            if (this.isUniqueID(layerID)) {
-                let tempLayer = new Layer(value['name'], layerID);
-                let tempComps = this.components.get(layerID);
-                let tempConns = this.connections.get(layerID);
-
-                // If a Layer does not have Components or Connections we want to leave their value as the default
-                // empty array.
-                if (tempComps) {
-                    tempLayer.components = tempComps;
-                }
-
-                if (tempConns) {
-                    tempLayer.connections = tempConns;
-                }
-
-                this.layers.push(tempLayer);
+            if (this.isUniqueID(value['id'])) {
+                this.layers.push(this.getParsedLayer(value));
             } else {
                 this.valid = false;
-                console.log('Parser: Duplicate IDs (' + layerID + ') found in the "layers" key. Skipping Layer' +
+                console.log('Parser: Duplicate IDs (' + value['id'] + ') found in the layers array. Skipping Layer' +
                         ' with name "' + value['name'] + '" at index ' + index + '.');
             }
         });
+    }
+
+    getParsedLayer(layerObj) {
+        let layerID = layerObj['id'];
+        return new Layer(layerObj['name'], layerID, this.components.get(layerID),
+                this.connections.get(layerID));
     }
 
     /**
@@ -364,24 +339,13 @@ class ParchmintParser {
      * @param {object}  compObj     An object with the fields name, id,
      *                              x-span, y-span, and entity.
      * @param {Array}   ports       The list of ports this Component
-     *                              references in the form of a map. This
-     *                              parameter can be left empty. If this
-     *                              parameter evaluates to falsy it will not be
-     *                              added to the Component.
+     *                              references in the form of a map.
      *
      * @returns {Component} The resulting Component object.
      */
-    static getParsedComponent(compObj, ports = null) {
-        let ret = new Component(compObj['name'], compObj['id'], compObj['x-span'], compObj['y-span'],
-                compObj['entity']);
-
-        // There might not be any ports on the layer, so only add it if we have one, otherwise leave it
-        // as the default value
-        if (ports) {
-            ret.ports = ports;
-        }
-
-        return ret;
+    static getParsedComponent(compObj, ports) {
+        return new Component(compObj['name'], compObj['id'], compObj['x-span'], compObj['y-span'],
+                compObj['entity'], ports);
     }
 
     /**
