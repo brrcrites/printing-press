@@ -19,62 +19,37 @@ function parseJSONObj(str) {
     return JSON.parse('{' + str + '}');
 }
 
-describe('initialization', () => {
-    describe('set Parchmint text', () => {
-        test('constructor', () => {
-            let pp = new ParchmintParser(validParchmintArchBareBones);
-            let arch = pp.parse();
+test('initialization', () => {
+    let pp = new ParchmintParser();
+    let arch = pp.parse(validParchmintArchBareBones);
 
-            expect(pp.valid).toBe(true);
-            expect(arch.name).toBe('bare-bones-architecture-name');
-            expect(arch.layers.length).toBe(1);
-        });
-
-        test('method argument', () => {
-            let pp = new ParchmintParser();
-            let arch = pp.parse(validParchmintArchBareBones);
-
-            expect(pp.valid).toBe(true);
-            expect(arch.name).toBe('bare-bones-architecture-name');
-            expect(arch.layers.length).toBe(1);
-        });
-    });
+    expect(pp.valid).toBe(true);
+    expect(arch.name).toBe('bare-bones-architecture-name');
+    expect(arch.layers.length).toBe(1);
 });
 
-describe('field access', () => {
-    test('architecture', () => {
-        let pp = new ParchmintParser(readme_parchmint);
-        pp.parse();
+test('architecture field access', () => {
+        let pp = new ParchmintParser();
+        pp.parse(readme_parchmint);
 
         expect(pp.valid).toBe(true);
         expect(pp.architecture).toBeTruthy();
         expect(pp.architecture.layers.length).toBe(2);
-    });
+});
 
-    test('valid', () => {
-        let pp = new ParchmintParser(readme_parchmint);
-        pp.parse();
+test('valid parse', () => {
+    let pp = new ParchmintParser();
+    pp.parse(readme_parchmint);
 
-        expect(pp.valid).toBe(true);
-    });
-
-    test('parchmint', () => {
-        let pp = new ParchmintParser(readme_parchmint);
-
-        expect(pp.parchmint).toEqual(readme_parchmint);
-    });
+    expect(pp.valid).toBe(true);
 });
 
 describe('clear method', () => {
     test('fields', () => {
-        let pp = new ParchmintParser(readme_parchmint);
-        pp.parse();
-
-        // We have to set valid false directly because I was silly and chose to use a valid parchmint
-        pp.valid = false;
+        let pp = new ParchmintParser();
+        pp.parse(duplicates_readme_parchmint);
 
         // Let's first just verify that we have data in all the fields
-        expect(pp.parchmint).not.toBe(Validation.DEFAULT_STR_VALUE);
         expect(pp.architecture).toBeTruthy();
         expect(pp.layers.length).toBeGreaterThan(0);
         expect(pp.components.size).toBeGreaterThan(0);
@@ -90,7 +65,6 @@ describe('clear method', () => {
         pp.clear();
 
         // Now lets verify that all that data is gone
-        expect(pp.parchmint).toBe(Validation.DEFAULT_STR_VALUE);
         expect(pp.architecture).toBeFalsy();
         expect(pp.layers.length).toBe(0);
         expect(pp.components.size).toBe(0);
@@ -104,8 +78,8 @@ describe('clear method', () => {
     });
 
     test('parse a different Parchmint', () => {
-        let pp = new ParchmintParser(duplicates_readme_parchmint);
-        pp.parse();
+        let pp = new ParchmintParser();
+        pp.parse(duplicates_readme_parchmint);
 
         expect(pp.valid).toBe(false);
 
@@ -128,8 +102,8 @@ describe('architecture', () => {
         });
 
         test('readme parchmint', () => {
-            let pp = new ParchmintParser(readme_parchmint);
-            let arch = pp.parse();
+            let pp = new ParchmintParser();
+            let arch = pp.parse(readme_parchmint);
 
             expect(pp.valid).toBe(true);
             expect(arch.name).toBe('readme_parchmint');
@@ -356,7 +330,6 @@ describe('components', () => {
         test('port', () => { // The port has layers that do not exist in the component's layer list
             let pp = new ParchmintParser();
             pp.parseComponents(parseJSONObj(nonMatchingPortLayerParchmintComponents));
-
             expect(pp.valid).toBe(true);
             expect(pp.components.size).toBe(1);
             expect(pp.components.has(flowLayerID)).toBe(true);
@@ -900,45 +873,6 @@ describe('terminals', () => {
             expect(pp.valid).toBe(false);
             expect(term.component).toBeFalsy();
             expect(term.port).toBeFalsy();
-        });
-    });
-});
-
-describe('schema validation', () => {
-    describe('valid', () => {
-        test('required keys (name, layers)', () => {
-            let pp = new ParchmintParser(validParchmintArchBareBones);
-            pp.parse();
-
-            expect(pp.valid).toBe(true);
-        });
-
-        describe('required and', () => {
-            test('components', () => {
-                let pp = new ParchmintParser(validParchmintArchWithComponents);
-                pp.parse();
-
-                expect(pp.valid).toBe(true);
-            });
-
-            test('connections', () => {
-                let pp = new ParchmintParser();
-                let valid = pp.schemaValidator(JSON.parse(validParchmintArchWithConnections));
-
-                // The schema can validate and say this is fine
-                expect(valid).toBe(true);
-
-                pp.parse(validParchmintArchWithConnections);
-                // But actually parsing only connections causes problems
-                expect(pp.valid).toBe(false);
-            });
-
-            test('all keys', () => {
-                let pp = new ParchmintParser(readme_parchmint);
-                pp.parse();
-
-                expect(pp.valid).toBe(true);
-            });
         });
     });
 });

@@ -1,4 +1,3 @@
-const Validation = require('../utils/validation.js');
 const Architecture = require('../model/architecture.js');
 const Layer = require('../model/layer.js');
 const Component = require('../model/component.js');
@@ -53,18 +52,6 @@ class ParchmintParser {
      * @type {Set<string>}
      */
     idSet;
-
-    /**
-     * The ParchMint file.
-     *
-     * The file can be represented by either a string of JSON text or an object.
-     *
-     * @since 1.0.0
-     * @access public
-     *
-     * @type {string|object}
-     */
-    parchmint;
 
     /**
      * The Architecture defined by the given Parchmint file.
@@ -146,19 +133,13 @@ class ParchmintParser {
      * @class
      *
      * @since 1.0.0
-     *
-     * @param {string|object}   parchmint   A Parchmint file. If the parameter
-     *                                      is of type string, it will be parsed
-     *                                      by {@link JSON.parse} before
-     *                                      continuing.
      */
-    constructor(parchmint = Validation.DEFAULT_STR_VALUE) {
-        this.parchmint = parchmint;
-
+    constructor() {
         this.valid = true;
         this.idSet = new Set();
 
         this.architecture = null;
+
         this.layers = [];
         this.components = new Map();
         this.connections = new Map();
@@ -181,27 +162,26 @@ class ParchmintParser {
      *                                      continuing. If this parameter if
      *                                      left as its default, the parser's
      *                                      parchmint field will be used.
-     * @returns {Object}    An Architecture object representing this Parchmint
+     * @returns {object}    An Architecture object representing this Parchmint
      *                      file, or null if the Parchmint itself is invalid.
      */
-    parse(parchmint=null) {
-        let file = parchmint ? parchmint : this.parchmint;
+    parse(parchmint) {
         let obj;
 
-        if (typeof file === 'string') {
-            obj = JSON.parse(file);
-        } else if (typeof file === 'object') {
-            obj = file;
+        if (typeof parchmint === 'string') {
+            obj = JSON.parse(parchmint);
+        } else if (typeof parchmint === 'object') {
+            obj = parchmint;
         } else {
             this.valid = false;
-            console.log('Parser (FATAL ERROR): Parchmint file was not represented as a string, nor an' +
+            console.error('Parser (FATAL ERROR): Parchmint file was not represented as a string, nor an' +
                     ' object.\nAborting.');
             return null;
         }
 
         if (!this.schemaValidator(obj)) {
             this.valid = false;
-            console.log('Parser (FATAL ERROR): ' + ajv.errorsText(this.schemaValidator.errors) + '\nAborting.');
+            console.error('Parser (FATAL ERROR): ' + ajv.errorsText(this.schemaValidator.errors) + '\nAborting.');
             return null;
         }
 
@@ -244,30 +224,14 @@ class ParchmintParser {
     parseLayers(jsonObj) {
         // First make sure that neither components nor connections has extra/invalid layers
         for (let layerID of this.components.keys()) {
-            let found = false;
-            for (let l of jsonObj['layers']) {
-                if (l.id === layerID) {
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) {
+            if (!jsonObj['layers'].map(x => x.id).includes(layerID)) {
                 this.valid = false;
                 console.log('Parser: The Components list contains an invalid Layer (' + layerID + ').');
             }
         }
 
         for (let layerID of this.connections.keys()) {
-            let found = false;
-            for (let l of jsonObj['layers']) {
-                if (l.id === layerID) {
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) {
+            if (!jsonObj['layers'].map(x => x.id).includes(layerID)) {
                 this.valid = false;
                 console.log('Parser: The Connections list contains an invalid Layer (' + layerID + ').');
             }
@@ -287,21 +251,8 @@ class ParchmintParser {
 
     getParsedLayer(layerObj) {
         let layerID = layerObj['id'];
-        let tempLayer = new Layer(layerObj['name'], layerID);
-        let tempComps = this.components.get(layerID);
-        let tempConns = this.connections.get(layerID);
-
-        // If a Layer does not have Components or Connections we want to leave their value as the default
-        // empty array.
-        if (tempComps) {
-            tempLayer.components = tempComps;
-        }
-
-        if (tempConns) {
-            tempLayer.connections = tempConns;
-        }
-
-        return tempLayer;
+        return new Layer(layerObj['name'], layerID, this.components.get(layerID),
+                this.connections.get(layerID));
     }
 
     /**
@@ -322,6 +273,15 @@ class ParchmintParser {
 
             // Next check whether this ID of this Component is a duplicate
             if (this.isUniqueID(compValue['id'])) {
+                // Now compare the port map layers to the component's layers
+                for (let layer of ports.keys()) {
+                    if (compValue['layers'].indexOf(layer) === -1) {
+                        console.log('Parser (WARNING): The Component with ID "' + compValue['id'] + '" and name "'
+                                + compValue['name'] + '" contains a Port with a Layer ID (' + layer + ') that does' +
+                                ' not exist in the Component\'s Layer list.');
+                    }
+                }
+
                 // Now compare the port map layers to the component's layers
                 for (let layer of ports.keys()) {
                     if (compValue['layers'].indexOf(layer) === -1) {
@@ -368,24 +328,13 @@ class ParchmintParser {
      * @param {object}  compObj     An object with the fields name, id,
      *                              x-span, y-span, and entity.
      * @param {Array}   ports       The list of ports this Component
-     *                              references in the form of a map. This
-     *                              parameter can be left empty. If this
-     *                              parameter evaluates to falsy it will not be
-     *                              added to the Component.
+     *                              references in the form of a map.
      *
      * @returns {Component} The resulting Component object.
      */
-    static getParsedComponent(compObj, ports = null) {
-        let ret = new Component(compObj['name'], compObj['id'], compObj['x-span'], compObj['y-span'],
-                compObj['entity']);
-
-        // There might not be any ports on the layer, so only add it if we have one, otherwise leave it
-        // as the default value
-        if (ports) {
-            ret.ports = ports;
-        }
-
-        return ret;
+    static getParsedComponent(compObj, ports) {
+        return new Component(compObj['name'], compObj['id'], compObj['x-span'], compObj['y-span'],
+                compObj['entity'], ports);
     }
 
     /**
@@ -423,17 +372,9 @@ class ParchmintParser {
      * @returns {Connection}    The resulting Connection object.
      */
     getParsedConnection(connObj) {
-        let ret = new Connection(connObj['name'], connObj['id'], this.getParsedTerminal(connObj['source'],
-                connObj['layer']), this.getParsedTerminals(connObj['sinks'], connObj['layer']));
-        let feature = this.connFeatures.get(connObj['layer']);
-
-        // Connection Features are not required, so we only add them to the Connection if we parsed some,
-        // otherwise we'll leave it null.
-        if (feature) {
-            ret.segments = feature;
-        }
-
-        return ret;
+        return new Connection(connObj['name'], connObj['id'], this.getParsedTerminal(connObj['source'],
+                connObj['layer']), this.getParsedTerminals(connObj['sinks'], connObj['layer']),
+                this.connFeatures.get(connObj['layer']));
     }
 
     /**
@@ -696,8 +637,6 @@ class ParchmintParser {
      * @since 1.0.0
      */
     clear() {
-        this.parchmint = Validation.DEFAULT_STR_VALUE;
-
         this.valid = true;
         this.idSet.clear();
 
