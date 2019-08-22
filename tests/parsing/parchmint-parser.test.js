@@ -19,6 +19,55 @@ function parseJSONObj(str) {
     return JSON.parse('{' + str + '}');
 }
 
+test('initialization', () => {
+    let pp = new ParchmintParser();
+    let arch = pp.parse(validParchmintArchBareBones);
+
+    expect(pp.valid).toBe(true);
+    expect(arch.name).toBe('bare-bones-architecture-name');
+    expect(arch.layers.length).toBe(1);
+});
+
+test('architecture field access', () => {
+        let pp = new ParchmintParser();
+        pp.parse(readme_parchmint);
+
+        expect(pp.valid).toBe(true);
+        expect(pp.architecture).toBeTruthy();
+        expect(pp.architecture.layers.length).toBe(2);
+});
+
+test('valid parse', () => {
+    let pp = new ParchmintParser();
+    pp.parse(readme_parchmint);
+
+    expect(pp.valid).toBe(true);
+});
+
+describe('architecture', () => {
+    describe('benchmarks', () => {
+        test('planar synthetic 1', () => {
+            let pp = new ParchmintParser();
+            let arch = pp.parse(planar_synthetic_1);
+
+            expect(pp.valid).toBe(true);
+            expect(arch.name).toBe('Planar_Synthetic_1');
+            expect(arch.layers.length).toBe(1);
+        });
+
+        test('readme parchmint', () => {
+            let pp = new ParchmintParser();
+            let arch = pp.parse(readme_parchmint);
+
+            expect(pp.valid).toBe(true);
+            expect(arch.name).toBe('readme_parchmint');
+            expect(arch.layers.length).toBe(2);
+            expect(arch.layers[0].id).toBe(flowLayerID);
+            expect(arch.layers[1].id).toBe(controlLayerID);
+        });
+    });
+});
+
 describe('layers', () => {
     describe('valid', () => {
         test('no components/features', () => {
@@ -235,7 +284,6 @@ describe('components', () => {
         test('port', () => { // The port has layers that do not exist in the component's layer list
             let pp = new ParchmintParser();
             pp.parseComponents(parseJSONObj(nonMatchingPortLayerParchmintComponents));
-
             expect(pp.valid).toBe(true);
             expect(pp.components.size).toBe(1);
             expect(pp.components.has(flowLayerID)).toBe(true);
@@ -784,6 +832,94 @@ describe('terminals', () => {
 });
 
 //-- Begin Parchmint JSON strings --\\
+const readme_parchmint = require('./parchmints/readme_parchmint.json');
+const duplicates_readme_parchmint = require('./parchmints/duplicates_readme_parchmint.json');
+
+const validParchmintArchBareBones = '{' +
+        '"name": "bare-bones-architecture-name",\n' +
+        '"layers": [{\n' +
+        '   "name": "layer",\n' +
+        '   "id":   "layer-id"\n' +
+        '}]\n' +
+        '}';
+
+const validParchmintArchWithComponents = '{\n' +
+        '"name": "bare-bones-architecture-name",\n' +
+        '"layers": [\n' +
+        '   {\n' +
+        '       "name": "flow-layer",\n' +
+        '       "id":   "unique-flow-layer-id-string"\n' +
+        '   },\n' +
+        '   {\n' +
+        '       "name": "control-layer",\n' +
+        '       "id":   "unique-control-layer-id-string"\n' +
+        '   }\n' +
+        '],\n' +
+        '"components": [\n' +
+        '    {\n' +
+        '        "id": "unique-mixer-id-string",\n' +
+        '        "name": "mixer-001",\n' +
+        '        "layers": [\n' +
+        '            "unique-flow-layer-id-string",\n' +
+        '            "unique-control-layer-id-string"\n' +
+        '        ],\n' +
+        '        "x-span": 4500,\n' +
+        '        "y-span": 1500,\n' +
+        '        "entity": "rotary-mixer",\n' +
+        '        "ports": [\n' +
+        '            {\n' +
+        '                "label": "input-port",\n' +
+        '                "layer": "unique-flow-layer-id-string",\n' +
+        '                "x": 0,\n' +
+        '                "y": 750\n' +
+        '            },\n' +
+        '            {\n' +
+        '                "label": "output-port",\n' +
+        '                "layer": "unique-flow-layer-id-string",\n' +
+        '                "x": 4500,\n' +
+        '                "y": 750\n' +
+        '            },\n' +
+        '            {\n' +
+        '                "label": "rotary-control-port",\n' +
+        '                "layer": "unique-control-layer-id-string",\n' +
+        '                "x": 2250,\n' +
+        '                "y": 0\n' +
+        '            }\n' +
+        '        ]\n' +
+        '    }\n' +
+        ']\n' +
+        '}';
+
+const validParchmintArchWithConnections = '{\n' +
+        '"name": "bare-bones-architecture-name",\n' +
+        '"layers": [\n' +
+        '   {\n' +
+        '       "name": "flow-layer",\n' +
+        '       "id":   "unique-flow-layer-id-string"\n' +
+        '   },\n' +
+        '   {\n' +
+        '       "name": "control-layer",\n' +
+        '       "id":   "unique-control-layer-id-string"\n' +
+        '   }\n' +
+        '],\n' +
+        '"connections": [\n' +
+        '    {\n' +
+        '        "id": "unique-mixer-flow-connection-id",\n' +
+        '        "name": "mixer-flow-connection",\n' +
+        '        "layer": "unique-flow-layer-id-string",\n' +
+        '        "source": {\n' +
+        '            "component": "unique-mixer-id-string",\n' +
+        '            "port": "output-port"\n' +
+        '        },\n' +
+        '        "sinks": [\n' +
+        '            {\n' +
+        '               "component": "unique-mixer-id-string",\n' +
+        '               "port": "input-port"\n' +
+        '            }\n' +
+        '        ]\n' +
+        '    }\n' +
+        ']}';
+
 const validParchmintLayersNoCompConn = '"layers": [\n' +
         '    {\n' +
         '        "id": "unique-flow-layer-id-string",\n' +
@@ -1562,6 +1698,7 @@ const invalidPortTerminal = '"terminal": {\n' +
         '                "port": "io-port"\n' +
         '            }';
 
+//-- Complete Parchmints --\\
 const planar_synthetic_1 = '{\n' +
         '    "components": [\n' +
         '        {\n' +

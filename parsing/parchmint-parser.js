@@ -1,4 +1,4 @@
-const Validation = require('../utils/validation.js');
+const Architecture = require('../model/architecture.js');
 const Layer = require('../model/layer.js');
 const Component = require('../model/component.js');
 const Connection = require('../model/connection.js');
@@ -8,8 +8,24 @@ const Coord = require('../model/coord.js');
 const Port = require('../model/port.js');
 const Terminal = require('../model/terminal.js');
 
+const Ajv = require('ajv');
+const schema = require('./schema.json');
+var ajv = new Ajv({allErrors: true});
+
 
 class ParchmintParser {
+
+    /**
+     * The compiled JSON schema validator.
+     *
+     * @see Ajv
+     *
+     * @since 1.0.0
+     * @access public
+     *
+     * type {object}
+     */
+    schemaValidator;
 
     /**
      * Whether the Parchmint was valid.
@@ -38,14 +54,14 @@ class ParchmintParser {
     idSet;
 
     /**
-     * The ParchMint file text.
+     * The Architecture defined by the given Parchmint file.
      *
      * @since 1.0.0
      * @access public
      *
-     * @type {string}
+     * @type {object}
      */
-    parchmint;
+    architecture;
 
     /**
      * An array containing all of the Layers that have been parsed.
@@ -117,22 +133,81 @@ class ParchmintParser {
      * @class
      *
      * @since 1.0.0
-     *
-     * @param {string} parchmint
      */
-    constructor(parchmint = Validation.DEFAULT_STR_VALUE) {
-        this.parchmint = parchmint;
-
+    constructor() {
         this.valid = true;
         this.idSet = new Set();
+
+        this.architecture = null;
 
         this.layers = [];
         this.components = new Map();
         this.connections = new Map();
         this.compFeatures = new Map();
         this.connFeatures = new Map();
+
+        this.schemaValidator = ajv.compile(schema);
     }
 
+    /**
+     * Parses, builds, and validates the Architecture from the given Parchmint.
+     *
+     * Sets the parser invalid if the Architecture is invalid.
+     *
+     * @since 1.0.0
+     *
+     * @param {string|object}   parchmint   A Parchmint file. If the parameter
+     *                                      is of type string, it will be parsed
+     *                                      by {@link JSON.parse} before
+     *                                      continuing. If this parameter if
+     *                                      left as its default, the parser's
+     *                                      parchmint field will be used.
+     * @returns {object}    An Architecture object representing this Parchmint
+     *                      file, or null if the Parchmint itself is invalid.
+     */
+    parse(parchmint) {
+        let obj;
+
+        if (typeof parchmint === 'string') {
+            obj = JSON.parse(parchmint);
+        } else if (typeof parchmint === 'object') {
+            obj = parchmint;
+        } else {
+            this.valid = false;
+            console.error('Parser (FATAL ERROR): Parchmint file was not represented as a string, nor an' +
+                    ' object.\nAborting.');
+            return null;
+        }
+
+        if (!this.schemaValidator(obj)) {
+            this.valid = false;
+            console.error('Parser (FATAL ERROR): ' + ajv.errorsText(this.schemaValidator.errors) + '\nAborting.');
+            return null;
+        }
+
+        // The only required keys are "layers" and "name", so we need to check whether these keys exist before
+        // trying to parse them.
+        if (obj['features']) {
+            this.parseComponentFeatures(obj);
+        }
+        if (obj['components']) {
+            this.parseComponents(obj);
+        }
+        if (obj['features']) {
+            this.parseConnectionFeatures(obj);
+        }
+        if (obj['connections']) {
+            this.parseConnections(obj);
+        }
+
+        // We are guaranteed to always have a "layers" key
+        this.parseLayers(obj);
+
+        this.architecture = new Architecture(obj['name'], this.layers);
+        this.valid = this.architecture.validate() ? this.valid : false;
+
+        return this.architecture;
+    }
 
     /**
      * Parse a JSON object for the layers key.
@@ -168,7 +243,7 @@ class ParchmintParser {
                 this.layers.push(this.getParsedLayer(value));
             } else {
                 this.valid = false;
-                console.log('Parser: Duplicate IDs (' + layerID + ') found in the "layers" key. Skipping Layer' +
+                console.log('Parser: Duplicate IDs (' + value['id'] + ') found in the "layers" key. Skipping Layer' +
                         ' with name "' + value['name'] + '" at index ' + index + '.');
             }
         });
@@ -197,12 +272,15 @@ class ParchmintParser {
             let ports = this.getParsedPorts(compValue['ports']);
 
             // Next check whether this ID of this Component is a duplicate
-            if (this.idSet.has(compValue['id'])) {
-                this.valid = false;
-                console.log('Parser: Duplicate ID (' + compValue['id'] + ') found in Components array. Skipping' +
-                        ' Component with name ' + compValue['name'] + ' at index ' + index + '.');
-            } else {
-                this.idSet.add(compValue['id']);
+            if (this.isUniqueID(compValue['id'])) {
+                // Now compare the port map layers to the component's layers
+                for (let layer of ports.keys()) {
+                    if (compValue['layers'].indexOf(layer) === -1) {
+                        console.log('Parser (WARNING): The Component with ID "' + compValue['id'] + '" and name "'
+                                + compValue['name'] + '" contains a Port with a Layer ID (' + layer + ') that does' +
+                                ' not exist in the Component\'s Layer list.');
+                    }
+                }
 
                 // Now compare the port map layers to the component's layers
                 for (let layer of ports.keys()) {
@@ -233,6 +311,10 @@ class ParchmintParser {
 
                     ParchmintParser.addToMap(this.components, layerValue, tempComp);
                 });
+            } else {
+                this.valid = false;
+                console.log('Parser: Duplicate ID (' + compValue['id'] + ') found in Components array. Skipping' +
+                        ' Component with name ' + compValue['name'] + ' at index ' + index + '.');
             }
         });
     }

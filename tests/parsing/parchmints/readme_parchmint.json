@@ -1,4 +1,5 @@
 {
+    "name": "readme_parchmint",
     "layers": [
         {
             "id": "unique-flow-layer-id-string",
@@ -40,6 +41,24 @@
                     "y": 0
                 }
             ]
+        },
+        {
+            "id": "unique-output-id-string",
+            "name": "output",
+            "layers": [
+                "unique-flow-layer-id-string"
+            ],
+            "x-span": 200,
+            "y-span": 200,
+            "entity": "output-component",
+            "ports": [
+                {
+                    "label": "io-port",
+                    "layer": "unique-flow-layer-id-string",
+                    "x": 0,
+                    "y": 100
+                }
+            ]
         }
     ],
     "connections": [
@@ -71,6 +90,18 @@
             "x-span": 4500,
             "y-span": 1500,
             "depth": 10
+        },
+        {
+            "name": "output",
+            "id": "unique-output-id-string",
+            "layer": "unique-flow-layer-id-string",
+            "location": {
+                "x": 0,
+                "y": 0
+            },
+            "x-span": 200,
+            "y-span": 200,
+            "depth": 15
         },
         {
             "name": "mixer-flow-connection-segment-001",

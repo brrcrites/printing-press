@@ -1,0 +1,1340 @@
+{
+    "components": [
+        {
+            "entity": "Input-port",
+            "id": "hhh_id",
+            "layers": [
+                "flow"
+            ],
+            "name": "Input-0"
+        },
+        {
+            "entity": "Input-port",
+            "id": "ggg_id",
+            "layers": [
+                "flow"
+            ],
+            "name": "Input-1"
+        },
+        {
+            "entity": "Input-port",
+            "id": "fff_id",
+            "layers": [
+                "flow"
+            ],
+            "name": "Input-2"
+        },
+        {
+            "entity": "Input-port",
+            "id": "eee_id",
+            "layers": [
+                "flow"
+            ],
+            "name": "Input-3"
+        },
+        {
+            "entity": "Input-port",
+            "id": "ddd_id",
+            "layers": [
+                "flow"
+            ],
+            "name": "Input-4"
+        },
+        {
+            "entity": "Input-port",
+            "id": "ccc_id",
+            "layers": [
+                "flow"
+            ],
+            "name": "Input-5"
+        },
+        {
+            "entity": "Input-port",
+            "id": "bbb_id",
+            "layers": [
+                "flow"
+            ],
+            "name": "Input-6"
+        },
+        {
+            "entity": "Input-port",
+            "id": "aaa_id",
+            "layers": [
+                "flow"
+            ],
+            "name": "Input-7"
+        },
+        {
+            "entity": "serpentine-mixer",
+            "id": "f40_id",
+            "layers": [
+                "flow"
+            ],
+            "name": "f40"
+        },
+        {
+            "entity": "serpentine-mixer",
+            "id": "f30_id",
+            "layers": [
+                "flow"
+            ],
+            "name": "f30"
+        },
+        {
+            "entity": "serpentine-mixer",
+            "id": "f20_id",
+            "layers": [
+                "flow"
+            ],
+            "name": "f20"
+        },
+        {
+            "entity": "serpentine-mixer",
+            "id": "f10_id",
+            "layers": [
+                "flow"
+            ],
+            "name": "f10"
+        },
+        {
+            "entity": "serpentine-mixer",
+            "id": "t20_id",
+            "layers": [
+                "flow"
+            ],
+            "name": "t20"
+        },
+        {
+            "entity": "serpentine-mixer",
+            "id": "t10_id",
+            "layers": [
+                "flow"
+            ],
+            "name": "t10"
+        },
+        {
+            "entity": "serpentine-mixer",
+            "id": "final0_id",
+            "layers": [
+                "flow"
+            ],
+            "name": "final0"
+        },
+        {
+            "entity": "Output-port",
+            "id": "final1_id",
+            "layers": [
+                "flow"
+            ],
+            "name": "final1"
+        }
+    ],
+    "connections": [
+        {
+            "id": "hhh|f40",
+            "layer": "flow",
+            "name": "hhh_f40",
+            "sinks": [
+                "f40_id"
+            ],
+            "source": "hhh_id"
+        },
+        {
+            "id": "ggg|f40",
+            "layer": "flow",
+            "name": "ggg_f40",
+            "sinks": [
+                "f40_id"
+            ],
+            "source": "ggg_id"
+        },
+        {
+            "id": "eee|f30",
+            "layer": "flow",
+            "name": "eee_f30",
+            "sinks": [
+                "f30_id"
+            ],
+            "source": "eee_id"
+        },
+        {
+            "id": "fff|f30",
+            "layer": "flow",
+            "name": "fff_f30",
+            "sinks": [
+                "f30_id"
+            ],
+            "source": "fff_id"
+        },
+        {
+            "id": "ccc|f20",
+            "layer": "flow",
+            "name": "ccc_f20",
+            "sinks": [
+                "f20_id"
+            ],
+            "source": "ccc_id"
+        },
+        {
+            "id": "ddd|f20",
+            "layer": "flow",
+            "name": "ddd_f20",
+            "sinks": [
+                "f20_id"
+            ],
+            "source": "ddd_id"
+        },
+        {
+            "id": "aaa|f10",
+            "layer": "flow",
+            "name": "aaa_f10",
+            "sinks": [
+                "f10_id"
+            ],
+            "source": "aaa_id"
+        },
+        {
+            "id": "bbb|f10",
+            "layer": "flow",
+            "name": "bbb_f10",
+            "sinks": [
+                "f10_id"
+            ],
+            "source": "bbb_id"
+        },
+        {
+            "id": "f40|t20",
+            "layer": "flow",
+            "name": "f40_t20",
+            "sinks": [
+                "t20_id"
+            ],
+            "source": "f40_id"
+        },
+        {
+            "id": "f30|t20",
+            "layer": "flow",
+            "name": "f30_t20",
+            "sinks": [
+                "t20_id"
+            ],
+            "source": "f30_id"
+        },
+        {
+            "id": "f20|t10",
+            "layer": "flow",
+            "name": "f20_t10",
+            "sinks": [
+                "t10_id"
+            ],
+            "source": "f20_id"
+        },
+        {
+            "id": "f10|t10",
+            "layer": "flow",
+            "name": "f10_t10",
+            "sinks": [
+                "t10_id"
+            ],
+            "source": "f10_id"
+        },
+        {
+            "id": "t10|final0",
+            "layer": "flow",
+            "name": "t10_final0",
+            "sinks": [
+                "final0_id"
+            ],
+            "source": "t10_id"
+        },
+        {
+            "id": "t20|final0",
+            "layer": "flow",
+            "name": "t20_final0",
+            "sinks": [
+                "final0_id"
+            ],
+            "source": "t20_id"
+        },
+        {
+            "id": "final0|final1",
+            "layer": "flow",
+            "name": "final0_final1",
+            "sinks": [
+                "final1_id"
+            ],
+            "source": "final0_id"
+        }
+    ],
+    "features": [
+        {
+            "id": "hhh_id",
+            "layer": "flow",
+            "name": "Input-0",
+            "params": {
+                "depth": 100,
+                "height": 140,
+                "location": {
+                    "x": 10,
+                    "y": 10
+                },
+                "rotation": 0,
+                "width": 140
+            }
+        },
+        {
+            "id": "ggg_id",
+            "layer": "flow",
+            "name": "Input-1",
+            "params": {
+                "depth": 100,
+                "height": 140,
+                "location": {
+                    "x": 10,
+                    "y": 160
+                },
+                "rotation": 0,
+                "width": 140
+            }
+        },
+        {
+            "id": "fff_id",
+            "layer": "flow",
+            "name": "Input-2",
+            "params": {
+                "depth": 100,
+                "height": 140,
+                "location": {
+                    "x": 10,
+                    "y": 460
+                },
+                "rotation": 0,
+                "width": 140
+            }
+        },
+        {
+            "id": "eee_id",
+            "layer": "flow",
+            "name": "Input-3",
+            "params": {
+                "depth": 100,
+                "height": 140,
+                "location": {
+                    "x": 10,
+                    "y": 310
+                },
+                "rotation": 0,
+                "width": 140
+            }
+        },
+        {
+            "id": "ddd_id",
+            "layer": "flow",
+            "name": "Input-4",
+            "params": {
+                "depth": 100,
+                "height": 140,
+                "location": {
+                    "x": 10,
+                    "y": 760
+                },
+                "rotation": 0,
+                "width": 140
+            }
+        },
+        {
+            "id": "ccc_id",
+            "layer": "flow",
+            "name": "Input-5",
+            "params": {
+                "depth": 100,
+                "height": 140,
+                "location": {
+                    "x": 10,
+                    "y": 610
+                },
+                "rotation": 0,
+                "width": 140
+            }
+        },
+        {
+            "id": "bbb_id",
+            "layer": "flow",
+            "name": "Input-6",
+            "params": {
+                "depth": 100,
+                "height": 140,
+                "location": {
+                    "x": 10,
+                    "y": 1060
+                },
+                "rotation": 0,
+                "width": 140
+            }
+        },
+        {
+            "id": "aaa_id",
+            "layer": "flow",
+            "name": "Input-7",
+            "params": {
+                "depth": 100,
+                "height": 140,
+                "location": {
+                    "x": 10,
+                    "y": 910
+                },
+                "rotation": 0,
+                "width": 140
+            }
+        },
+        {
+            "id": "f40_id",
+            "layer": "flow",
+            "name": "f40",
+            "params": {
+                "depth": 100,
+                "height": 60,
+                "location": {
+                    "x": 160,
+                    "y": 125
+                },
+                "rotation": 0,
+                "width": 150
+            }
+        },
+        {
+            "id": "f30_id",
+            "layer": "flow",
+            "name": "f30",
+            "params": {
+                "depth": 100,
+                "height": 60,
+                "location": {
+                    "x": 160,
+                    "y": 425
+                },
+                "rotation": 0,
+                "width": 150
+            }
+        },
+        {
+            "id": "f20_id",
+            "layer": "flow",
+            "name": "f20",
+            "params": {
+                "depth": 100,
+                "height": 60,
+                "location": {
+                    "x": 160,
+                    "y": 725
+                },
+                "rotation": 0,
+                "width": 150
+            }
+        },
+        {
+            "id": "f10_id",
+            "layer": "flow",
+            "name": "f10",
+            "params": {
+                "depth": 100,
+                "height": 60,
+                "location": {
+                    "x": 160,
+                    "y": 1025
+                },
+                "rotation": 0,
+                "width": 150
+            }
+        },
+        {
+            "id": "t20_id",
+            "layer": "flow",
+            "name": "t20",
+            "params": {
+                "depth": 100,
+                "height": 60,
+                "location": {
+                    "x": 320,
+                    "y": 275
+                },
+                "rotation": 0,
+                "width": 150
+            }
+        },
+        {
+            "id": "t10_id",
+            "layer": "flow",
+            "name": "t10",
+            "params": {
+                "depth": 100,
+                "height": 60,
+                "location": {
+                    "x": 320,
+                    "y": 875
+                },
+                "rotation": 0,
+                "width": 150
+            }
+        },
+        {
+            "id": "final0_id",
+            "layer": "flow",
+            "name": "final0",
+            "params": {
+                "depth": 100,
+                "height": 60,
+                "location": {
+                    "x": 480,
+                    "y": 575
+                },
+                "rotation": 0,
+                "width": 150
+            }
+        },
+        {
+            "id": "final1_id",
+            "layer": "flow",
+            "name": "final1",
+            "params": {
+                "depth": 100,
+                "height": 140,
+                "location": {
+                    "x": 640,
+                    "y": 535
+                },
+                "rotation": 0,
+                "width": 140
+            }
+        },
+        {
+            "id": "eb616b17-803a-48e8-9d48-dd6df2c715ec",
+            "layer": "flow",
+            "name": "hhh_f40",
+            "params": {
+                "connection": "hhh|f40",
+                "depth": -1,
+                "sink": {
+                    "x": 151,
+                    "y": 80
+                },
+                "source": {
+                    "x": 150,
+                    "y": 80
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "fbfb6670-501e-4285-9275-297d51f08aaa",
+            "layer": "flow",
+            "name": "hhh_f40",
+            "params": {
+                "connection": "hhh|f40",
+                "depth": -1,
+                "sink": {
+                    "x": 151,
+                    "y": 133
+                },
+                "source": {
+                    "x": 151,
+                    "y": 80
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "5e97728f-d834-42a8-82ea-b6fb8398125c",
+            "layer": "flow",
+            "name": "hhh_f40",
+            "params": {
+                "connection": "hhh|f40",
+                "depth": -1,
+                "sink": {
+                    "x": 160,
+                    "y": 133
+                },
+                "source": {
+                    "x": 151,
+                    "y": 133
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "76badd32-f72d-4309-80d6-6422ad0efd78",
+            "layer": "flow",
+            "name": "ggg_f40",
+            "params": {
+                "connection": "ggg|f40",
+                "depth": -1,
+                "sink": {
+                    "x": 151,
+                    "y": 230
+                },
+                "source": {
+                    "x": 150,
+                    "y": 230
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "15853cd3-1726-4fac-9ab4-4e41c3fbce4f",
+            "layer": "flow",
+            "name": "ggg_f40",
+            "params": {
+                "connection": "ggg|f40",
+                "depth": -1,
+                "sink": {
+                    "x": 151,
+                    "y": 177
+                },
+                "source": {
+                    "x": 151,
+                    "y": 230
+                },
+                "width": 53
+            },
+            "type": "channel"
+        },
+        {
+            "id": "69f3fd6d-a108-4d39-86ef-35ba7234151e",
+            "layer": "flow",
+            "name": "ggg_f40",
+            "params": {
+                "connection": "ggg|f40",
+                "depth": -1,
+                "sink": {
+                    "x": 160,
+                    "y": 177
+                },
+                "source": {
+                    "x": 151,
+                    "y": 177
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "45db5467-7fa4-4f65-a953-884a5e150c6b",
+            "layer": "flow",
+            "name": "eee_f30",
+            "params": {
+                "connection": "eee|f30",
+                "depth": -1,
+                "sink": {
+                    "x": 151,
+                    "y": 380
+                },
+                "source": {
+                    "x": 150,
+                    "y": 380
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "f27ca199-4c5e-47c8-8ae5-7c37eb01fab6",
+            "layer": "flow",
+            "name": "eee_f30",
+            "params": {
+                "connection": "eee|f30",
+                "depth": -1,
+                "sink": {
+                    "x": 151,
+                    "y": 433
+                },
+                "source": {
+                    "x": 151,
+                    "y": 380
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "8f2a1e02-48d3-4fad-9c1f-c4463870a686",
+            "layer": "flow",
+            "name": "eee_f30",
+            "params": {
+                "connection": "eee|f30",
+                "depth": -1,
+                "sink": {
+                    "x": 160,
+                    "y": 433
+                },
+                "source": {
+                    "x": 151,
+                    "y": 433
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "b4fbe1b8-a62a-4bbd-9167-8f4926028f09",
+            "layer": "flow",
+            "name": "fff_f30",
+            "params": {
+                "connection": "fff|f30",
+                "depth": -1,
+                "sink": {
+                    "x": 151,
+                    "y": 530
+                },
+                "source": {
+                    "x": 150,
+                    "y": 530
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "bdec4939-3d44-4879-ba32-16acc548887a",
+            "layer": "flow",
+            "name": "fff_f30",
+            "params": {
+                "connection": "fff|f30",
+                "depth": -1,
+                "sink": {
+                    "x": 151,
+                    "y": 477
+                },
+                "source": {
+                    "x": 151,
+                    "y": 530
+                },
+                "width": 53
+            },
+            "type": "channel"
+        },
+        {
+            "id": "d2c5bc70-1c60-43a8-8b4a-6507c7494453",
+            "layer": "flow",
+            "name": "fff_f30",
+            "params": {
+                "connection": "fff|f30",
+                "depth": -1,
+                "sink": {
+                    "x": 160,
+                    "y": 477
+                },
+                "source": {
+                    "x": 151,
+                    "y": 477
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "9b2a5617-a185-4d1d-bfe5-dadcd7b6e4f0",
+            "layer": "flow",
+            "name": "ccc_f20",
+            "params": {
+                "connection": "ccc|f20",
+                "depth": -1,
+                "sink": {
+                    "x": 151,
+                    "y": 680
+                },
+                "source": {
+                    "x": 150,
+                    "y": 680
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "10b8d370-f586-452a-ae87-9068b550fe69",
+            "layer": "flow",
+            "name": "ccc_f20",
+            "params": {
+                "connection": "ccc|f20",
+                "depth": -1,
+                "sink": {
+                    "x": 151,
+                    "y": 733
+                },
+                "source": {
+                    "x": 151,
+                    "y": 680
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "68262998-6122-47e2-9fad-a3f83fa78b77",
+            "layer": "flow",
+            "name": "ccc_f20",
+            "params": {
+                "connection": "ccc|f20",
+                "depth": -1,
+                "sink": {
+                    "x": 160,
+                    "y": 733
+                },
+                "source": {
+                    "x": 151,
+                    "y": 733
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "a139d52b-7681-48db-93a0-8cfcd0a13ec8",
+            "layer": "flow",
+            "name": "ddd_f20",
+            "params": {
+                "connection": "ddd|f20",
+                "depth": -1,
+                "sink": {
+                    "x": 151,
+                    "y": 830
+                },
+                "source": {
+                    "x": 150,
+                    "y": 830
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "80c33b85-c05b-49ea-b0cd-ab006df66f26",
+            "layer": "flow",
+            "name": "ddd_f20",
+            "params": {
+                "connection": "ddd|f20",
+                "depth": -1,
+                "sink": {
+                    "x": 151,
+                    "y": 777
+                },
+                "source": {
+                    "x": 151,
+                    "y": 830
+                },
+                "width": 53
+            },
+            "type": "channel"
+        },
+        {
+            "id": "9deaa13d-2388-461e-b6ac-805d8a7bd3d8",
+            "layer": "flow",
+            "name": "ddd_f20",
+            "params": {
+                "connection": "ddd|f20",
+                "depth": -1,
+                "sink": {
+                    "x": 160,
+                    "y": 777
+                },
+                "source": {
+                    "x": 151,
+                    "y": 777
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "d180090f-745b-4bb0-a3fb-d4223ed7ac3c",
+            "layer": "flow",
+            "name": "aaa_f10",
+            "params": {
+                "connection": "aaa|f10",
+                "depth": -1,
+                "sink": {
+                    "x": 151,
+                    "y": 980
+                },
+                "source": {
+                    "x": 150,
+                    "y": 980
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "8e5f7ae8-ee09-49ae-b6d2-e2b1817b247c",
+            "layer": "flow",
+            "name": "aaa_f10",
+            "params": {
+                "connection": "aaa|f10",
+                "depth": -1,
+                "sink": {
+                    "x": 151,
+                    "y": 1033
+                },
+                "source": {
+                    "x": 151,
+                    "y": 980
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "5702dd90-2d33-4c25-879d-321cd4ec8b84",
+            "layer": "flow",
+            "name": "aaa_f10",
+            "params": {
+                "connection": "aaa|f10",
+                "depth": -1,
+                "sink": {
+                    "x": 160,
+                    "y": 1033
+                },
+                "source": {
+                    "x": 151,
+                    "y": 1033
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "d44a6b05-b6d0-4fa9-9597-f8274dffe783",
+            "layer": "flow",
+            "name": "bbb_f10",
+            "params": {
+                "connection": "bbb|f10",
+                "depth": -1,
+                "sink": {
+                    "x": 151,
+                    "y": 1130
+                },
+                "source": {
+                    "x": 150,
+                    "y": 1130
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "b543df04-c914-46a2-96ab-25af372320ab",
+            "layer": "flow",
+            "name": "bbb_f10",
+            "params": {
+                "connection": "bbb|f10",
+                "depth": -1,
+                "sink": {
+                    "x": 151,
+                    "y": 1077
+                },
+                "source": {
+                    "x": 151,
+                    "y": 1130
+                },
+                "width": 53
+            },
+            "type": "channel"
+        },
+        {
+            "id": "b81f3cbf-226b-4a9d-85b8-3d7f6b1b5bd5",
+            "layer": "flow",
+            "name": "bbb_f10",
+            "params": {
+                "connection": "bbb|f10",
+                "depth": -1,
+                "sink": {
+                    "x": 160,
+                    "y": 1077
+                },
+                "source": {
+                    "x": 151,
+                    "y": 1077
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "3afe2a65-c7e1-4202-a5c1-61fc241ec371",
+            "layer": "flow",
+            "name": "f40_t20",
+            "params": {
+                "connection": "f40|t20",
+                "depth": -1,
+                "sink": {
+                    "x": 311,
+                    "y": 155
+                },
+                "source": {
+                    "x": 310,
+                    "y": 155
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "142e6049-e1a6-498c-ad23-abe41b428d6a",
+            "layer": "flow",
+            "name": "f40_t20",
+            "params": {
+                "connection": "f40|t20",
+                "depth": -1,
+                "sink": {
+                    "x": 311,
+                    "y": 283
+                },
+                "source": {
+                    "x": 311,
+                    "y": 155
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "6e5a8f97-7880-4b02-a260-ada21c622921",
+            "layer": "flow",
+            "name": "f40_t20",
+            "params": {
+                "connection": "f40|t20",
+                "depth": -1,
+                "sink": {
+                    "x": 320,
+                    "y": 283
+                },
+                "source": {
+                    "x": 311,
+                    "y": 283
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "332355ad-8473-49b2-9558-3245ebab7372",
+            "layer": "flow",
+            "name": "f30_t20",
+            "params": {
+                "connection": "f30|t20",
+                "depth": -1,
+                "sink": {
+                    "x": 311,
+                    "y": 455
+                },
+                "source": {
+                    "x": 310,
+                    "y": 455
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "5736182f-2ff2-4122-9913-29c38bab132f",
+            "layer": "flow",
+            "name": "f30_t20",
+            "params": {
+                "connection": "f30|t20",
+                "depth": -1,
+                "sink": {
+                    "x": 311,
+                    "y": 327
+                },
+                "source": {
+                    "x": 311,
+                    "y": 455
+                },
+                "width": 128
+            },
+            "type": "channel"
+        },
+        {
+            "id": "8d4bfbe3-9ef9-40e7-8e34-520287aa541f",
+            "layer": "flow",
+            "name": "f30_t20",
+            "params": {
+                "connection": "f30|t20",
+                "depth": -1,
+                "sink": {
+                    "x": 320,
+                    "y": 327
+                },
+                "source": {
+                    "x": 311,
+                    "y": 327
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "728b4289-4b58-4d8d-ae20-000c4c6127ba",
+            "layer": "flow",
+            "name": "f20_t10",
+            "params": {
+                "connection": "f20|t10",
+                "depth": -1,
+                "sink": {
+                    "x": 311,
+                    "y": 755
+                },
+                "source": {
+                    "x": 310,
+                    "y": 755
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "1281f4b9-4ad4-434c-bdc4-b447bdc5d25f",
+            "layer": "flow",
+            "name": "f20_t10",
+            "params": {
+                "connection": "f20|t10",
+                "depth": -1,
+                "sink": {
+                    "x": 311,
+                    "y": 883
+                },
+                "source": {
+                    "x": 311,
+                    "y": 755
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "bbac2de0-e32c-4caf-9268-e0bb5f64afb3",
+            "layer": "flow",
+            "name": "f20_t10",
+            "params": {
+                "connection": "f20|t10",
+                "depth": -1,
+                "sink": {
+                    "x": 320,
+                    "y": 883
+                },
+                "source": {
+                    "x": 311,
+                    "y": 883
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "48a8082f-4b13-4a51-a723-debf8b9fc6ad",
+            "layer": "flow",
+            "name": "f10_t10",
+            "params": {
+                "connection": "f10|t10",
+                "depth": -1,
+                "sink": {
+                    "x": 311,
+                    "y": 1055
+                },
+                "source": {
+                    "x": 310,
+                    "y": 1055
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "53b3121e-bf2a-456f-91da-03ee62296422",
+            "layer": "flow",
+            "name": "f10_t10",
+            "params": {
+                "connection": "f10|t10",
+                "depth": -1,
+                "sink": {
+                    "x": 311,
+                    "y": 927
+                },
+                "source": {
+                    "x": 311,
+                    "y": 1055
+                },
+                "width": 128
+            },
+            "type": "channel"
+        },
+        {
+            "id": "11734f8e-eb95-4674-81fd-0274746672f7",
+            "layer": "flow",
+            "name": "f10_t10",
+            "params": {
+                "connection": "f10|t10",
+                "depth": -1,
+                "sink": {
+                    "x": 320,
+                    "y": 927
+                },
+                "source": {
+                    "x": 311,
+                    "y": 927
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "5019dd70-c7c5-4ecd-ad7f-cb3217d1e584",
+            "layer": "flow",
+            "name": "t10_final0",
+            "params": {
+                "connection": "t10|final0",
+                "depth": -1,
+                "sink": {
+                    "x": 471,
+                    "y": 627
+                },
+                "source": {
+                    "x": 480,
+                    "y": 627
+                },
+                "width": 9
+            },
+            "type": "channel"
+        },
+        {
+            "id": "ca8615f0-5ccb-498c-b9bd-9a9abdbe5e03",
+            "layer": "flow",
+            "name": "t10_final0",
+            "params": {
+                "connection": "t10|final0",
+                "depth": -1,
+                "sink": {
+                    "x": 471,
+                    "y": 905
+                },
+                "source": {
+                    "x": 471,
+                    "y": 627
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        },
+        {
+            "id": "47998ce8-3bc3-4c23-959e-f2c2150bcd41",
+            "layer": "flow",
+            "name": "t10_final0",
+            "params": {
+                "connection": "t10|final0",
+                "depth": -1,
+                "sink": {
+                    "x": 470,
+                    "y": 905
+                },
+                "source": {
+                    "x": 471,
+                    "y": 905
+                },
+                "width": 1
+            },
+            "type": "channel"
+        },
+        {
+            "id": "acb50ae8-d6d2-4820-a8e1-63e2367d7012",
+            "layer": "flow",
+            "name": "t20_final0",
+            "params": {
+                "connection": "t20|final0",
+                "depth": -1,
+                "sink": {
+                    "x": 479,
+                    "y": 583
+                },
+                "source": {
+                    "x": 480,
+                    "y": 583
+                },
+                "width": 1
+            },
+            "type": "channel"
+        },
+        {
+            "id": "395f8776-a5b2-40a0-8424-93345709f989",
+            "layer": "flow",
+            "name": "t20_final0",
+            "params": {
+                "connection": "t20|final0",
+                "depth": -1,
+                "sink": {
+                    "x": 479,
+                    "y": 305
+                },
+                "source": {
+                    "x": 479,
+                    "y": 583
+                },
+                "width": 278
+            },
+            "type": "channel"
+        },
+        {
+            "id": "1db215fd-c45a-47b4-8071-f62c57123f87",
+            "layer": "flow",
+            "name": "t20_final0",
+            "params": {
+                "connection": "t20|final0",
+                "depth": -1,
+                "sink": {
+                    "x": 470,
+                    "y": 305
+                },
+                "source": {
+                    "x": 479,
+                    "y": 305
+                },
+                "width": 9
+            },
+            "type": "channel"
+        },
+        {
+            "id": "d14752fd-a5a1-45e5-99f7-8c79859fbf3e",
+            "layer": "flow",
+            "name": "final0_final1",
+            "params": {
+                "connection": "final0|final1",
+                "depth": -1,
+                "sink": {
+                    "x": 640,
+                    "y": 605
+                },
+                "source": {
+                    "x": 630,
+                    "y": 605
+                },
+                "width": -2147483648
+            },
+            "type": "channel"
+        }
+    ],
+    "layers": [
+        {
+            "id": "flow",
+            "name": "flow"
+        }
+    ],
+    "name": "loc_16",
+    "params": {
+        "height": 1210,
+        "technology": "loc_16_technology",
+        "width": 790
+    }
+}
