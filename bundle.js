@@ -3,7 +3,8 @@
 
 var ParchmintParser = require('./parsing/parchmint-parser.js');
 
-var pp = new ParchmintParser();
+var pp; // Parchmint Parser
+
 var parchFile;
 var nightMode = false;
 $('.title_text').on('click', switchMode);
@@ -107,7 +108,7 @@ function readFileContents(raw_file, callback) {
 function parseParchmint(result) {
   $('p.drop_text').text('Architecture: ' + JSON.parse(result)['name']); //parseParchMintJson(JSON.parse(result));
 
-  pp.clear();
+  pp = new ParchmintParser();
   pp.parse(result);
 
   if (pp.valid) {
@@ -8983,8 +8984,6 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var Validation = require('../utils/validation.js');
-
 var Architecture = require('../model/architecture.js');
 
 var Layer = require('../model/layer.js');
@@ -9047,17 +9046,6 @@ function () {
    * @access public
    *
    * @type {Set<string>}
-   */
-
-  /**
-   * The ParchMint file.
-   *
-   * The file can be represented by either a string of JSON text or an object.
-   *
-   * @since 1.0.0
-   * @access public
-   *
-   * @type {string|object}
    */
 
   /**
@@ -9133,15 +9121,8 @@ function () {
    * @class
    *
    * @since 1.0.0
-   *
-   * @param {string|object}   parchmint   A Parchmint file. If the parameter
-   *                                      is of type string, it will be parsed
-   *                                      by {@link JSON.parse} before
-   *                                      continuing.
    */
   function ParchmintParser() {
-    var parchmint = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : Validation.DEFAULT_STR_VALUE;
-
     _classCallCheck(this, ParchmintParser);
 
     _defineProperty(this, "schemaValidator", void 0);
@@ -9149,8 +9130,6 @@ function () {
     _defineProperty(this, "valid", void 0);
 
     _defineProperty(this, "idSet", void 0);
-
-    _defineProperty(this, "parchmint", void 0);
 
     _defineProperty(this, "architecture", void 0);
 
@@ -9164,7 +9143,6 @@ function () {
 
     _defineProperty(this, "connFeatures", void 0);
 
-    this.parchmint = parchmint;
     this.valid = true;
     this.idSet = new Set();
     this.architecture = null;
@@ -9188,31 +9166,29 @@ function () {
    *                                      continuing. If this parameter if
    *                                      left as its default, the parser's
    *                                      parchmint field will be used.
-   * @returns {Object}    An Architecture object representing this Parchmint
+   * @returns {object}    An Architecture object representing this Parchmint
    *                      file, or null if the Parchmint itself is invalid.
    */
 
 
   _createClass(ParchmintParser, [{
     key: "parse",
-    value: function parse() {
-      var parchmint = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-      var file = parchmint ? parchmint : this.parchmint;
+    value: function parse(parchmint) {
       var obj;
 
-      if (typeof file === 'string') {
-        obj = JSON.parse(file);
-      } else if (_typeof(file) === 'object') {
-        obj = file;
+      if (typeof parchmint === 'string') {
+        obj = JSON.parse(parchmint);
+      } else if (_typeof(parchmint) === 'object') {
+        obj = parchmint;
       } else {
         this.valid = false;
-        console.log('Parser (FATAL ERROR): Parchmint file was not represented as a string, nor an' + ' object.\nAborting.');
+        console.error('Parser (FATAL ERROR): Parchmint file was not represented as a string, nor an' + ' object.\nAborting.');
         return null;
       }
 
       if (!this.schemaValidator(obj)) {
         this.valid = false;
-        console.log('Parser (FATAL ERROR): ' + ajv.errorsText(this.schemaValidator.errors) + '\nAborting.');
+        console.error('Parser (FATAL ERROR): ' + ajv.errorsText(this.schemaValidator.errors) + '\nAborting.');
         return null;
       } // The only required keys are "layers" and "name", so we need to check whether these keys exist before
       // trying to parse them.
@@ -9266,36 +9242,10 @@ function () {
       try {
         for (var _iterator = this.components.keys()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
           var layerID = _step.value;
-          var found = false;
-          var _iteratorNormalCompletion3 = true;
-          var _didIteratorError3 = false;
-          var _iteratorError3 = undefined;
 
-          try {
-            for (var _iterator3 = jsonObj['layers'][Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-              var l = _step3.value;
-
-              if (l.id === layerID) {
-                found = true;
-                break;
-              }
-            }
-          } catch (err) {
-            _didIteratorError3 = true;
-            _iteratorError3 = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion3 && _iterator3["return"] != null) {
-                _iterator3["return"]();
-              }
-            } finally {
-              if (_didIteratorError3) {
-                throw _iteratorError3;
-              }
-            }
-          }
-
-          if (!found) {
+          if (!jsonObj['layers'].map(function (x) {
+            return x.id;
+          }).includes(layerID)) {
             this.valid = false;
             console.log('Parser: The Components list contains an invalid Layer (' + layerID + ').');
           }
@@ -9322,36 +9272,10 @@ function () {
       try {
         for (var _iterator2 = this.connections.keys()[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
           var _layerID = _step2.value;
-          var _found = false;
-          var _iteratorNormalCompletion4 = true;
-          var _didIteratorError4 = false;
-          var _iteratorError4 = undefined;
 
-          try {
-            for (var _iterator4 = jsonObj['layers'][Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-              var _l = _step4.value;
-
-              if (_l.id === _layerID) {
-                _found = true;
-                break;
-              }
-            }
-          } catch (err) {
-            _didIteratorError4 = true;
-            _iteratorError4 = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion4 && _iterator4["return"] != null) {
-                _iterator4["return"]();
-              }
-            } finally {
-              if (_didIteratorError4) {
-                throw _iteratorError4;
-              }
-            }
-          }
-
-          if (!_found) {
+          if (!jsonObj['layers'].map(function (x) {
+            return x.id;
+          }).includes(_layerID)) {
             this.valid = false;
             console.log('Parser: The Connections list contains an invalid Layer (' + _layerID + ').');
           }
@@ -9385,20 +9309,7 @@ function () {
     key: "getParsedLayer",
     value: function getParsedLayer(layerObj) {
       var layerID = layerObj['id'];
-      var tempLayer = new Layer(layerObj['name'], layerID);
-      var tempComps = this.components.get(layerID);
-      var tempConns = this.connections.get(layerID); // If a Layer does not have Components or Connections we want to leave their value as the default
-      // empty array.
-
-      if (tempComps) {
-        tempLayer.components = tempComps;
-      }
-
-      if (tempConns) {
-        tempLayer.connections = tempConns;
-      }
-
-      return tempLayer;
+      return new Layer(layerObj['name'], layerID, this.components.get(layerID), this.connections.get(layerID));
     }
     /**
      * Parse a JSON object for the Components.
@@ -9424,30 +9335,58 @@ function () {
 
         if (_this2.isUniqueID(compValue['id'])) {
           // Now compare the port map layers to the component's layers
-          var _iteratorNormalCompletion5 = true;
-          var _didIteratorError5 = false;
-          var _iteratorError5 = undefined;
+          var _iteratorNormalCompletion3 = true;
+          var _didIteratorError3 = false;
+          var _iteratorError3 = undefined;
 
           try {
-            for (var _iterator5 = ports.keys()[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-              var layer = _step5.value;
+            for (var _iterator3 = ports.keys()[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+              var layer = _step3.value;
 
               if (compValue['layers'].indexOf(layer) === -1) {
                 console.log('Parser (WARNING): The Component with ID "' + compValue['id'] + '" and name "' + compValue['name'] + '" contains a Port with a Layer ID (' + layer + ') that does' + ' not exist in the Component\'s Layer list.');
               }
+            } // Now compare the port map layers to the component's layers
+
+          } catch (err) {
+            _didIteratorError3 = true;
+            _iteratorError3 = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion3 && _iterator3["return"] != null) {
+                _iterator3["return"]();
+              }
+            } finally {
+              if (_didIteratorError3) {
+                throw _iteratorError3;
+              }
+            }
+          }
+
+          var _iteratorNormalCompletion4 = true;
+          var _didIteratorError4 = false;
+          var _iteratorError4 = undefined;
+
+          try {
+            for (var _iterator4 = ports.keys()[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+              var _layer = _step4.value;
+
+              if (compValue['layers'].indexOf(_layer) === -1) {
+                console.log('Parser (WARNING): The Component with ID "' + compValue['id'] + '" and name "' + compValue['name'] + '" contains a Port with a Layer ID (' + _layer + ') that does' + ' not exist in the Component\'s Layer list.');
+              }
             } // Finally add this component to each Layer it exists on with only the ports on that Layer
 
           } catch (err) {
-            _didIteratorError5 = true;
-            _iteratorError5 = err;
+            _didIteratorError4 = true;
+            _iteratorError4 = err;
           } finally {
             try {
-              if (!_iteratorNormalCompletion5 && _iterator5["return"] != null) {
-                _iterator5["return"]();
+              if (!_iteratorNormalCompletion4 && _iterator4["return"] != null) {
+                _iterator4["return"]();
               }
             } finally {
-              if (_didIteratorError5) {
-                throw _iteratorError5;
+              if (_didIteratorError4) {
+                throw _iteratorError4;
               }
             }
           }
@@ -9485,10 +9424,7 @@ function () {
      * @param {object}  compObj     An object with the fields name, id,
      *                              x-span, y-span, and entity.
      * @param {Array}   ports       The list of ports this Component
-     *                              references in the form of a map. This
-     *                              parameter can be left empty. If this
-     *                              parameter evaluates to falsy it will not be
-     *                              added to the Component.
+     *                              references in the form of a map.
      *
      * @returns {Component} The resulting Component object.
      */
@@ -9534,15 +9470,7 @@ function () {
   }, {
     key: "getParsedConnection",
     value: function getParsedConnection(connObj) {
-      var ret = new Connection(connObj['name'], connObj['id'], this.getParsedTerminal(connObj['source'], connObj['layer']), this.getParsedTerminals(connObj['sinks'], connObj['layer']));
-      var feature = this.connFeatures.get(connObj['layer']); // Connection Features are not required, so we only add them to the Connection if we parsed some,
-      // otherwise we'll leave it null.
-
-      if (feature) {
-        ret.segments = feature;
-      }
-
-      return ret;
+      return new Connection(connObj['name'], connObj['id'], this.getParsedTerminal(connObj['source'], connObj['layer']), this.getParsedTerminals(connObj['sinks'], connObj['layer']), this.connFeatures.get(connObj['layer']));
     }
     /**
      * Parse a JSON object for the Component Features map.
@@ -9708,29 +9636,29 @@ function () {
 
       if (comp) {
         // If we found a component lets get the Port we need from it
-        var _iteratorNormalCompletion6 = true;
-        var _didIteratorError6 = false;
-        var _iteratorError6 = undefined;
+        var _iteratorNormalCompletion5 = true;
+        var _didIteratorError5 = false;
+        var _iteratorError5 = undefined;
 
         try {
-          for (var _iterator6 = comp.ports[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-            var value = _step6.value;
+          for (var _iterator5 = comp.ports[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+            var value = _step5.value;
 
             if (value.label === termObj['port']) {
               return new Terminal(comp, value);
             }
           }
         } catch (err) {
-          _didIteratorError6 = true;
-          _iteratorError6 = err;
+          _didIteratorError5 = true;
+          _iteratorError5 = err;
         } finally {
           try {
-            if (!_iteratorNormalCompletion6 && _iterator6["return"] != null) {
-              _iterator6["return"]();
+            if (!_iteratorNormalCompletion5 && _iterator5["return"] != null) {
+              _iterator5["return"]();
             }
           } finally {
-            if (_didIteratorError6) {
-              throw _iteratorError6;
+            if (_didIteratorError5) {
+              throw _iteratorError5;
             }
           }
         }
@@ -9795,28 +9723,6 @@ function () {
       return true;
     }
     /**
-     * Clear all data from the parser.
-     *
-     * Reset the parser to its beginning state. This method does not reallocate
-     * anything except the layers array.
-     *
-     * @since 1.0.0
-     */
-
-  }, {
-    key: "clear",
-    value: function clear() {
-      this.parchmint = Validation.DEFAULT_STR_VALUE;
-      this.valid = true;
-      this.idSet.clear();
-      this.architecture = null;
-      this.layers = [];
-      this.components.clear();
-      this.connections.clear();
-      this.compFeatures.clear();
-      this.connFeatures.clear();
-    }
-    /**
      * Put a value into a Map at the specified key.
      *
      * @param {Map<string, Array>}  map     The map must have a value with a
@@ -9827,16 +9733,8 @@ function () {
 
   }], [{
     key: "getParsedComponent",
-    value: function getParsedComponent(compObj) {
-      var ports = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      var ret = new Component(compObj['name'], compObj['id'], compObj['x-span'], compObj['y-span'], compObj['entity']); // There might not be any ports on the layer, so only add it if we have one, otherwise leave it
-      // as the default value
-
-      if (ports) {
-        ret.ports = ports;
-      }
-
-      return ret;
+    value: function getParsedComponent(compObj, ports) {
+      return new Component(compObj['name'], compObj['id'], compObj['x-span'], compObj['y-span'], compObj['entity'], ports);
     }
   }, {
     key: "getParsedComponentFeature",
@@ -9892,7 +9790,7 @@ function () {
 
 module.exports = ParchmintParser;
 
-},{"../model/architecture.js":2,"../model/component-feature.js":3,"../model/component.js":4,"../model/connection-segment.js":5,"../model/connection.js":6,"../model/coord.js":7,"../model/layer.js":8,"../model/port.js":10,"../model/terminal.js":11,"../utils/validation.js":60,"./schema.json":59,"ajv":12}],59:[function(require,module,exports){
+},{"../model/architecture.js":2,"../model/component-feature.js":3,"../model/component.js":4,"../model/connection-segment.js":5,"../model/connection.js":6,"../model/coord.js":7,"../model/layer.js":8,"../model/port.js":10,"../model/terminal.js":11,"./schema.json":59,"ajv":12}],59:[function(require,module,exports){
 module.exports={
     "$schema": "http://json-schema.org/schema#",
     "type": "object",

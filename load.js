@@ -1,6 +1,6 @@
 const ParchmintParser = require('./parsing/parchmint-parser.js');
 
-var pp = new ParchmintParser();
+var pp; // Parchmint Parser
 var parchFile;
 var nightMode = false;
 
@@ -110,7 +110,7 @@ function readFileContents(raw_file, callback) {
 function parseParchmint(result) {
     $('p.drop_text').text('Architecture: ' + JSON.parse(result)['name']);
     //parseParchMintJson(JSON.parse(result));
-    pp.clear();
+    pp = new ParchmintParser();
     pp.parse(result);
 
     if (pp.valid) {
