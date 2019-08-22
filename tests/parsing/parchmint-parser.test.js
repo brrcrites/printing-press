@@ -44,52 +44,6 @@ test('valid parse', () => {
     expect(pp.valid).toBe(true);
 });
 
-describe('clear method', () => {
-    test('fields', () => {
-        let pp = new ParchmintParser();
-        pp.parse(duplicates_readme_parchmint);
-
-        // Let's first just verify that we have data in all the fields
-        expect(pp.architecture).toBeTruthy();
-        expect(pp.layers.length).toBeGreaterThan(0);
-        expect(pp.components.size).toBeGreaterThan(0);
-        expect(pp.connections.size).toBeGreaterThan(0);
-        expect(pp.compFeatures.size).toBeGreaterThan(0);
-        expect(pp.connFeatures.size).toBeGreaterThan(0);
-        expect(pp.idSet.size).toBeGreaterThan(0);
-        expect(pp.valid).toBe(false);
-
-        // Because we aren't changing schemas, this should always be truthy, even after clearing.
-        expect(pp.schemaValidator).toBeTruthy();
-
-        pp.clear();
-
-        // Now lets verify that all that data is gone
-        expect(pp.architecture).toBeFalsy();
-        expect(pp.layers.length).toBe(0);
-        expect(pp.components.size).toBe(0);
-        expect(pp.connections.size).toBe(0);
-        expect(pp.compFeatures.size).toBe(0);
-        expect(pp.connFeatures.size).toBe(0);
-        expect(pp.idSet.size).toBe(0);
-        expect(pp.valid).toBe(true);
-
-        expect(pp.schemaValidator).toBeTruthy();
-    });
-
-    test('parse a different Parchmint', () => {
-        let pp = new ParchmintParser();
-        pp.parse(duplicates_readme_parchmint);
-
-        expect(pp.valid).toBe(false);
-
-        pp.clear();
-        pp.parse(readme_parchmint);
-
-        expect(pp.valid).toBe(true);
-    });
-});
-
 describe('architecture', () => {
     describe('benchmarks', () => {
         test('planar synthetic 1', () => {

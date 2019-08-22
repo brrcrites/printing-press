@@ -629,26 +629,6 @@ class ParchmintParser {
     }
 
     /**
-     * Clear all data from the parser.
-     *
-     * Reset the parser to its beginning state. This method does not reallocate
-     * anything except the layers array.
-     *
-     * @since 1.0.0
-     */
-    clear() {
-        this.valid = true;
-        this.idSet.clear();
-
-        this.architecture = null;
-        this.layers = [];
-        this.components.clear();
-        this.connections.clear();
-        this.compFeatures.clear();
-        this.connFeatures.clear();
-    }
-
-    /**
      * Put a value into a Map at the specified key.
      *
      * @param {Map<string, Array>}  map     The map must have a value with a
