@@ -139,7 +139,6 @@ class ParchmintParser {
         this.idSet = new Set();
 
         this.architecture = null;
-
         this.layers = [];
         this.components = new Map();
         this.connections = new Map();
@@ -243,7 +242,7 @@ class ParchmintParser {
                 this.layers.push(this.getParsedLayer(value));
             } else {
                 this.valid = false;
-                console.log('Parser: Duplicate IDs (' + value['id'] + ') found in the "layers" key. Skipping Layer' +
+                console.log('Parser: Duplicate IDs (' + value['id'] + ') found in the layers array. Skipping Layer' +
                         ' with name "' + value['name'] + '" at index ' + index + '.');
             }
         });
@@ -273,15 +272,6 @@ class ParchmintParser {
 
             // Next check whether this ID of this Component is a duplicate
             if (this.isUniqueID(compValue['id'])) {
-                // Now compare the port map layers to the component's layers
-                for (let layer of ports.keys()) {
-                    if (compValue['layers'].indexOf(layer) === -1) {
-                        console.log('Parser (WARNING): The Component with ID "' + compValue['id'] + '" and name "'
-                                + compValue['name'] + '" contains a Port with a Layer ID (' + layer + ') that does' +
-                                ' not exist in the Component\'s Layer list.');
-                    }
-                }
-
                 // Now compare the port map layers to the component's layers
                 for (let layer of ports.keys()) {
                     if (compValue['layers'].indexOf(layer) === -1) {
