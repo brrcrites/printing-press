@@ -19,101 +19,29 @@ function parseJSONObj(str) {
     return JSON.parse('{' + str + '}');
 }
 
-describe('initialization', () => {
-    describe('set Parchmint text', () => {
-        test('constructor', () => {
-            let pp = new ParchmintParser(validParchmintArchBareBones);
-            let arch = pp.parse();
+test('initialization', () => {
+    let pp = new ParchmintParser();
+    let arch = pp.parse(validParchmintArchBareBones);
 
-            expect(pp.valid).toBe(true);
-            expect(arch.name).toBe('bare-bones-architecture-name');
-            expect(arch.layers.length).toBe(1);
-        });
-
-        test('method argument', () => {
-            let pp = new ParchmintParser();
-            let arch = pp.parse(validParchmintArchBareBones);
-
-            expect(pp.valid).toBe(true);
-            expect(arch.name).toBe('bare-bones-architecture-name');
-            expect(arch.layers.length).toBe(1);
-        });
-    });
+    expect(pp.valid).toBe(true);
+    expect(arch.name).toBe('bare-bones-architecture-name');
+    expect(arch.layers.length).toBe(1);
 });
 
-describe('field access', () => {
-    test('architecture', () => {
-        let pp = new ParchmintParser(readme_parchmint);
-        pp.parse();
+test('architecture field access', () => {
+        let pp = new ParchmintParser();
+        pp.parse(readme_parchmint);
 
         expect(pp.valid).toBe(true);
         expect(pp.architecture).toBeTruthy();
         expect(pp.architecture.layers.length).toBe(2);
-    });
-
-    test('valid', () => {
-        let pp = new ParchmintParser(readme_parchmint);
-        pp.parse();
-
-        expect(pp.valid).toBe(true);
-    });
-
-    test('parchmint', () => {
-        let pp = new ParchmintParser(readme_parchmint);
-
-        expect(pp.parchmint).toEqual(readme_parchmint);
-    });
 });
 
-describe('clear method', () => {
-    test('fields', () => {
-        let pp = new ParchmintParser(readme_parchmint);
-        pp.parse();
+test('valid parse', () => {
+    let pp = new ParchmintParser();
+    pp.parse(readme_parchmint);
 
-        // We have to set valid false directly because I was silly and chose to use a valid parchmint
-        pp.valid = false;
-
-        // Let's first just verify that we have data in all the fields
-        expect(pp.parchmint).not.toBe(Validation.DEFAULT_STR_VALUE);
-        expect(pp.architecture).toBeTruthy();
-        expect(pp.layers.length).toBeGreaterThan(0);
-        expect(pp.components.size).toBeGreaterThan(0);
-        expect(pp.connections.size).toBeGreaterThan(0);
-        expect(pp.compFeatures.size).toBeGreaterThan(0);
-        expect(pp.connFeatures.size).toBeGreaterThan(0);
-        expect(pp.idSet.size).toBeGreaterThan(0);
-        expect(pp.valid).toBe(false);
-
-        // Because we aren't changing schemas, this should always be truthy, even after clearing.
-        expect(pp.schemaValidator).toBeTruthy();
-
-        pp.clear();
-
-        // Now lets verify that all that data is gone
-        expect(pp.parchmint).toBe(Validation.DEFAULT_STR_VALUE);
-        expect(pp.architecture).toBeFalsy();
-        expect(pp.layers.length).toBe(0);
-        expect(pp.components.size).toBe(0);
-        expect(pp.connections.size).toBe(0);
-        expect(pp.compFeatures.size).toBe(0);
-        expect(pp.connFeatures.size).toBe(0);
-        expect(pp.idSet.size).toBe(0);
-        expect(pp.valid).toBe(true);
-
-        expect(pp.schemaValidator).toBeTruthy();
-    });
-
-    test('parse a different Parchmint', () => {
-        let pp = new ParchmintParser(duplicates_readme_parchmint);
-        pp.parse();
-
-        expect(pp.valid).toBe(false);
-
-        pp.clear();
-        pp.parse(readme_parchmint);
-
-        expect(pp.valid).toBe(true);
-    });
+    expect(pp.valid).toBe(true);
 });
 
 describe('architecture', () => {
@@ -128,8 +56,8 @@ describe('architecture', () => {
         });
 
         test('readme parchmint', () => {
-            let pp = new ParchmintParser(readme_parchmint);
-            let arch = pp.parse();
+            let pp = new ParchmintParser();
+            let arch = pp.parse(readme_parchmint);
 
             expect(pp.valid).toBe(true);
             expect(arch.name).toBe('readme_parchmint');
@@ -356,7 +284,6 @@ describe('components', () => {
         test('port', () => { // The port has layers that do not exist in the component's layer list
             let pp = new ParchmintParser();
             pp.parseComponents(parseJSONObj(nonMatchingPortLayerParchmintComponents));
-
             expect(pp.valid).toBe(true);
             expect(pp.components.size).toBe(1);
             expect(pp.components.has(flowLayerID)).toBe(true);
@@ -904,52 +831,8 @@ describe('terminals', () => {
     });
 });
 
-describe('schema validation', () => {
-    describe('valid', () => {
-        test('required keys (name, layers)', () => {
-            let pp = new ParchmintParser(validParchmintArchBareBones);
-            pp.parse();
-
-            expect(pp.valid).toBe(true);
-        });
-
-        describe('required and', () => {
-            test('components', () => {
-                let pp = new ParchmintParser(validParchmintArchWithComponents);
-                pp.parse();
-
-                expect(pp.valid).toBe(true);
-            });
-
-            test('connections', () => {
-                let pp = new ParchmintParser();
-                let valid = pp.schemaValidator(JSON.parse(validParchmintArchWithConnections));
-
-                // The schema can validate and say this is fine
-                expect(valid).toBe(true);
-
-                pp.parse(validParchmintArchWithConnections);
-                // But actually parsing only connections causes problems
-                expect(pp.valid).toBe(false);
-            });
-
-            test('all keys', () => {
-                let pp = new ParchmintParser(readme_parchmint);
-                pp.parse();
-
-                expect(pp.valid).toBe(true);
-            });
-        });
-    });
-});
-
-function testStringTag(strings) {
-    return strings;
-}
-
 //-- Begin Parchmint JSON strings --\\
 const readme_parchmint = require('./parchmints/readme_parchmint.json');
-const duplicates_readme_parchmint = require('./parchmints/duplicates_readme_parchmint.json');
 
 const validParchmintArchBareBones = `{
         "name": "bare-bones-architecture-name",
