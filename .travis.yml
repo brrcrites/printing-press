@@ -6,7 +6,7 @@ matrix:
       env: BUILD=TEST
     - node_js: 12.8.0
       env: 
-        - BUILD=DOCS ENCRYPTION_LABEL=a668d2a97a80 COMMIT_AUTHOR_EMAIL=mbrad012@ucr.edu
+        - BUILD=DOCS ENCRYPTION_LABEL=a668d2a97a80 COMMIT_AUTHOR_EMAIL=bcrit001@ucr.edu
 
 script:
   - if [ "$BUILD" = "TEST" ]; then npm test; fi
