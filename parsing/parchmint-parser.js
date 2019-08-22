@@ -362,17 +362,9 @@ class ParchmintParser {
      * @returns {Connection}    The resulting Connection object.
      */
     getParsedConnection(connObj) {
-        let ret = new Connection(connObj['name'], connObj['id'], this.getParsedTerminal(connObj['source'],
-                connObj['layer']), this.getParsedTerminals(connObj['sinks'], connObj['layer']));
-        let feature = this.connFeatures.get(connObj['layer']);
-
-        // Connection Features are not required, so we only add them to the Connection if we parsed some,
-        // otherwise we'll leave it null.
-        if (feature) {
-            ret.segments = feature;
-        }
-
-        return ret;
+        return new Connection(connObj['name'], connObj['id'], this.getParsedTerminal(connObj['source'],
+                connObj['layer']), this.getParsedTerminals(connObj['sinks'], connObj['layer']),
+                this.connFeatures.get(connObj['layer']));
     }
 
     /**
@@ -624,28 +616,6 @@ class ParchmintParser {
 
         this.idSet.add(id);
         return true;
-    }
-
-    /**
-     * Clear all data from the parser.
-     *
-     * Reset the parser to its beginning state. This method does not reallocate
-     * anything except the layers array.
-     *
-     * @since 1.0.0
-     */
-    clear() {
-        this.parchmint = Validation.DEFAULT_STR_VALUE;
-
-        this.valid = true;
-        this.idSet.clear();
-
-        this.architecture = null;
-        this.layers = [];
-        this.components.clear();
-        this.connections.clear();
-        this.compFeatures.clear();
-        this.connFeatures.clear();
     }
 
     /**
