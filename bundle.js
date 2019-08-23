@@ -9301,7 +9301,7 @@ function () {
           _this.layers.push(_this.getParsedLayer(value));
         } else {
           _this.valid = false;
-          console.log('Parser: Duplicate IDs (' + value['id'] + ') found in the "layers" key. Skipping Layer' + ' with name "' + value['name'] + '" at index ' + index + '.');
+          console.log('Parser: Duplicate IDs (' + value['id'] + ') found in the layers array. Skipping Layer' + ' with name "' + value['name'] + '" at index ' + index + '.');
         }
       });
     }
@@ -9346,7 +9346,7 @@ function () {
               if (compValue['layers'].indexOf(layer) === -1) {
                 console.log('Parser (WARNING): The Component with ID "' + compValue['id'] + '" and name "' + compValue['name'] + '" contains a Port with a Layer ID (' + layer + ') that does' + ' not exist in the Component\'s Layer list.');
               }
-            } // Now compare the port map layers to the component's layers
+            } // Finally add this component to each Layer it exists on with only the ports on that Layer
 
           } catch (err) {
             _didIteratorError3 = true;
@@ -9359,34 +9359,6 @@ function () {
             } finally {
               if (_didIteratorError3) {
                 throw _iteratorError3;
-              }
-            }
-          }
-
-          var _iteratorNormalCompletion4 = true;
-          var _didIteratorError4 = false;
-          var _iteratorError4 = undefined;
-
-          try {
-            for (var _iterator4 = ports.keys()[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-              var _layer = _step4.value;
-
-              if (compValue['layers'].indexOf(_layer) === -1) {
-                console.log('Parser (WARNING): The Component with ID "' + compValue['id'] + '" and name "' + compValue['name'] + '" contains a Port with a Layer ID (' + _layer + ') that does' + ' not exist in the Component\'s Layer list.');
-              }
-            } // Finally add this component to each Layer it exists on with only the ports on that Layer
-
-          } catch (err) {
-            _didIteratorError4 = true;
-            _iteratorError4 = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion4 && _iterator4["return"] != null) {
-                _iterator4["return"]();
-              }
-            } finally {
-              if (_didIteratorError4) {
-                throw _iteratorError4;
               }
             }
           }
@@ -9636,29 +9608,29 @@ function () {
 
       if (comp) {
         // If we found a component lets get the Port we need from it
-        var _iteratorNormalCompletion5 = true;
-        var _didIteratorError5 = false;
-        var _iteratorError5 = undefined;
+        var _iteratorNormalCompletion4 = true;
+        var _didIteratorError4 = false;
+        var _iteratorError4 = undefined;
 
         try {
-          for (var _iterator5 = comp.ports[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-            var value = _step5.value;
+          for (var _iterator4 = comp.ports[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+            var value = _step4.value;
 
             if (value.label === termObj['port']) {
               return new Terminal(comp, value);
             }
           }
         } catch (err) {
-          _didIteratorError5 = true;
-          _iteratorError5 = err;
+          _didIteratorError4 = true;
+          _iteratorError4 = err;
         } finally {
           try {
-            if (!_iteratorNormalCompletion5 && _iterator5["return"] != null) {
-              _iterator5["return"]();
+            if (!_iteratorNormalCompletion4 && _iterator4["return"] != null) {
+              _iterator4["return"]();
             }
           } finally {
-            if (_didIteratorError5) {
-              throw _iteratorError5;
+            if (_didIteratorError4) {
+              throw _iteratorError4;
             }
           }
         }
