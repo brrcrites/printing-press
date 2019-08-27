@@ -1,5 +1,8 @@
 language: node_js
 
+before_install:
+  - openssl aes-256-cbc -K $ENCRYPTED_KEY -iv $ENCRYPTED_IV -in ../gh-pages-deploy-key.enc -out ../gh-pages-deploy-key -d
+
 matrix:
   include:
     - node_js: 12.8.0
