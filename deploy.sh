@@ -57,9 +57,9 @@ ENCRYPTED_KEY=${!ENCRYPTED_KEY_VAR}
 ENCRYPTED_IV=${!ENCRYPTED_IV_VAR}
 echo "ENCRYPTED_IV_VAR: $ENCRYPTED_IV_VAR"
 echo "ENCRYPTED_IV: $ENCRYPTED_IV"
-echo "ENCRYPTED_KEY_VAR: $ENCRYPTED_KEY_VAR"
-echo "ENCRYPTED_KEY: $ENCRYPTED_KEY"
-openssl aes-256-cbc -K $ENCRYPTED_KEY_VAR -iv $ENCRYPTED_IV_VAR -in ../gh-pages-deploy-key.enc -out ../gh-pages-deploy-key -d
+echo "ENCRYPTED_KEY_VAR: ${ENCRYPTED_KEY_VAR}"
+echo "ENCRYPTED_KEY: ${ENCRYPTED_KEY}"
+openssl aes-256-cbc -K $ENCRYPTED_KEY -iv $ENCRYPTED_IV -in ../gh-pages-deploy-key.enc -out ../gh-pages-deploy-key -d
 chmod 600 ../deploy_key
 eval `ssh-agent -s`
 ssh-add ../deploy_key
