@@ -1,7 +1,7 @@
 language: node_js
 
 before_install:
-  - openssl aes-256-cbc -K $ENCRYPTED_KEY -iv $ENCRYPTED_IV -in ../gh-pages-deploy-key.enc -out ../gh-pages-deploy-key -d
+  - openssl aes-256-cbc -K $encrypted_a668d2a97a80_key -iv $encrypted_a668d2a97a80_iv -in ../gh-pages-deploy-key.enc -out ../gh-pages-deploy-key -d
 
 matrix:
   include:
