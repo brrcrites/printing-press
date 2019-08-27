@@ -60,9 +60,10 @@ echo "ENCRYPTED_IV: $ENCRYPTED_IV"
 echo "ENCRYPTED_KEY_VAR: ${ENCRYPTED_KEY_VAR}"
 echo "ENCRYPTED_KEY: ${ENCRYPTED_KEY}"
 openssl aes-256-cbc -K $ENCRYPTED_KEY -iv $ENCRYPTED_IV -in ../gh-pages-deploy-key.enc -out ../gh-pages-deploy-key -d
-chmod 600 ../deploy_key
+echo "DECRYPTED gh-pages-deploy-key"
+chmod 600 ../gh-pages-deploy-key
 eval `ssh-agent -s`
-ssh-add ../deploy_key
+ssh-add ../gh-pages-deploy-key
 
 # Now that we're all set up, we can push.
 git push $SSH_REPO $TARGET_BRANCH
