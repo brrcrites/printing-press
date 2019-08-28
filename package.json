@@ -22,7 +22,8 @@
     "npm": "^6.10.2"
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "postinstall": "./browserify.sh"
   },
   "repository": {
     "type": "git",
