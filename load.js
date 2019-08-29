@@ -11,7 +11,6 @@ $('#drop_zone').on('dragover', dragOverHandler)
                .on('drop', dropHandler)
                .on('dragleave', dragLeaveHandler);
 $('#parse_button').on('click', parseButtonClickHandler);
-$('#svg_image').on('click', switchMode);
 
 // Prevent default drop behavior
 function dragOverHandler(ev) {
