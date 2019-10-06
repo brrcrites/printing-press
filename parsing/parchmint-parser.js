@@ -12,7 +12,6 @@ const Ajv = require('ajv');
 const schema = require('./schema.json');
 var ajv = new Ajv({allErrors: true});
 
-
 class ParchmintParser {
 
     /**
@@ -126,6 +125,42 @@ class ParchmintParser {
      */
     connFeatures;
 
+    /**
+     * The max x-span of a placed or routed component or channel.
+     *
+     * @since 1.0.0
+     * @access public
+     *
+     * @type {number}
+     */
+    maxX;
+
+    /**
+     * The max x-span of a placed or routed component or channel.
+     *
+     * @since 1.0.0
+     * @access public
+     *
+     * @type {number}
+     */
+    maxY;
+
+    /**
+     * The padding to add to the max x-/y-spans of the routed component or
+     * channel.
+     *
+     * This is used for the size of the canvas when drawing the SVG, so that
+     * no component/channel is right on the edge of the image.
+     *
+     * Note: This might be a nice setting for the user to adjust on the webpage.
+     *
+     * @since 1.0.0
+     * @access public
+     *
+     * @type {number}
+     */
+    maxPad;
+
 
     /**
      * Construct the ParchmintParser object.
@@ -146,6 +181,10 @@ class ParchmintParser {
         this.connFeatures = new Map();
 
         this.schemaValidator = ajv.compile(schema);
+
+        this.maxX = 0;
+        this.maxY = 0;
+        this.maxPad = 50;
     }
 
     /**
@@ -202,7 +241,10 @@ class ParchmintParser {
         // We are guaranteed to always have a "layers" key
         this.parseLayers(obj);
 
-        this.architecture = new Architecture(obj['name'], this.layers);
+        // Until we are able to accept sizes from the Parchmint file itself, we will use the max values plus a little
+        // extra.
+        this.architecture = new Architecture(obj['name'], this.layers, this.maxX + this.maxPad,
+                this.maxY + this.maxPad);
         this.valid = this.architecture.validate() ? this.valid : false;
 
         return this.architecture;
@@ -392,6 +434,14 @@ class ParchmintParser {
                 } else {
                     this.compFeatures.set(key, ParchmintParser.getParsedComponentFeature(value));
                 }
+
+                if (this.maxX < value['location'].x + value['x-span']) {
+                    this.maxX = value['location'].x + value['x-span'];
+                }
+
+                if (this.maxY < value['location'].y + value['y-span']) {
+                    this.maxY = value['location'].y + value['y-span'];
+                }
             }
         });
     }
@@ -439,6 +489,22 @@ class ParchmintParser {
                     this.valid = false;
                     console.log('Parser: Duplicate IDs (' + value['id'] + ') exist for the Connection Features list.' +
                             ' Skipping Connection Feature with name "' + value['name'] + '" at index ' + index + '.');
+                }
+
+                if (this.maxX < value['source'].x) {
+                    this.maxX = value['source'].x;
+                }
+
+                if (this.maxX < value['sink'].x) {
+                    this.maxX = value['sink'].x;
+                }
+
+                if (this.maxY < value['source'].y) {
+                    this.maxY = value['source'].y;
+                }
+
+                if (this.maxY < value['sink'].y) {
+                    this.maxY = value['sink'].y;
                 }
             }
         });

@@ -831,6 +831,38 @@ describe('terminals', () => {
     });
 });
 
+describe('max span values', () => {
+    test('component features', () => {
+        let pp = new ParchmintParser();
+        pp.parseComponentFeatures(parseJSONObj(validParchmintMultipleComponentFeaturesDiffComp));
+
+        expect(pp.maxX).toBe(6100);
+        expect(pp.maxY).toBe(5500);
+    });
+
+    test('connection features', () => {
+        let pp = new ParchmintParser();
+        pp.parseConnectionFeatures(parseJSONObj(validParchmintMultipleConnectionFeaturesOneConnection));
+
+        expect(pp.maxX).toBe(500);
+        expect(pp.maxY).toBe(3750);
+    });
+
+    test('complete Parchmint', () => {
+        let pp = new ParchmintParser();
+        pp.parse(readme_parchmint);
+
+        expect(pp.maxX).toBe(5000);
+        expect(pp.maxY).toBe(3500);
+
+        // The Architecture spans are only checked here because the parse function sets the values. Other tests do not
+        // call parse(), therefore they are not checked.
+        // Did not hardcode the maxPad values in case the default is changed later down the line
+        expect(pp.architecture.xSpan).toBe(5000 + pp.maxPad);
+        expect(pp.architecture.ySpan).toBe(3500 + pp.maxPad);
+    });
+});
+
 //-- Begin Parchmint JSON strings --\\
 const readme_parchmint = `{
     "name": "readme_parchmint",
