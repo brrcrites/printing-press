@@ -123,7 +123,7 @@ class ComponentFeature {
     print(paperScope) {
         // First we need to create an "abstract" Rectangle object that will define our bounding box
         let rect = new paper.Rectangle(0, 0, this.xSpan, this.ySpan);
-        rect.topLeft(new paper.Point(this.location.x, this.location.y));
+        rect.topLeft = new paper.Point(this.location.x, this.location.y);
         // Next we have to draw the rectangle on the PaperScope project
         let boundingBox = new paperScope.Path.Rectangle(boundingBox);
         boundingBox.fillColor = 'black';

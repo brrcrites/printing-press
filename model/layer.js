@@ -60,7 +60,7 @@ class Layer extends ParchKey {
 
         this.components = components;
         this.connections = connections;
-        this.paperScope = paper.PaperScope();
+        this.paperScope = new paper.PaperScope();
     }
 
     /**

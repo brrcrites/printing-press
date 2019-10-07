@@ -243,7 +243,10 @@ class Component extends ParchKey {
      * @since 1.0.0
      */
     print(paperScope) {
-        this.feature.print(paperScope);
+        // No need to draw if there's no feature
+        if (this.feature) {
+            this.feature.print(paperScope);
+        }
     }
 
 }
