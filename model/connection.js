@@ -1,6 +1,5 @@
 const ParchKey = require('./parch-key.js');
 const Validation = require('../utils/validation.js');
-const paper = require('paper');
 
 class Connection extends ParchKey {
 
