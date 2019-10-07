@@ -1,5 +1,6 @@
 const ParchKey = require('./parch-key.js');
 const Validation = require('../utils/validation.js');
+const paper = require('paper');
 
 class Connection extends ParchKey {
 
@@ -156,6 +157,18 @@ class Connection extends ParchKey {
         });
 
         return valid;
+    }
+
+    /**
+     * Draw this Connection on the PaperScope's project.
+     *
+     * @param {PaperScope}  paperScope  The PaperScope to contain this
+     *                                  connection.
+     */
+    print(paperScope) {
+        this.segments.forEach(value => {
+            value.print(paperScope);
+        });
     }
 }
 
