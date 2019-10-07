@@ -235,6 +235,17 @@ class Component extends ParchKey {
         return valid;
     }
 
+    /**
+     * Draw this Component's Feature on the specified PaperScope.
+     *
+     * @param {PaperScope}  paperScope  The PaperScope object on which to draw the
+     *                                  Component's Feature.
+     * @since 1.0.0
+     */
+    print(paperScope) {
+        this.feature.print(paperScope);
+    }
+
 }
 
 module.exports = Component;
