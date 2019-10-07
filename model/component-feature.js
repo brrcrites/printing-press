@@ -125,7 +125,7 @@ class ComponentFeature {
         let rect = new paper.Rectangle(0, 0, this.xSpan, this.ySpan);
         rect.topLeft = new paper.Point(this.location.x, this.location.y);
         // Next we have to draw the rectangle on the PaperScope project
-        let boundingBox = new paperScope.Path.Rectangle(boundingBox);
+        let boundingBox = new paperScope.Path.Rectangle(rect);
         boundingBox.fillColor = 'black';
         // Finally let's name the Component Feature so it is easy to access
         boundingBox.name = this.name;
