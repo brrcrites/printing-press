@@ -406,7 +406,7 @@ class ParchmintParser {
     getParsedConnection(connObj) {
         return new Connection(connObj['name'], connObj['id'], this.getParsedTerminal(connObj['source'],
                 connObj['layer']), this.getParsedTerminals(connObj['sinks'], connObj['layer']),
-                this.connFeatures.get(connObj['layer']));
+                this.connFeatures.get(connObj['id']));
     }
 
     /**
