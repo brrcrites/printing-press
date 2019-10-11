@@ -9,4 +9,4 @@ matrix:
 
 script:
   - if [ "$BUILD" = "TEST" ]; then npm test; fi
-  - if [ "$BUILD" = "DOCS" ]; then ./deploy.sh; fi
+#  - if [ "$BUILD" = "DOCS" ]; then ./deploy.sh; fi
