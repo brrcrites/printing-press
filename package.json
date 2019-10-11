@@ -40,7 +40,9 @@
     "url": "https://github.com/brrcrites/printing-press/issues"
   },
   "jest": {
-    "setupFiles": ["jest-canvas-mock"]
+    "setupFiles": [
+      "jest-canvas-mock"
+    ]
   },
   "homepage": "https://github.com/brrcrites/printing-press#readme"
 }
