@@ -1,4 +1,5 @@
 const ParchmintParser = require('./parsing/parchmint-parser.js');
+const paper = require('paper');
 
 var pp; // Parchmint Parser
 var parchFile;
@@ -108,13 +109,19 @@ function readFileContents(raw_file, callback) {
 }
 
 function parseParchmint(result) {
+    // TODO: Clear all previous console and svg datas
     $('p.drop_text').text('Architecture: ' + JSON.parse(result)['name']);
-    //parseParchMintJson(JSON.parse(result));
     pp = new ParchmintParser();
     pp.parse(result);
 
     if (pp.valid) {
         console.log('Success! The Parchmint file is valid.');
+
+        pp.architecture.layers.forEach(value => {
+            $('#svg_image').append('<img src="data:image/svg+xml;utf8,'
+                    + encodeURIComponent(value.print(pp.architecture.xSpan, pp.architecture.ySpan)) + '" alt="svg' +
+                    ' image">');
+        });
     }
 }
 
