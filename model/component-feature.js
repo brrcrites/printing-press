@@ -1,5 +1,6 @@
 const Coord = require('./coord.js');
 const Validation = require('../utils/validation.js');
+const Config = require('../utils/config.js');
 const paper = require('paper');
 
 
@@ -126,7 +127,7 @@ class ComponentFeature {
         rect.topLeft = new paper.Point(this.location.x, this.location.y);
         // Next we have to draw the rectangle on the PaperScope project
         let boundingBox = new paperScope.Path.Rectangle(rect);
-        boundingBox.fillColor = 'black';
+        boundingBox.fillColor = Config.svg_drawing.color;
         // Finally let's name the Component Feature so it is easy to access
         boundingBox.name = this.name;
 

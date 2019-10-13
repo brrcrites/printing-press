@@ -1,5 +1,6 @@
 const ParchKey = require('./parch-key.js');
 const Validation = require('../utils/validation.js');
+const Config = require('../utils/config.js');
 const paper = require('paper');
 
 class ConnectionSegment extends ParchKey {
@@ -171,7 +172,7 @@ class ConnectionSegment extends ParchKey {
     print(paperScope) {
         let segment = new paperScope.Path.Line(new paper.Point(this.sourcePoint.x, this.sourcePoint.y),
                 new paper.Point(this.sinkPoint.x, this.sinkPoint.y));
-        segment.strokeColor = 'black';
+        segment.strokeColor = Config.svg_drawing.color;
         segment.strokeWidth = this.width;
         segment.name = this.name;
 

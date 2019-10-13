@@ -8,6 +8,9 @@ const Coord = require('../model/coord.js');
 const Port = require('../model/port.js');
 const Terminal = require('../model/terminal.js');
 
+const Config = require('../utils/config.js');
+const Validation = require('../utils/validation.js');
+
 const Ajv = require('ajv');
 const schema = require('./schema.json');
 var ajv = new Ajv({allErrors: true});
@@ -128,6 +131,10 @@ class ParchmintParser {
     /**
      * The max x-span of a placed or routed component or channel.
      *
+     * This value is set, during parsing, to the max x value of a component or
+     * channel. It is only utilized if nothing has been set in the Config
+     * object.
+     *
      * @since 1.0.0
      * @access public
      *
@@ -136,7 +143,11 @@ class ParchmintParser {
     maxX;
 
     /**
-     * The max x-span of a placed or routed component or channel.
+     * The max y-span of a placed or routed component or channel.
+     *
+     * This value is set, during parsing, to the max y value of a component or
+     * channel. It is only utilized if nothing has been set in the Config
+     * object.
      *
      * @since 1.0.0
      * @access public
@@ -144,23 +155,6 @@ class ParchmintParser {
      * @type {number}
      */
     maxY;
-
-    /**
-     * The padding to add to the max x-/y-spans of the routed component or
-     * channel.
-     *
-     * This is used for the size of the canvas when drawing the SVG, so that
-     * no component/channel is right on the edge of the image.
-     *
-     * Note: This might be a nice setting for the user to adjust on the webpage.
-     *
-     * @since 1.0.0
-     * @access public
-     *
-     * @type {number}
-     */
-    maxPad;
-
 
     /**
      * Construct the ParchmintParser object.
@@ -184,7 +178,6 @@ class ParchmintParser {
 
         this.maxX = 0;
         this.maxY = 0;
-        this.maxPad = 50;
     }
 
     /**
@@ -205,6 +198,7 @@ class ParchmintParser {
      */
     parse(parchmint) {
         let obj;
+        let xSpan, ySpan;
 
         if (typeof parchmint === 'string') {
             obj = JSON.parse(parchmint);
@@ -241,10 +235,13 @@ class ParchmintParser {
         // We are guaranteed to always have a "layers" key
         this.parseLayers(obj);
 
+        // Determine whether we should use the Config or Parser's max values
+        xSpan = Config.svg_drawing.maxX === Validation.DEFAULT_SPAN_VALUE ? this.maxX : Config.svg_drawing.maxX;
+        ySpan = Config.svg_drawing.maxY === Validation.DEFAULT_SPAN_VALUE ? this.maxY : Config.svg_drawing.maxY;
+
         // Until we are able to accept sizes from the Parchmint file itself, we will use the max values plus a little
         // extra.
-        this.architecture = new Architecture(obj['name'], this.layers, this.maxX + this.maxPad,
-                this.maxY + this.maxPad);
+        this.architecture = new Architecture(obj['name'], this.layers, xSpan, ySpan);
         this.valid = this.architecture.validate() ? this.valid : false;
 
         return this.architecture;

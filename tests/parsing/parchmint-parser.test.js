@@ -2,6 +2,7 @@ const ParchmintParser = require('../../parsing/parchmint-parser.js');
 const Coord = require('../../model/coord.js');
 const Terminal = require('../../model/terminal.js');
 const Validation = require('../../utils/validation.js');
+const Config = require('../../utils/config.js');
 
 // Suppress console logs
 console.log = jest.fn();
@@ -858,9 +859,24 @@ describe('max span values', () => {
 
         // The Architecture spans are only checked here because the parse function sets the values. Other tests do not
         // call parse(), therefore they are not checked.
-        // Did not hardcode the maxPad values in case the default is changed later down the line
-        expect(pp.architecture.xSpan).toBe(5000 + pp.maxPad);
-        expect(pp.architecture.ySpan).toBe(3500 + pp.maxPad);
+        expect(pp.architecture.xSpan).toBe(5000);
+        expect(pp.architecture.ySpan).toBe(3500);
+    });
+
+    test('With Config values', () => {
+        let pp = new ParchmintParser();
+
+        Config.svg_drawing.maxX = 500;
+        Config.svg_drawing.maxY = 450;
+
+        pp.parse(readme_parchmint);
+
+        expect(pp.maxX).toBe(5000);
+        expect(pp.maxY).toBe(3500);
+
+        // Architecture spans checked here again, but should be different because we've set the Config values
+        expect(pp.architecture.xSpan).toBe(500);
+        expect(pp.architecture.ySpan).toBe(450);
     });
 });
 
