@@ -208,7 +208,7 @@ class Component extends ParchKey {
         let valid = true;
 
         if (!this.feature) {
-            console.log('Component (' + this.name + ') (WARNING): Field "feature" has not been set.');
+            console.warn('Component (' + this.name + ') (WARNING): Field "feature" has not been set.');
             return true;
         }
 

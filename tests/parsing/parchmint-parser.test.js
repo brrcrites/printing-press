@@ -5,6 +5,7 @@ const Validation = require('../../utils/validation.js');
 
 // Suppress console logs
 console.log = jest.fn();
+console.warn = jest.fn();
 
 const flowLayerID = 'unique-flow-layer-id-string';
 const controlLayerID = 'unique-control-layer-id-string';

@@ -144,7 +144,7 @@ class Connection extends ParchKey {
         let valid = true;
 
         if (this.segments.length === 0) {
-            console.log('Connection (' + this.name + ') (WARNING): Field "segments" has a length of zero.');
+            console.warn('Connection (' + this.name + ') (WARNING): Field "segments" has a length of zero.');
         }
 
         this.segments.forEach((value, index) => {
