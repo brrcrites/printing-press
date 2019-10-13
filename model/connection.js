@@ -166,8 +166,8 @@ class Connection extends ParchKey {
      */
     print(paperScope) {
         if (this.segments) {
-            this.segments.forEach(value => {
-                value.print(paperScope);
+            this.segments.forEach(segment => {
+                segment.print(paperScope);
             });
         }
     }
