@@ -1,5 +1,6 @@
 const ParchmintParser = require('./parsing/parchmint-parser.js');
 const paper = require('paper');
+const Config = require('./utils/config.js');
 
 var pp; // Parchmint Parser
 var parchFile;
@@ -95,9 +96,22 @@ function fileInputHandler(ev) {
 }
 
 function parseButtonClickHandler() {
+    //Update the config if the user specified any values
+    let x = parseInt($('#input-device-x').val());
+    let y = parseInt($('#input-device-y').val());
+
+    console.log('device input (x, y): (' + x + ', ' + y + ')');
+    if (x) {
+        Config.svg_drawing.maxX = x;
+    }
+    if (y) {
+        Config.svg_drawing.maxY = y;
+    }
+
     // Read the file contents and then update the text through a callback
     readFileContents(parchFile, function(result) {
         parseParchmint(result);
+        console.log('device actual (x, y): (' + pp.architecture.xSpan + ', ' + pp.architecture.ySpan + ')');
     });
 }
 
@@ -118,7 +132,7 @@ function parseParchmint(result) {
         console.log('Success! The Parchmint file is valid.');
 
         pp.architecture.layers.forEach(value => {
-            $('#svg_image').append('<img src="data:image/svg+xml;utf8,'
+            $('#svg_image').append(value.name + ':<br><img src="data:image/svg+xml;utf8,'
                     + encodeURIComponent(value.print(pp.architecture.xSpan, pp.architecture.ySpan)) + '" alt="svg' +
                     ' image">');
         });

@@ -863,20 +863,36 @@ describe('max span values', () => {
         expect(pp.architecture.ySpan).toBe(3500);
     });
 
-    test('With Config values', () => {
-        let pp = new ParchmintParser();
+    describe('With Config values', () => {
+        test('less than architecture', () => {
+            let pp = new ParchmintParser();
 
-        Config.svg_drawing.maxX = 500;
-        Config.svg_drawing.maxY = 450;
+            Config.svg_drawing.maxX = 500;
+            Config.svg_drawing.maxY = 450;
 
-        pp.parse(readme_parchmint);
+            pp.parse(readme_parchmint);
 
-        expect(pp.maxX).toBe(5000);
-        expect(pp.maxY).toBe(3500);
+            expect(pp.maxX).toBe(5000);
+            expect(pp.maxY).toBe(3500);
 
-        // Architecture spans checked here again, but should be different because we've set the Config values
-        expect(pp.architecture.xSpan).toBe(500);
-        expect(pp.architecture.ySpan).toBe(450);
+            expect(pp.architecture.xSpan).toBe(5000);
+            expect(pp.architecture.ySpan).toBe(3500);
+        });
+
+        test('greater than arctitecture', () => {
+            let pp = new ParchmintParser();
+
+            Config.svg_drawing.maxX = 10000;
+            Config.svg_drawing.maxY = 10050;
+
+            pp.parse(readme_parchmint);
+
+            expect(pp.maxX).toBe(5000);
+            expect(pp.maxY).toBe(3500);
+
+            expect(pp.architecture.xSpan).toBe(10000);
+            expect(pp.architecture.ySpan).toBe(10050);
+        });
     });
 });
 

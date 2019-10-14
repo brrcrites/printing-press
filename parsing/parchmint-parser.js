@@ -236,8 +236,8 @@ class ParchmintParser {
         this.parseLayers(obj);
 
         // Determine whether we should use the Config or Parser's max values
-        xSpan = Config.svg_drawing.maxX === Validation.DEFAULT_SPAN_VALUE ? this.maxX : Config.svg_drawing.maxX;
-        ySpan = Config.svg_drawing.maxY === Validation.DEFAULT_SPAN_VALUE ? this.maxY : Config.svg_drawing.maxY;
+        xSpan = Config.svg_drawing.maxX < this.maxX ? this.maxX : Config.svg_drawing.maxX;
+        ySpan = Config.svg_drawing.maxY < this.maxY ? this.maxY : Config.svg_drawing.maxY;
 
         // Until we are able to accept sizes from the Parchmint file itself, we will use the max values plus a little
         // extra.
