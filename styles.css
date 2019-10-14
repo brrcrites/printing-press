@@ -36,8 +36,13 @@
     display: inline-block;
 }
 
-#parse_button_container {
+.input_row {
+    display: flex;
     padding-top: 1%;
+}
+
+.input_col {
+    flex: 33%;
 }
 
 .output_row {
