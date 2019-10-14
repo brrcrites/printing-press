@@ -1,5 +1,6 @@
 const ParchKey = require('./parch-key.js');
 const Validation = require('../utils/validation.js');
+const Config = require('../utils/config.js');
 const paper = require('paper');
 
 class Layer extends ParchKey {
@@ -149,7 +150,16 @@ class Layer extends ParchKey {
      * @returns {string} A string representation of the SVG image generated.
      */
     print(xSpan, ySpan) {
+        let boundingBox;
+
+        // Initialize the canvas
         this.paperScope.setup(new paper.Size(xSpan, ySpan));
+
+        // Draw the bounding box of the device
+        boundingBox = this.paperScope.Path.Rectangle(new paper.Point(0, 0), new paper.Point(xSpan, ySpan));
+        boundingBox.strokeColor = Config.svg_drawing.color;
+
+        // Draw all the components and connections
         this.connections.forEach(conn => { conn.print(this.paperScope); });
         this.components.forEach(comp => {comp.print(this.paperScope); });
         return this.paperScope.project.exportSVG( { asString:true });
