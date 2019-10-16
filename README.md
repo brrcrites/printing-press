@@ -1,4 +1,4 @@
-# printing-press
+# Printing Press
 
 [![Build Status](https://travis-ci.com/brrcrites/printing-press.svg?branch=master)](https://travis-ci.com/brrcrites/printing-press)
 
