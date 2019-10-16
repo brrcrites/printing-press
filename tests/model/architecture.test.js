@@ -11,6 +11,7 @@ const Validation = require('../../utils/validation.js');
 
 // Suppress console logs
 console.log = jest.fn();
+console.warn = jest.fn();
 
 
 var port0_0 = new Port('port-0_0-label', new Coord(0, 0));

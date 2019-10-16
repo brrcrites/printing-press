@@ -208,7 +208,7 @@ class Component extends ParchKey {
         let valid = true;
 
         if (!this.feature) {
-            console.log('Component (WARNING): Field "feature" has not been set.');
+            console.warn('Component (' + this.name + ') (WARNING): Field "feature" has not been set.');
             return true;
         }
 
@@ -233,6 +233,20 @@ class Component extends ParchKey {
         }
 
         return valid;
+    }
+
+    /**
+     * Draw this Component's Feature on the specified PaperScope.
+     *
+     * @param {PaperScope}  paperScope  The PaperScope object on which to draw the
+     *                                  Component's Feature.
+     * @since 1.0.0
+     */
+    print(paperScope) {
+        // No need to draw if there's no feature
+        if (this.feature) {
+            this.feature.print(paperScope);
+        }
     }
 
 }

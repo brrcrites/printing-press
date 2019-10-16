@@ -2,9 +2,11 @@ const ParchmintParser = require('../../parsing/parchmint-parser.js');
 const Coord = require('../../model/coord.js');
 const Terminal = require('../../model/terminal.js');
 const Validation = require('../../utils/validation.js');
+const Config = require('../../utils/config.js');
 
 // Suppress console logs
 console.log = jest.fn();
+console.warn = jest.fn();
 
 const flowLayerID = 'unique-flow-layer-id-string';
 const controlLayerID = 'unique-control-layer-id-string';
@@ -827,6 +829,69 @@ describe('terminals', () => {
             expect(pp.valid).toBe(false);
             expect(term.component).toBeFalsy();
             expect(term.port).toBeFalsy();
+        });
+    });
+});
+
+describe('max span values', () => {
+    test('component features', () => {
+        let pp = new ParchmintParser();
+        pp.parseComponentFeatures(parseJSONObj(validParchmintMultipleComponentFeaturesDiffComp));
+
+        expect(pp.maxX).toBe(6100);
+        expect(pp.maxY).toBe(5500);
+    });
+
+    test('connection features', () => {
+        let pp = new ParchmintParser();
+        pp.parseConnectionFeatures(parseJSONObj(validParchmintMultipleConnectionFeaturesOneConnection));
+
+        expect(pp.maxX).toBe(500);
+        expect(pp.maxY).toBe(3750);
+    });
+
+    test('complete Parchmint', () => {
+        let pp = new ParchmintParser();
+        pp.parse(readme_parchmint);
+
+        expect(pp.maxX).toBe(5000);
+        expect(pp.maxY).toBe(3500);
+
+        // The Architecture spans are only checked here because the parse function sets the values. Other tests do not
+        // call parse(), therefore they are not checked.
+        expect(pp.architecture.xSpan).toBe(5000);
+        expect(pp.architecture.ySpan).toBe(3500);
+    });
+
+    describe('With Config values', () => {
+        test('less than architecture', () => {
+            let pp = new ParchmintParser();
+
+            Config.svg_drawing.maxX = 500;
+            Config.svg_drawing.maxY = 450;
+
+            pp.parse(readme_parchmint);
+
+            expect(pp.maxX).toBe(5000);
+            expect(pp.maxY).toBe(3500);
+
+            expect(pp.architecture.xSpan).toBe(5000);
+            expect(pp.architecture.ySpan).toBe(3500);
+        });
+
+        test('greater than arctitecture', () => {
+            let pp = new ParchmintParser();
+
+            Config.svg_drawing.maxX = 10000;
+            Config.svg_drawing.maxY = 10050;
+
+            pp.parse(readme_parchmint);
+
+            expect(pp.maxX).toBe(5000);
+            expect(pp.maxY).toBe(3500);
+
+            expect(pp.architecture.xSpan).toBe(10000);
+            expect(pp.architecture.ySpan).toBe(10050);
         });
     });
 });

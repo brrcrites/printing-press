@@ -1,0 +1,182 @@
+{
+    "components": [
+        {
+            "entity": "Input",
+            "id": "input-id-1",
+            "layers": [
+                "flow-id"
+            ],
+            "name": "input-comp-1",
+            "ports": [
+                {
+                    "label": "port0",
+                    "layer": "flow-id",
+                    "x": 5,
+                    "y": 0
+                },
+                {
+                    "label": "port1",
+                    "layer": "flow-id",
+                    "x": 0,
+                    "y": 5
+                }
+            ],
+            "x-span": 10,
+            "y-span": 10
+        },
+        {
+            "entity": "Output",
+            "id": "output-id-1",
+            "layers": [
+                "flow-id"
+            ],
+            "name": "output-comp-1",
+            "ports": [
+                {
+                    "label": "port0",
+                    "layer": "flow-id",
+                    "x": 6,
+                    "y": 0
+                },
+                {
+                    "label": "port1",
+                    "layer": "flow-id",
+                    "x": 0,
+                    "y": 6
+                }
+            ],
+            "x-span": 12,
+            "y-span": 12
+        },
+        {
+            "entity": "Mixer",
+            "id": "mixer-id-1",
+            "layers": [
+                "flow-id",
+                "control-id"
+            ],
+            "name": "mixer-comp-1",
+            "ports": [
+                {
+                    "label": "port0",
+                    "layer": "flow-id",
+                    "x": 7,
+                    "y": 0
+                },
+                {
+                    "label": "port1",
+                    "layer": "flow-id",
+                    "x": 0,
+                    "y": 7
+                },
+                {
+                    "label": "port0-control",
+                    "layer": "control-id",
+                    "x": 7,
+                    "y": 0
+                }
+            ],
+            "x-span": 14,
+            "y-span": 14
+        },
+        {
+            "entity": "Mixer",
+            "id": "mixer-id-2",
+            "layers": [
+                "flow-id",
+                "control-id"
+            ],
+            "name": "mixer-comp-2",
+            "ports": [
+                {
+                    "label": "port0",
+                    "layer": "flow-id",
+                    "x": 8,
+                    "y": 0
+                },
+                {
+                    "label": "port0-control",
+                    "layer": "control-id",
+                    "x": 8,
+                    "y": 0
+                }
+            ],
+            "x-span": 16,
+            "y-span": 16
+        }
+    ],
+    "connections": [
+        {
+            "id": "cid-1",
+            "layer": "flow-id",
+            "name": "input-comp-1_mixer-comp-1",
+            "sinks": [
+                {
+                    "component": "mixer-id-1",
+                    "port": "port0"
+                }
+            ],
+            "source": {
+                "component": "input-id-1",
+                "port": "port0"
+            }
+        },
+        {
+            "id": "cid-2",
+            "layer": "flow-id",
+            "name": "mixer-comp-1_output-comp-1",
+            "sinks": [
+                {
+                    "component": "output-id-1",
+                    "port": "port0"
+                }
+            ],
+            "source": {
+                "component": "mixer-id-1",
+                "port": "port1"
+            }
+        },
+        {
+            "id": "cid-3",
+            "layer": "flow-id",
+            "name": "input-comp-1_output-comp-1",
+            "sinks": [
+                {
+                    "component": "output-id-1",
+                    "port": "port1"
+                }
+            ],
+            "source": {
+                "component": "input-id-1",
+                "port": "port1"
+            }
+        },
+        {
+            "id": "cid-4",
+            "layer": "control-id",
+            "name": "mixer-comp-2_mixer-comp-1",
+            "sinks": [
+                {
+                    "component": "mixer-id-1",
+                    "port": "port0-control"
+                }
+            ],
+            "source": {
+                "component": "mixer-id-2",
+                "port": "port0-control"
+            }
+        }
+    ],
+    "layers": [
+        {
+            "id": "flow-id",
+            "name": "flow"
+        },
+        {
+            "id": "control-id",
+            "name": "control"
+        }
+
+    ],
+    "name": "Planar_Synthetic_Multilayer"
+}

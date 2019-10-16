@@ -1,5 +1,7 @@
 const ParchKey = require('./parch-key.js');
 const Validation = require('../utils/validation.js');
+const Config = require('../utils/config.js');
+const paper = require('paper');
 
 class ConnectionSegment extends ParchKey {
     /**
@@ -159,6 +161,23 @@ class ConnectionSegment extends ParchKey {
         return valid;
     }
 
+    /**
+     * Draw the Connection Segment on the specified PaperScope's project.
+     *
+     * @param {PaperScope}  paperScope  The PaperScope object on which to draw
+     *                                  the Connection Segment.
+     * @returns {paper.Path.Line}   The channel segment that was just drawn
+     *                              represented by a Path object.
+     */
+    print(paperScope) {
+        let segment = new paperScope.Path.Line(new paper.Point(this.sourcePoint.x, this.sourcePoint.y),
+                new paper.Point(this.sinkPoint.x, this.sinkPoint.y));
+        segment.strokeColor = Config.svg_drawing.color;
+        segment.strokeWidth = this.width;
+        segment.name = this.name;
+
+        return segment;
+    }
 
 }
 

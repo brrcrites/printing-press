@@ -36,16 +36,13 @@
     display: inline-block;
 }
 
-#parse_button_container {
+.input_row {
+    display: flex;
     padding-top: 1%;
 }
 
-#console_container {
-    border: 5px solid gray;
-}
-
-#svg_image {
-    border: 5px solid gray;
+.input_col {
+    flex: 33%;
 }
 
 .output_row {
@@ -57,6 +54,7 @@
     flex: 50%;
     height: 45vh;
     overflow: scroll;
+    border: 5px solid gray;
 }
 
 p.console_title {

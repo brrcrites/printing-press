@@ -1,5 +1,7 @@
 const ParchKey = require('./parch-key.js');
 const Validation = require('../utils/validation.js');
+const Config = require('../utils/config.js');
+const paper = require('paper');
 
 class Layer extends ParchKey {
 
@@ -25,6 +27,20 @@ class Layer extends ParchKey {
      */
     connections;
 
+    /**
+     * The PaperScope object which will contain the project that holds all SVG
+     * components for this Layer.
+     *
+     * @see {@link http://paperjs.org/reference/paperscope/|PaperScope}
+     *
+     * @since 1.0.0
+     * @access public
+     *
+     * @type {PaperScope}
+     */
+    paperScope;
+
+
 
     /**
      * @class
@@ -45,6 +61,7 @@ class Layer extends ParchKey {
 
         this.components = components;
         this.connections = connections;
+        this.paperScope = new paper.PaperScope();
     }
 
     /**
@@ -113,6 +130,39 @@ class Layer extends ParchKey {
         });
 
         return valid;
+    }
+
+    /**
+     * Call print on each Component and Connection in this Layer thereby
+     * generating the SVG.
+     *
+     * Calling this function sets up a new project, guaranteeing that we won't
+     * have any artifacts from a previous print.
+     *
+     * @param {number}  xSpan   The xSpan of the canvas.
+     * @param {number}  ySpan   The ySpan of the canvas.
+     *
+     * @since 1.0.0
+     *
+     * @see Component.print
+     * @see Connection.print
+     *
+     * @returns {string} A string representation of the SVG image generated.
+     */
+    print(xSpan, ySpan) {
+        let boundingBox;
+
+        // Initialize the canvas
+        this.paperScope.setup(new paper.Size(xSpan, ySpan));
+
+        // Draw the bounding box of the device
+        boundingBox = this.paperScope.Path.Rectangle(new paper.Point(0, 0), new paper.Point(xSpan, ySpan));
+        boundingBox.strokeColor = Config.svg_drawing.color;
+
+        // Draw all the components and connections
+        this.connections.forEach(conn => { conn.print(this.paperScope); });
+        this.components.forEach(comp => {comp.print(this.paperScope); });
+        return this.paperScope.project.exportSVG( { asString:true });
     }
 }
 

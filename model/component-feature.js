@@ -1,5 +1,7 @@
 const Coord = require('./coord.js');
 const Validation = require('../utils/validation.js');
+const Config = require('../utils/config.js');
+const paper = require('paper');
 
 
 class ComponentFeature {
@@ -109,6 +111,27 @@ class ComponentFeature {
         valid = Validation.testDepthValue(this.depth, 'depth', 'Component Feature') ? valid : false;
 
         return valid;
+    }
+
+    /**
+     * Draw this Component Feature on the specified PaperScope.
+     *
+     * @param {PaperScope}  paperScope  The PaperScope object on which to draw
+     *                                  the Component Feature.
+     * @returns {paper.Path.Rectangle}  The bounding box that was just drawn represented as a
+     *                                  Path object.
+     */
+    print(paperScope) {
+        // First we need to create an "abstract" Rectangle object that will define our bounding box
+        let rect = new paper.Rectangle(0, 0, this.xSpan, this.ySpan);
+        rect.topLeft = new paper.Point(this.location.x, this.location.y);
+        // Next we have to draw the rectangle on the PaperScope project
+        let boundingBox = new paperScope.Path.Rectangle(rect);
+        boundingBox.fillColor = Config.svg_drawing.color;
+        // Finally let's name the Component Feature so it is easy to access
+        boundingBox.name = this.name;
+
+        return boundingBox;
     }
 }
 

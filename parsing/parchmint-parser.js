@@ -8,10 +8,12 @@ const Coord = require('../model/coord.js');
 const Port = require('../model/port.js');
 const Terminal = require('../model/terminal.js');
 
+const Config = require('../utils/config.js');
+const Validation = require('../utils/validation.js');
+
 const Ajv = require('ajv');
 const schema = require('./schema.json');
 var ajv = new Ajv({allErrors: true});
-
 
 class ParchmintParser {
 
@@ -126,6 +128,33 @@ class ParchmintParser {
      */
     connFeatures;
 
+    /**
+     * The max x-span of a placed or routed component or channel.
+     *
+     * This value is set, during parsing, to the max x value of a component or
+     * channel. It is only utilized if nothing has been set in the Config
+     * object.
+     *
+     * @since 1.0.0
+     * @access public
+     *
+     * @type {number}
+     */
+    maxX;
+
+    /**
+     * The max y-span of a placed or routed component or channel.
+     *
+     * This value is set, during parsing, to the max y value of a component or
+     * channel. It is only utilized if nothing has been set in the Config
+     * object.
+     *
+     * @since 1.0.0
+     * @access public
+     *
+     * @type {number}
+     */
+    maxY;
 
     /**
      * Construct the ParchmintParser object.
@@ -146,6 +175,9 @@ class ParchmintParser {
         this.connFeatures = new Map();
 
         this.schemaValidator = ajv.compile(schema);
+
+        this.maxX = 0;
+        this.maxY = 0;
     }
 
     /**
@@ -166,6 +198,7 @@ class ParchmintParser {
      */
     parse(parchmint) {
         let obj;
+        let xSpan, ySpan;
 
         if (typeof parchmint === 'string') {
             obj = JSON.parse(parchmint);
@@ -202,7 +235,13 @@ class ParchmintParser {
         // We are guaranteed to always have a "layers" key
         this.parseLayers(obj);
 
-        this.architecture = new Architecture(obj['name'], this.layers);
+        // Determine whether we should use the Config or Parser's max values
+        xSpan = Config.svg_drawing.maxX < this.maxX ? this.maxX : Config.svg_drawing.maxX;
+        ySpan = Config.svg_drawing.maxY < this.maxY ? this.maxY : Config.svg_drawing.maxY;
+
+        // Until we are able to accept sizes from the Parchmint file itself, we will use the max values plus a little
+        // extra.
+        this.architecture = new Architecture(obj['name'], this.layers, xSpan, ySpan);
         this.valid = this.architecture.validate() ? this.valid : false;
 
         return this.architecture;
@@ -364,7 +403,7 @@ class ParchmintParser {
     getParsedConnection(connObj) {
         return new Connection(connObj['name'], connObj['id'], this.getParsedTerminal(connObj['source'],
                 connObj['layer']), this.getParsedTerminals(connObj['sinks'], connObj['layer']),
-                this.connFeatures.get(connObj['layer']));
+                this.connFeatures.get(connObj['id']));
     }
 
     /**
@@ -391,6 +430,14 @@ class ParchmintParser {
                            + '" at index ' + index + '.');
                 } else {
                     this.compFeatures.set(key, ParchmintParser.getParsedComponentFeature(value));
+                }
+
+                if (this.maxX < value['location'].x + value['x-span']) {
+                    this.maxX = value['location'].x + value['x-span'];
+                }
+
+                if (this.maxY < value['location'].y + value['y-span']) {
+                    this.maxY = value['location'].y + value['y-span'];
                 }
             }
         });
@@ -439,6 +486,22 @@ class ParchmintParser {
                     this.valid = false;
                     console.log('Parser: Duplicate IDs (' + value['id'] + ') exist for the Connection Features list.' +
                             ' Skipping Connection Feature with name "' + value['name'] + '" at index ' + index + '.');
+                }
+
+                if (this.maxX < value['source'].x) {
+                    this.maxX = value['source'].x;
+                }
+
+                if (this.maxX < value['sink'].x) {
+                    this.maxX = value['sink'].x;
+                }
+
+                if (this.maxY < value['source'].y) {
+                    this.maxY = value['source'].y;
+                }
+
+                if (this.maxY < value['sink'].y) {
+                    this.maxY = value['sink'].y;
                 }
             }
         });
