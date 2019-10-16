@@ -19,8 +19,11 @@
     "fetchers": "^0.2.1",
     "install": "^0.13.0",
     "jest": "^24.8.0",
+    "jest-canvas-mock": "^2.1.2",
     "jsdoc": "^3.6.3",
-    "npm": "^6.10.2"
+    "jsdom": "^15.1.1",
+    "npm": "^6.10.2",
+    "paper": "^0.12.3"
   },
   "scripts": {
     "test": "jest",
@@ -34,6 +37,11 @@
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/brrcrites/printing-press/issues"
+  },
+  "jest": {
+    "setupFiles": [
+      "jest-canvas-mock"
+    ]
   },
   "homepage": "https://github.com/brrcrites/printing-press#readme"
 }

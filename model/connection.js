@@ -144,7 +144,7 @@ class Connection extends ParchKey {
         let valid = true;
 
         if (this.segments.length === 0) {
-            console.log('Connection (WARNING): Field "segments" has a length of zero.');
+            console.warn('Connection (' + this.name + ') (WARNING): Field "segments" has a length of zero.');
         }
 
         this.segments.forEach((value, index) => {
@@ -156,6 +156,20 @@ class Connection extends ParchKey {
         });
 
         return valid;
+    }
+
+    /**
+     * Draw this Connection on the PaperScope's project.
+     *
+     * @param {PaperScope}  paperScope  The PaperScope to contain this
+     *                                  connection.
+     */
+    print(paperScope) {
+        if (this.segments) {
+            this.segments.forEach(segment => {
+                segment.print(paperScope);
+            });
+        }
     }
 }
 

@@ -6,6 +6,7 @@ const ComponentFeature = require('../../model/component-feature.js');
 
 // Suppress console logs
 console.log = jest.fn();
+console.warn = jest.fn();
 
 var validPort1 = new Port('port-1', new Coord(0, 0));
 var validPort2 = new Port('port-2', new Coord(0, 5));
