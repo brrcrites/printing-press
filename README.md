@@ -44,3 +44,18 @@ validates each object in the data model by recursive composition.
 If no errors have been encountered thus far, then the Architecture is sent to
 be drawn.
     
+## Drawing
+printing-press uses [Paper.js](http://paperjs.org) to generate the SVG images for
+a given Parchmint file. Each `layer` has one image associated with it.
+printing-press passes a `PaperScope` object down through the data model, one for
+each `layer`.
+
+printing-press draws `component`s as bounding boxes of width `xSpan` and height
+`ySpan` at `location`. It draws `connection`s (currently) as individual lines,
+one for each channel segment, starting at `source` and ending at `sink`. This
+will be updated to draw a `connection` as one line to avoid issues while milling.
+
+A user can enter the device height and width, or leave the fields blank to
+allow printing-press to determine the dimensions. printing-press uses the
+determined dimensions if the user enters a height or width smaller than the
+greatest x/y coordinate of a `component`/`connection`.
