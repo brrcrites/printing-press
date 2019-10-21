@@ -5,7 +5,7 @@
 A web based tool to create Architecture SVGs from the
 [Parchmint](https://github.com/CIDARLAB/Parchmint) standard.
 
-## Control Flow
+## System Flow
 Printing Press works in two parts: parsing and drawing. When a Parchmint file
 is uploaded to the website, it is first parsed and converted to an
 `Architecture` object. Printing press then draws the Architecture and displays
