@@ -100,7 +100,6 @@ function parseButtonClickHandler() {
     let x = parseInt($('#input-device-x').val());
     let y = parseInt($('#input-device-y').val());
 
-    console.log('device input (x, y): (' + x + ', ' + y + ')');
     if (x) {
         Config.svg_drawing.maxX = x;
     }
@@ -111,7 +110,6 @@ function parseButtonClickHandler() {
     // Read the file contents and then update the text through a callback
     readFileContents(parchFile, function(result) {
         parseParchmint(result);
-        console.log('device actual (x, y): (' + pp.architecture.xSpan + ', ' + pp.architecture.ySpan + ')');
     });
 }
 
