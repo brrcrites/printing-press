@@ -142,4 +142,4 @@ component_svg = paperScope.project.export( { asString:true } );
 ```
 
 ## UML Diagram
-![Printing Press UML](https://github.com/brrcrites/printing-press/blob/MichaelJBradley/update-readme/images/pp-uml.png?raw=true)
+![Printing Press UML](https://raw.githubusercontent.com/brrcrites/printing-press/master/images/pp-uml.png?raw=true)
